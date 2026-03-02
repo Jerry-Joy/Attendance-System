@@ -104,11 +104,12 @@ export const mockSessionSummary: SessionSummary = {
 }
 
 export const weeklyData: WeeklyData[] = [
-  { day: 'Mon', rate: 82 },
-  { day: 'Tue', rate: 78 },
-  { day: 'Wed', rate: 91 },
-  { day: 'Thu', rate: 85 },
-  { day: 'Fri', rate: 88 },
+  { day: 'Mon', rate: 72 },
+  { day: 'Tue', rate: 68 },
+  { day: 'Wed', rate: 74 },
+  { day: 'Thu', rate: 78 },
+  { day: 'Fri', rate: 82 },
+  { day: 'Sat', rate: 88 },
 ]
 
 export const courseReports: CourseReport[] = [
