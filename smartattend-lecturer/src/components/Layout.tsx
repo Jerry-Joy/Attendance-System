@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import {
-  BookOpen,
+  LayoutDashboard,
   BarChart3,
   User,
   LogOut,
@@ -16,7 +16,7 @@ import { useAuth } from '../context/AuthContext'
 import { mockLecturer } from '../data/mockData'
 
 const navItems = [
-  { to: '/courses', icon: BookOpen, label: 'Courses' },
+  { to: '/courses', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/session-history', icon: History, label: 'Session History' },
   { to: '/reports', icon: BarChart3, label: 'Reports' },
   { to: '/profile', icon: User, label: 'Profile' },

@@ -9,7 +9,6 @@ import {
   MapPin,
   QrCode,
   Shield,
-  ArrowLeft,
   Download,
   LayoutDashboard,
   TrendingUp,
@@ -97,19 +96,11 @@ export default function SessionSummary() {
     <div className="p-5 lg:p-8 max-w-5xl mx-auto animate-slide-up">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate('/courses')}
-            className="p-2 -ml-2 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800">Session Summary</h1>
-            <p className="text-sm text-slate-500 mt-0.5">
-              {summary.courseCode} &middot; {summary.courseName} &middot; {summary.date}
-            </p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">Session Summary</h1>
+          <p className="text-sm text-slate-500 mt-0.5">
+            {summary.courseCode} &middot; {summary.courseName} &middot; {summary.date}
+          </p>
         </div>
         <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-full">
           <CheckCircle className="w-4 h-4 text-emerald-500" />
