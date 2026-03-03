@@ -169,8 +169,8 @@ export default function Reports() {
                     key={key}
                     onClick={() => setChartPeriod(key)}
                     className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all ${chartPeriod === key
-                        ? 'bg-white text-slate-800 shadow-sm'
-                        : 'text-slate-500 hover:text-slate-700'
+                      ? 'bg-white text-slate-800 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-700'
                       }`}
                   >
                     {label}

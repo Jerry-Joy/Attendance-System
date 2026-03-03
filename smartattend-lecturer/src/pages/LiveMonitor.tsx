@@ -169,8 +169,8 @@ export default function LiveMonitor() {
               key={f.key}
               onClick={() => setFilter(f.key)}
               className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all ${filter === f.key
-                  ? 'bg-brand-500 text-white border-brand-500'
-                  : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                ? 'bg-brand-500 text-white border-brand-500'
+                : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
                 }`}
             >
               {f.label}
@@ -253,8 +253,8 @@ export default function LiveMonitor() {
                     <tr
                       key={student.id}
                       className={`border-b border-slate-50 transition-all duration-500 ${isNew
-                          ? 'bg-brand-50/60'
-                          : 'hover:bg-slate-50/50'
+                        ? 'bg-brand-50/60'
+                        : 'hover:bg-slate-50/50'
                         }`}
                     >
                       {/* Row number */}
@@ -268,8 +268,8 @@ export default function LiveMonitor() {
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-3">
                           <div className={`w-9 h-9 rounded-full flex items-center justify-center font-semibold text-xs shrink-0 transition-colors duration-500 ${isNew
-                              ? 'bg-brand-500 text-white'
-                              : 'bg-brand-50 text-brand-600'
+                            ? 'bg-brand-500 text-white'
+                            : 'bg-brand-50 text-brand-600'
                             }`}>
                             {student.avatarInitials}
                           </div>

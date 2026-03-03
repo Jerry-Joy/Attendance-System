@@ -71,8 +71,8 @@ export default function ManageStudents() {
           <button
             onClick={() => setCodeEnabled(!codeEnabled)}
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-colors ${codeEnabled
-                ? 'bg-red-50 hover:bg-red-100 text-red-600'
-                : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600'
+              ? 'bg-red-50 hover:bg-red-100 text-red-600'
+              : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600'
               }`}
           >
             {codeEnabled ? <Ban className="w-4 h-4" /> : <Check className="w-4 h-4" />}
@@ -129,8 +129,8 @@ export default function ManageStudents() {
                     </td>
                     <td className="px-5 py-3.5 text-center">
                       <span className={`inline-block text-sm font-semibold ${student.attendanceRate >= 85 ? 'text-emerald-600'
-                          : student.attendanceRate >= 70 ? 'text-amber-600'
-                            : 'text-red-600'
+                        : student.attendanceRate >= 70 ? 'text-amber-600'
+                          : 'text-red-600'
                         }`}>
                         {student.attendanceRate}%
                       </span>
