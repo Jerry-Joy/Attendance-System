@@ -206,7 +206,7 @@ export default function StartSession() {
               onChange={(e) => setGeofenceRadius(Number(e.target.value))}
               className="w-full h-2 rounded-full appearance-none cursor-pointer outline-none"
               style={{
-                background: `linear-gradient(to right, #059669 0%, #059669 ${sliderPercent}%, #e2e8f0 ${sliderPercent}%, #e2e8f0 100%)`,
+                background: `linear-gradient(to right, #4F46E5 0%, #4F46E5 ${sliderPercent}%, #e2e8f0 ${sliderPercent}%, #e2e8f0 100%)`,
               }}
             />
             <div className="flex justify-between mt-1.5">

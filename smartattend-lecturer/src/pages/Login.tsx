@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Lock, User, MapPin, QrCode, Shield, Eye, EyeOff, AlertCircle, Fingerprint } from 'lucide-react'
+import { Lock, User, MapPin, QrCode, GraduationCap, Eye, EyeOff, AlertCircle, Fingerprint, ShieldCheck, ScanFace } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 export default function Login() {
@@ -39,9 +39,9 @@ export default function Login() {
   }
 
   const features = [
-    { icon: MapPin, label: 'Geofencing Secured' },
+    { icon: ShieldCheck, label: 'Geofencing Secured' },
     { icon: QrCode, label: 'Dynamic QR Rotation' },
-    { icon: Fingerprint, label: 'Liveness Detection' },
+    { icon: ScanFace, label: 'Liveness Detection' },
   ]
 
   return (
@@ -49,8 +49,8 @@ export default function Login() {
       {/* Top navbar */}
       <nav className="flex items-center justify-between px-6 lg:px-10 py-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-brand-500 flex items-center justify-center">
-            <QrCode className="w-5 h-5 text-white" />
+          <div className="w-9 h-9 rounded-xl bg-brand-500 flex items-center justify-center shadow-lg shadow-brand-200">
+            <GraduationCap className="w-5 h-5 text-white" />
           </div>
           <span className="font-bold text-slate-800 text-lg tracking-tight">SmartAttendance</span>
         </div>
@@ -69,8 +69,8 @@ export default function Login() {
         <div className="w-full max-w-[440px]">
           {/* Logo / crest */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-brand-500 flex items-center justify-center mb-5 shadow-lg shadow-brand-500/20">
-              <Shield className="w-8 h-8 text-white" />
+            <div className="w-16 h-16 rounded-2xl bg-brand-50 flex items-center justify-center mb-5 shadow-lg shadow-brand-200/50">
+              <GraduationCap className="w-8 h-8 text-brand-500" />
             </div>
             <h1 className="text-[26px] font-bold text-slate-800 tracking-tight">Lecturer Portal</h1>
             <p className="text-slate-500 text-sm mt-1">Sign in to manage your attendance sessions</p>
@@ -87,7 +87,7 @@ export default function Login() {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Lecturer ID</label>
+                <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Lecturer ID</label>
                 <div className="relative">
                   <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" />
                   <input
@@ -95,7 +95,7 @@ export default function Login() {
                     value={lecturerId}
                     onChange={(e) => { setLecturerId(e.target.value); setFieldErrors((p) => ({ ...p, id: undefined })); setError('') }}
                     placeholder="Enter your lecturer ID"
-                    className={`w-full pl-11 pr-4 py-3 bg-slate-50 border rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all ${fieldErrors.id ? 'border-red-300 bg-red-50/50' : 'border-slate-200'
+                    className={`w-full pl-11 pr-4 py-3 bg-slate-50 border rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all ${fieldErrors.id ? 'border-red-300 bg-red-50/50' : 'border-slate-200'
                       }`}
                   />
                 </div>
@@ -103,7 +103,7 @@ export default function Login() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+                <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Password</label>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" />
                   <input
@@ -111,7 +111,7 @@ export default function Login() {
                     value={password}
                     onChange={(e) => { setPassword(e.target.value); setFieldErrors((p) => ({ ...p, password: undefined })); setError('') }}
                     placeholder="Enter your password"
-                    className={`w-full pl-11 pr-11 py-3 bg-slate-50 border rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all ${fieldErrors.password ? 'border-red-300 bg-red-50/50' : 'border-slate-200'
+                    className={`w-full pl-11 pr-11 py-3 bg-slate-50 border rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-brand-500/10 focus:border-brand-500 transition-all ${fieldErrors.password ? 'border-red-300 bg-red-50/50' : 'border-slate-200'
                       }`}
                   />
                   <button
@@ -158,9 +158,11 @@ export default function Login() {
           {/* Feature badges */}
           <div className="flex items-center justify-center gap-5 mt-8 flex-wrap">
             {features.map((f, i) => (
-              <div key={i} className="flex items-center gap-2 text-slate-400">
-                <f.icon className="w-4 h-4 text-brand-400" />
-                <span className="text-xs font-medium">{f.label}</span>
+              <div key={i} className="flex flex-col items-center gap-2 text-center">
+                <div className="h-10 w-10 bg-white rounded-full shadow-sm flex items-center justify-center text-brand-500">
+                  <f.icon className="w-5 h-5" />
+                </div>
+                <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide max-w-[80px]">{f.label}</span>
               </div>
             ))}
           </div>

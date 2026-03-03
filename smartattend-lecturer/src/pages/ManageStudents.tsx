@@ -42,9 +42,9 @@ export default function ManageStudents() {
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-medium text-slate-500">Course Join Code</h3>
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full ${codeEnabled ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full ${codeEnabled ? 'bg-brand-50 text-brand-600' : 'bg-slate-100 text-slate-500'
             }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${codeEnabled ? 'bg-emerald-500' : 'bg-slate-400'}`} />
+            <span className={`w-1.5 h-1.5 rounded-full ${codeEnabled ? 'bg-brand-500' : 'bg-slate-400'}`} />
             {codeEnabled ? 'Active' : 'Disabled'}
           </span>
         </div>

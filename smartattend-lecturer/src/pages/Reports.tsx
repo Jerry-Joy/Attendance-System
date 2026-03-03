@@ -137,8 +137,8 @@ export default function Reports() {
             </p>
             <p className="text-4xl font-extrabold text-slate-800">{totalSessions}</p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center">
-            <CalendarCheck2 className="w-6 h-6 text-emerald-500" />
+          <div className="w-12 h-12 rounded-2xl bg-brand-50 flex items-center justify-center">
+            <CalendarCheck2 className="w-6 h-6 text-brand-500" />
           </div>
         </div>
 
@@ -185,8 +185,8 @@ export default function Reports() {
             <svg viewBox={`0 0 ${chartW} ${chartH + 30}`} className="w-full h-auto">
               <defs>
                 <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity="0.35" />
-                  <stop offset="100%" stopColor="#10b981" stopOpacity="0.02" />
+                  <stop offset="0%" stopColor="#818CF8" stopOpacity="0.35" />
+                  <stop offset="100%" stopColor="#818CF8" stopOpacity="0.02" />
                 </linearGradient>
               </defs>
 
@@ -210,7 +210,7 @@ export default function Reports() {
               <polyline
                 points={linePoints}
                 fill="none"
-                stroke="#10b981"
+                stroke="#4F46E5"
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -224,7 +224,7 @@ export default function Reports() {
                   cy={toY(v)}
                   r="4.5"
                   fill="white"
-                  stroke="#10b981"
+                  stroke="#4F46E5"
                   strokeWidth="2.5"
                 />
               ))}
@@ -314,7 +314,7 @@ export default function Reports() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <h4 className="text-sm font-bold text-slate-800">{report.code}</h4>
-                  <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase rounded-md tracking-wide">
+                  <span className="px-2 py-0.5 bg-brand-50 text-brand-600 text-[10px] font-bold uppercase rounded-md tracking-wide">
                     Active
                   </span>
                 </div>

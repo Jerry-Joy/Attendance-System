@@ -10,7 +10,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Settings,
-  QrCode,
+  GraduationCap,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { mockLecturer } from '../data/mockData'
@@ -43,7 +43,7 @@ export default function Layout() {
         />
       )}
 
-      {/* Sidebar — light theme with green accents */}
+      {/* Sidebar — light theme with indigo accents */}
       <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-50
@@ -65,8 +65,8 @@ export default function Layout() {
         <div className={`${collapsed ? 'px-3' : 'px-5'} py-5 border-b border-slate-100 transition-all duration-300`}>
           <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'}`}>
             <div className={`flex items-center ${collapsed ? '' : 'gap-3'}`}>
-              <div className="w-10 h-10 rounded-xl bg-brand-500 flex items-center justify-center shrink-0">
-                <QrCode className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 rounded-xl bg-brand-500 flex items-center justify-center shrink-0 shadow-lg shadow-brand-200">
+                <GraduationCap className="w-5 h-5 text-white" />
               </div>
               {!collapsed && (
                 <div className="overflow-hidden">
@@ -195,8 +195,8 @@ export default function Layout() {
             <Menu className="w-5 h-5" />
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-brand-500 flex items-center justify-center">
-              <QrCode className="w-4 h-4 text-white" />
+            <div className="w-7 h-7 rounded-lg bg-brand-500 flex items-center justify-center shadow-md shadow-brand-200">
+              <GraduationCap className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-slate-800 text-sm">SmartAttend</span>
           </div>
