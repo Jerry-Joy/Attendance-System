@@ -15,12 +15,13 @@ import {
   Loader2,
   FileSpreadsheet,
 } from 'lucide-react'
-import { mockPastSessions, mockCourses } from '../data/mockData'
+import { useData } from '../context/DataContext'
 
 const ROWS_PER_PAGE = 8
 
 export default function SessionHistory() {
   const navigate = useNavigate()
+  const { pastSessions, courses } = useData()
 
   const [searchQuery, setSearchQuery] = useState('')
   const [courseFilter, setCourseFilter] = useState('all')
@@ -29,16 +30,16 @@ export default function SessionHistory() {
 
   // Unique course codes for filter dropdown
   const courseOptions = useMemo(() => {
-    const codes = [...new Set(mockPastSessions.map((s) => s.courseCode))]
+    const codes = [...new Set(pastSessions.map((s) => s.courseCode))]
     return codes.map((code) => {
-      const session = mockPastSessions.find((s) => s.courseCode === code)
+      const session = pastSessions.find((s) => s.courseCode === code)
       return { code, name: session?.courseName || '' }
     })
-  }, [])
+  }, [pastSessions])
 
   // Filter + search
   const filtered = useMemo(() => {
-    return mockPastSessions.filter((session) => {
+    return pastSessions.filter((session) => {
       const matchesCourse = courseFilter === 'all' || session.courseCode === courseFilter
       const query = searchQuery.toLowerCase()
       const matchesSearch =
@@ -49,7 +50,7 @@ export default function SessionHistory() {
         session.venue.toLowerCase().includes(query)
       return matchesCourse && matchesSearch
     })
-  }, [searchQuery, courseFilter])
+  }, [searchQuery, courseFilter, pastSessions])
 
   // Pagination
   const totalPages = Math.max(1, Math.ceil(filtered.length / ROWS_PER_PAGE))
@@ -80,7 +81,7 @@ export default function SessionHistory() {
       : 0
   const totalPresent = filtered.reduce((acc, s) => acc + s.presentCount, 0)
 
-  const handleDownload = (session: (typeof mockPastSessions)[0]) => {
+  const handleDownload = (session: (typeof pastSessions)[0]) => {
     setDownloadingId(session.id)
 
     const csvRows = [
@@ -329,7 +330,7 @@ export default function SessionHistory() {
                       <td className="py-4 px-5">
                         <div className="flex items-center justify-end gap-2">
                           <button
-                            onClick={() => navigate('/session-summary')}
+                            onClick={() => navigate('/session-summary', { state: { session } })}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-brand-600 bg-brand-50 hover:bg-brand-100 transition-colors"
                           >
                             <Eye className="w-3.5 h-3.5" />
@@ -387,8 +388,8 @@ export default function SessionHistory() {
                   key={page}
                   onClick={() => setCurrentPage(page)}
                   className={`w-8 h-8 rounded-lg text-xs font-semibold transition-colors ${page === safeCurrentPage
-                      ? 'bg-brand-500 text-white shadow-sm'
-                      : 'text-slate-500 hover:bg-white hover:text-slate-700 border border-transparent hover:border-slate-200'
+                    ? 'bg-brand-500 text-white shadow-sm'
+                    : 'text-slate-500 hover:bg-white hover:text-slate-700 border border-transparent hover:border-slate-200'
                     }`}
                 >
                   {page}

@@ -82,4 +82,26 @@ export interface PastSession {
   presentCount: number
   absentCount: number
   venue: string
+  qrGpsVerified?: number
+  qrOnlyVerified?: number
+  geofenceRadius?: number
+  attendees?: AttendingStudent[]
+}
+
+export interface ActiveSession {
+  courseId: string
+  courseCode: string
+  courseName: string
+  radius: number
+  duration: string
+  latitude?: number
+  longitude?: number
+  startedAt: number          // Date.now() when session started
+  attendees: AttendingStudent[]
+}
+
+export interface LecturerPreferences {
+  qrAutoRefresh: boolean
+  gpsRequired: boolean
+  notifications: boolean
 }

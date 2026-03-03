@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   User,
@@ -15,17 +14,14 @@ import {
   Shield,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import { mockLecturer, mockCourses } from '../data/mockData'
+import { useData } from '../context/DataContext'
 
 export default function Profile() {
   const navigate = useNavigate()
-  const { logout } = useAuth()
+  const { logout, lecturer } = useAuth()
+  const { courses, pastSessions, preferences, updatePreferences } = useData()
 
-  const [qrAutoRefresh, setQrAutoRefresh] = useState(true)
-  const [gpsRequired, setGpsRequired] = useState(true)
-  const [notifications, setNotifications] = useState(true)
-
-  const totalStudents = mockCourses.reduce((a, c) => a + c.studentCount, 0)
+  const totalStudents = courses.reduce((a, c) => a + c.studentCount, 0)
 
   const handleLogout = () => {
     logout()
@@ -40,27 +36,27 @@ export default function Profile() {
       <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-2xl bg-brand-500 flex items-center justify-center text-white font-bold text-xl">
-            {mockLecturer.avatarInitials}
+            {lecturer?.avatarInitials ?? '??'}
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-800">{mockLecturer.name}</h2>
-            <p className="text-sm text-slate-500">{mockLecturer.title}</p>
-            <p className="text-sm text-slate-400">{mockLecturer.department}</p>
+            <h2 className="text-lg font-bold text-slate-800">{lecturer?.name}</h2>
+            <p className="text-sm text-slate-500">{lecturer?.title}</p>
+            <p className="text-sm text-slate-400">{lecturer?.department}</p>
           </div>
         </div>
 
         <div className="mt-5 pt-5 border-t border-slate-100 space-y-3">
           <div className="flex items-center gap-3 text-sm">
             <Mail className="w-4 h-4 text-slate-400" />
-            <span className="text-slate-600">{mockLecturer.email}</span>
+            <span className="text-slate-600">{lecturer?.email}</span>
           </div>
           <div className="flex items-center gap-3 text-sm">
             <Building2 className="w-4 h-4 text-slate-400" />
-            <span className="text-slate-600">{mockLecturer.department}</span>
+            <span className="text-slate-600">{lecturer?.department}</span>
           </div>
           <div className="flex items-center gap-3 text-sm">
             <User className="w-4 h-4 text-slate-400" />
-            <span className="text-slate-600">Lecturer ID: {mockLecturer.id}</span>
+            <span className="text-slate-600">Lecturer ID: {lecturer?.id}</span>
           </div>
         </div>
       </div>
@@ -69,7 +65,7 @@ export default function Profile() {
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-2xl border border-slate-200 p-4 text-center">
           <BookOpen className="w-5 h-5 text-brand-500 mx-auto mb-1.5" />
-          <p className="text-xl font-bold text-slate-800">{mockCourses.length}</p>
+          <p className="text-xl font-bold text-slate-800">{courses.length}</p>
           <p className="text-xs text-slate-500">Courses</p>
         </div>
         <div className="bg-white rounded-2xl border border-slate-200 p-4 text-center">
@@ -79,7 +75,7 @@ export default function Profile() {
         </div>
         <div className="bg-white rounded-2xl border border-slate-200 p-4 text-center">
           <Calendar className="w-5 h-5 text-brand-500 mx-auto mb-1.5" />
-          <p className="text-xl font-bold text-slate-800">30</p>
+          <p className="text-xl font-bold text-slate-800">{pastSessions.length}</p>
           <p className="text-xs text-slate-500">Sessions</p>
         </div>
       </div>
@@ -98,7 +94,7 @@ export default function Profile() {
                 <p className="text-xs text-slate-400">Refresh QR code every 30 seconds</p>
               </div>
             </div>
-            <Toggle checked={qrAutoRefresh} onChange={setQrAutoRefresh} />
+            <Toggle checked={preferences.qrAutoRefresh} onChange={(v) => updatePreferences({ qrAutoRefresh: v })} />
           </div>
 
           <div className="border-t border-slate-50" />
@@ -113,7 +109,7 @@ export default function Profile() {
                 <p className="text-xs text-slate-400">Require GPS for attendance</p>
               </div>
             </div>
-            <Toggle checked={gpsRequired} onChange={setGpsRequired} />
+            <Toggle checked={preferences.gpsRequired} onChange={(v) => updatePreferences({ gpsRequired: v })} />
           </div>
 
           <div className="border-t border-slate-50" />
@@ -128,7 +124,7 @@ export default function Profile() {
                 <p className="text-xs text-slate-400">Get alerts when students check in</p>
               </div>
             </div>
-            <Toggle checked={notifications} onChange={setNotifications} />
+            <Toggle checked={preferences.notifications} onChange={(v) => updatePreferences({ notifications: v })} />
           </div>
         </div>
       </div>

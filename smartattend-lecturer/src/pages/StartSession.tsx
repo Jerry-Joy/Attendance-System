@@ -12,12 +12,13 @@ import {
   CheckCircle,
   BookOpen,
 } from 'lucide-react'
-import { mockCourses } from '../data/mockData'
+import { useData } from '../context/DataContext'
 
 const DURATION_PRESETS = [15, 30, 45, 60, 90, 120]
 
 export default function StartSession() {
   const navigate = useNavigate()
+  const { courses: mockCourses } = useData()
   const { id } = useParams<{ id: string }>()
 
   // ── Form state ──────────────────────────────────────────────
@@ -173,8 +174,8 @@ export default function StartSession() {
                 key={d}
                 onClick={() => setDurationMinutes(d)}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${durationMinutes === d
-                    ? 'bg-brand-500 text-white border-brand-500'
-                    : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'
+                  ? 'bg-brand-500 text-white border-brand-500'
+                  : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'
                   }`}
               >
                 {d >= 60 ? `${d / 60}h` : `${d}m`}

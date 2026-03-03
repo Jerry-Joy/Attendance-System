@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { CheckCircle, Lock, User, MapPin, QrCode, Shield } from 'lucide-react'
+import { CheckCircle, Lock, User, MapPin, QrCode, Shield, Eye, EyeOff, AlertCircle } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 export default function Login() {
@@ -8,14 +8,33 @@ export default function Login() {
   const { login } = useAuth()
   const [lecturerId, setLecturerId] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState<{ id?: string; password?: string }>({})
+
+  const validate = () => {
+    const errs: { id?: string; password?: string } = {}
+    if (!lecturerId.trim()) errs.id = 'Lecturer ID is required'
+    if (!password) errs.password = 'Password is required'
+    setFieldErrors(errs)
+    return Object.keys(errs).length === 0
+  }
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
+    if (!validate()) return
+
     setLoading(true)
     setTimeout(() => {
-      login()
-      navigate('/courses')
+      const result = login(lecturerId.trim(), password)
+      if (result.success) {
+        navigate('/courses')
+      } else {
+        setError(result.error || 'Login failed')
+        setLoading(false)
+      }
     }, 800)
   }
 
@@ -79,6 +98,13 @@ export default function Login() {
           <p className="text-slate-500 mt-1.5 mb-8">Sign in to manage your attendance sessions</p>
 
           <form onSubmit={handleLogin} className="space-y-5">
+            {error && (
+              <div className="flex items-center gap-2.5 p-3.5 bg-red-50 border border-red-200 rounded-xl">
+                <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+                <p className="text-sm text-red-600 font-medium">{error}</p>
+              </div>
+            )}
+
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5">Lecturer ID</label>
               <div className="relative">
@@ -86,11 +112,13 @@ export default function Login() {
                 <input
                   type="text"
                   value={lecturerId}
-                  onChange={(e) => setLecturerId(e.target.value)}
+                  onChange={(e) => { setLecturerId(e.target.value); setFieldErrors((p) => ({ ...p, id: undefined })); setError('') }}
                   placeholder="Enter your lecturer ID"
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+                  className={`w-full pl-11 pr-4 py-3 bg-slate-50 border rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all ${fieldErrors.id ? 'border-red-300 bg-red-50/50' : 'border-slate-200'
+                    }`}
                 />
               </div>
+              {fieldErrors.id && <p className="text-xs text-red-500 mt-1">{fieldErrors.id}</p>}
             </div>
 
             <div>
@@ -98,13 +126,23 @@ export default function Login() {
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => { setPassword(e.target.value); setFieldErrors((p) => ({ ...p, password: undefined })); setError('') }}
                   placeholder="Enter your password"
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+                  className={`w-full pl-11 pr-11 py-3 bg-slate-50 border rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all ${fieldErrors.password ? 'border-red-300 bg-red-50/50' : 'border-slate-200'
+                    }`}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
+                </button>
               </div>
+              {fieldErrors.password && <p className="text-xs text-red-500 mt-1">{fieldErrors.password}</p>}
             </div>
 
             <div className="flex items-center justify-between">
@@ -137,6 +175,10 @@ export default function Login() {
                 This app uses GPS location verification to ensure students are physically present during attendance sessions.
               </p>
             </div>
+          </div>
+
+          <div className="mt-3 p-3 bg-amber-50 rounded-xl border border-amber-100">
+            <p className="text-xs text-amber-700 font-medium">Demo credentials: <span className="font-mono">LEC001</span> / <span className="font-mono">password</span></p>
           </div>
 
           <p className="text-center text-xs text-slate-400 mt-8">SmartAttend v1.0 · QR + GPS Geofencing</p>

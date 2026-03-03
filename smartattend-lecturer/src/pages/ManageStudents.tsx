@@ -1,25 +1,25 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Copy, Share2, Ban, Check, X, Users } from 'lucide-react'
-import { mockCourses, mockEnrolledStudents } from '../data/mockData'
+import { useData } from '../context/DataContext'
 
 export default function ManageStudents() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
-  const course = mockCourses.find((c) => c.id === id) || mockCourses[0]
-  const students = mockEnrolledStudents[course.id] || []
-  const [studentList, setStudentList] = useState(students)
+  const { courses, enrolledStudents, removeStudent } = useData()
+  const course = courses.find((c) => c.id === id) || courses[0]
+  const studentList = enrolledStudents[course?.id] || []
   const [codeEnabled, setCodeEnabled] = useState(true)
   const [copied, setCopied] = useState(false)
 
   const handleCopy = () => {
-    navigator.clipboard?.writeText(course.joinCode)
+    navigator.clipboard?.writeText(course?.joinCode ?? '')
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
   const handleRemove = (studentId: string) => {
-    setStudentList((prev) => prev.filter((s) => s.id !== studentId))
+    if (course) removeStudent(course.id, studentId)
   }
 
   return (
@@ -33,8 +33,8 @@ export default function ManageStudents() {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="text-xl font-bold text-slate-800">{course.code}</h1>
-          <p className="text-sm text-slate-500">{course.name}</p>
+          <h1 className="text-xl font-bold text-slate-800">{course?.code}</h1>
+          <p className="text-sm text-slate-500">{course?.name}</p>
         </div>
       </div>
 
@@ -52,7 +52,7 @@ export default function ManageStudents() {
         <div className="py-5 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200 text-center mb-4">
           <span className={`text-3xl font-bold tracking-[0.2em] font-mono ${codeEnabled ? 'text-brand-600' : 'text-slate-400'
             }`}>
-            {course.joinCode}
+            {course?.joinCode}
           </span>
         </div>
 

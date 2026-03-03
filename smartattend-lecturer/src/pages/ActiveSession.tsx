@@ -18,13 +18,30 @@ import {
   Minimize2,
   X,
 } from 'lucide-react'
-import { mockCourses, mockAttendingStudents } from '../data/mockData'
+import { mockEnrolledStudents } from '../data/mockData'
+import { useData } from '../context/DataContext'
+import type { AttendingStudent } from '../types'
 
 /* ── Helpers ──────────────────────────────────────────────────── */
 
-/** Simulate a token the backend would return for each QR cycle */
-function generateToken() {
-  return `SA-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`
+/** Generate a structured QR payload the student app can parse */
+function generateQrPayload(opts: {
+  courseId: string
+  courseCode: string
+  latitude?: number
+  longitude?: number
+  radius: number
+}) {
+  const token = `SA-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`
+  return JSON.stringify({
+    token,
+    courseId: opts.courseId,
+    courseCode: opts.courseCode,
+    lat: opts.latitude ?? null,
+    lng: opts.longitude ?? null,
+    radius: opts.radius,
+    exp: Date.now() + 30_000, // expires in 30s
+  })
 }
 
 function formatElapsed(totalSeconds: number) {
@@ -51,6 +68,7 @@ const QR_LIFETIME = 30
 export default function ActiveSession() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { courses, activeSession, startActiveSession, addAttendee, endActiveSession, addPastSession, enrolledStudents } = useData()
   const state = location.state as {
     courseId: string
     radius: number
@@ -59,25 +77,74 @@ export default function ActiveSession() {
     longitude?: number
   } | null
 
-  const course = mockCourses.find((c) => c.id === state?.courseId) || mockCourses[0]
-  const radius = state?.radius || 50
+  /* If no state and no active session, redirect to dashboard */
+  const course = courses.find((c) => c.id === (activeSession?.courseId ?? state?.courseId)) || null
+  const radius = activeSession?.radius ?? state?.radius ?? 50
+
+  /* Bootstrap the shared active session on first mount */
+  useEffect(() => {
+    if (!activeSession && state && course) {
+      startActiveSession({
+        courseId: course.id,
+        courseCode: course!.code,
+        courseName: course!.name,
+        radius: state.radius,
+        duration: state.duration,
+        latitude: state.latitude,
+        longitude: state.longitude,
+        startedAt: Date.now(),
+        attendees: [],
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  /* Redirect if there's truly nothing to show */
+  useEffect(() => {
+    if (!activeSession && !state) {
+      navigate('/courses', { replace: true })
+    }
+  }, [activeSession, state, navigate])
 
   /* Parse session duration to seconds (e.g. "30 min" → 1800) */
   const sessionDurationSec = useMemo(() => {
-    const raw = state?.duration || '30 min'
+    const raw = activeSession?.duration ?? state?.duration ?? '30 min'
     const num = parseInt(raw, 10)
     if (raw.includes('hour') || raw.includes('h')) return num * 3600
     return num * 60
-  }, [state?.duration])
+  }, [activeSession?.duration, state?.duration])
+
+  /* Build the pool of students to simulate from — use enrolled for THIS course */
+  const simulationPool = useMemo<AttendingStudent[]>(() => {
+    const courseId = activeSession?.courseId ?? state?.courseId ?? ''
+    const enrolled = enrolledStudents[courseId] || mockEnrolledStudents[courseId] || mockEnrolledStudents['1'] || []
+    return enrolled.map((s) => ({
+      id: s.id,
+      name: s.name,
+      indexNumber: s.indexNumber,
+      time: '',
+      gpsVerified: Math.random() > 0.15, // ~85% GPS verified
+      avatarInitials: s.avatarInitials,
+    }))
+  }, [activeSession?.courseId, state?.courseId, enrolledStudents])
 
   // ── Core timers ────────────────────────────────────────────
   const [elapsed, setElapsed] = useState(0)
   const [qrSecondsLeft, setQrSecondsLeft] = useState(QR_LIFETIME)
-  const [qrToken, setQrToken] = useState(generateToken)
-  const [studentCount, setStudentCount] = useState(0)
+  const [qrPayload, setQrPayload] = useState(() =>
+    generateQrPayload({
+      courseId: state?.courseId ?? '',
+      courseCode: course?.code ?? '',
+      latitude: state?.latitude,
+      longitude: state?.longitude,
+      radius: radius,
+    })
+  )
   const [showEndConfirm, setShowEndConfirm] = useState(false)
   const [qrFullscreen, setQrFullscreen] = useState(false)
 
+  const studentCount = activeSession?.attendees.length ?? 0
+  const totalStudents = course?.studentCount ?? 0
   const sessionTimeLeft = Math.max(0, sessionDurationSec - elapsed)
   const sessionExpired = sessionTimeLeft <= 0
   const qrExpired = qrSecondsLeft <= 0
@@ -90,26 +157,35 @@ export default function ActiveSession() {
       setQrSecondsLeft((prev) => {
         const next = prev - 1
         if (next <= 0) {
-          // Simulate receiving a new QR token from backend
-          setQrToken(generateToken())
+          // Regenerate structured QR payload
+          setQrPayload(generateQrPayload({
+            courseId: activeSession?.courseId ?? state?.courseId ?? '',
+            courseCode: course?.code ?? '',
+            latitude: activeSession?.latitude ?? state?.latitude,
+            longitude: activeSession?.longitude ?? state?.longitude,
+            radius,
+          }))
           return QR_LIFETIME
         }
         return next
       })
     }, 1000)
     return () => clearInterval(interval)
-  }, [])
+  }, [activeSession, state, course, radius])
 
-  /* ── Simulate students joining progressively ── */
+  /* ── Simulate students joining progressively (using enrolled pool) ── */
+  const [nextSimIdx, setNextSimIdx] = useState(0)
   useEffect(() => {
-    const timers = mockAttendingStudents.map((_, i) =>
-      setTimeout(
-        () => setStudentCount((prev) => Math.min(prev + 1, mockAttendingStudents.length)),
-        (i + 1) * 2500
-      )
-    )
-    return () => timers.forEach(clearTimeout)
-  }, [])
+    if (nextSimIdx >= simulationPool.length) return
+    const timer = setTimeout(() => {
+      const student = simulationPool[nextSimIdx]
+      const now = new Date()
+      const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+      addAttendee({ ...student, time: timeStr })
+      setNextSimIdx((prev) => prev + 1)
+    }, 2500 + Math.random() * 1500)
+    return () => clearTimeout(timer)
+  }, [nextSimIdx, simulationPool, addAttendee])
 
   /* ── Auto-end when session expires ── */
   useEffect(() => {
@@ -119,8 +195,61 @@ export default function ActiveSession() {
   }, [sessionExpired])
 
   const handleEndSession = useCallback(() => {
-    navigate('/session-summary')
-  }, [navigate])
+    const now = new Date()
+    const startTime = new Date(now.getTime() - elapsed * 1000)
+    const fmt = (d: Date) =>
+      d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+    const durationMin = Math.round(elapsed / 60)
+
+    const attendees = activeSession?.attendees ?? []
+    const gpsCount = attendees.filter((s) => s.gpsVerified).length
+    const qrOnlyCount = attendees.length - gpsCount
+
+    const sessionData = {
+      courseCode: course?.code ?? '',
+      courseName: course?.name ?? '',
+      date: now.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }),
+      startTime: fmt(startTime),
+      endTime: fmt(now),
+      duration: `${durationMin} min`,
+      totalStudents: totalStudents,
+      presentCount: attendees.length,
+      absentCount: totalStudents - attendees.length,
+      qrGpsVerified: gpsCount,
+      qrOnlyVerified: qrOnlyCount,
+      geofenceRadius: radius,
+      venueName: course?.venueName || 'Unknown',
+    }
+
+    // Save to DataContext as a past session
+    addPastSession({
+      id: `session-${Date.now()}`,
+      courseCode: sessionData.courseCode,
+      courseName: sessionData.courseName,
+      date: sessionData.date,
+      startTime: sessionData.startTime,
+      endTime: sessionData.endTime,
+      duration: sessionData.duration,
+      totalStudents: sessionData.totalStudents,
+      presentCount: sessionData.presentCount,
+      absentCount: sessionData.absentCount,
+      venue: sessionData.venueName,
+      qrGpsVerified: gpsCount,
+      qrOnlyVerified: qrOnlyCount,
+      geofenceRadius: radius,
+      attendees: [...attendees],
+    })
+
+    // Clear the active session
+    endActiveSession()
+
+    navigate('/session-summary', {
+      state: {
+        session: sessionData,
+        attendees: [...attendees],
+      },
+    })
+  }, [navigate, elapsed, activeSession, course, radius, totalStudents, addPastSession, endActiveSession])
 
   /* ── Countdown ring for QR timer ── */
   const circleRadius = 54
@@ -156,8 +285,8 @@ export default function ActiveSession() {
               </div>
             )}
           </div>
-          <h1 className="text-xl font-bold text-slate-800 mt-2">{course.name}</h1>
-          <p className="text-sm text-slate-500">{course.code}</p>
+          <h1 className="text-xl font-bold text-slate-800 mt-2">{course?.name}</h1>
+          <p className="text-sm text-slate-500">{course?.code}</p>
         </div>
 
         {/* Elapsed + remaining */}
@@ -183,7 +312,7 @@ export default function ActiveSession() {
             <BookOpen className="w-3.5 h-3.5 text-slate-400" />
             <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Course</span>
           </div>
-          <p className="text-sm font-bold text-slate-800 truncate">{course.code}</p>
+          <p className="text-sm font-bold text-slate-800 truncate">{course?.code}</p>
         </div>
         <div className="bg-white rounded-xl border border-slate-200 px-4 py-3">
           <div className="flex items-center gap-2 mb-1">
@@ -204,7 +333,7 @@ export default function ActiveSession() {
             <MapPin className="w-3.5 h-3.5 text-slate-400" />
             <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Venue</span>
           </div>
-          <p className="text-sm font-bold text-slate-800 truncate">{course.venueName || 'N/A'}</p>
+          <p className="text-sm font-bold text-slate-800 truncate">{course?.venueName || 'N/A'}</p>
         </div>
       </div>
 
@@ -237,7 +366,7 @@ export default function ActiveSession() {
                   : 'border-slate-100 shadow-inner'
                 }`}>
                 <QRCodeSVG
-                  value={qrToken}
+                  value={qrPayload}
                   size={260}
                   level="H"
                   bgColor="#FFFFFF"
@@ -305,7 +434,7 @@ export default function ActiveSession() {
 
             {/* QR Token ID */}
             <div className="px-4 py-2 bg-slate-50 rounded-lg">
-              <span className="text-[11px] text-slate-400 font-mono">{qrToken}</span>
+              <span className="text-[11px] text-slate-400 font-mono">{JSON.parse(qrPayload).token}</span>
             </div>
           </div>
         </div>
@@ -320,16 +449,16 @@ export default function ActiveSession() {
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-4xl font-bold text-brand-600">{studentCount}</span>
-              <span className="text-lg text-slate-400">/ {course.studentCount}</span>
+              <span className="text-lg text-slate-400">/ {totalStudents}</span>
             </div>
             <div className="mt-3 h-2 bg-slate-100 rounded-full overflow-hidden">
               <div
                 className="h-full bg-brand-500 rounded-full transition-all duration-1000"
-                style={{ width: `${(studentCount / course.studentCount) * 100}%` }}
+                style={{ width: `${totalStudents > 0 ? (studentCount / totalStudents) * 100 : 0}%` }}
               />
             </div>
             <p className="text-xs text-slate-400 mt-2">
-              {Math.round((studentCount / course.studentCount) * 100)}% attendance so far
+              {totalStudents > 0 ? Math.round((studentCount / totalStudents) * 100) : 0}% attendance so far
             </p>
           </div>
 
@@ -352,7 +481,7 @@ export default function ActiveSession() {
                 <p className="text-sm font-semibold text-emerald-700">
                   {sessionExpired ? 'Inactive' : 'Active'}
                 </p>
-                <p className="text-xs text-emerald-600">{radius}m radius · {course.venueName}</p>
+                <p className="text-xs text-emerald-600">{radius}m radius · {course?.venueName}</p>
               </div>
             </div>
             {state?.latitude != null && state?.longitude != null && (
@@ -379,12 +508,12 @@ export default function ActiveSession() {
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate-600">QR + GPS Verified</span>
                 <span className="font-bold text-emerald-600">
-                  {Math.max(0, studentCount - 1)}
+                  {(activeSession?.attendees ?? []).filter(s => s.gpsVerified).length}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate-600">QR Only</span>
-                <span className="font-bold text-amber-600">{Math.min(1, studentCount)}</span>
+                <span className="font-bold text-amber-600">{(activeSession?.attendees ?? []).filter(s => !s.gpsVerified).length}</span>
               </div>
             </div>
           </div>
@@ -460,14 +589,14 @@ export default function ActiveSession() {
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
               <span className="text-xs font-bold text-red-600 uppercase">Live</span>
             </div>
-            <h2 className="text-lg font-bold text-slate-800">{course.code} — {course.name}</h2>
-            <p className="text-sm text-slate-500 mt-1">{course.venueName}</p>
+            <h2 className="text-lg font-bold text-slate-800">{course?.code} — {course?.name}</h2>
+            <p className="text-sm text-slate-500 mt-1">{course?.venueName}</p>
           </div>
 
           {/* Large QR */}
           <div className="p-10 bg-white rounded-3xl border-2 border-slate-100 shadow-2xl shadow-slate-200/50 mb-6">
             <QRCodeSVG
-              value={qrToken}
+              value={qrPayload}
               size={Math.min(400, window.innerWidth - 120)}
               level="H"
               bgColor="#FFFFFF"
@@ -500,7 +629,7 @@ export default function ActiveSession() {
 
             <div className="text-center">
               <p className="text-xs text-slate-400 mb-1">Token</p>
-              <p className="text-sm font-mono text-slate-500 bg-slate-50 px-4 py-1.5 rounded-lg">{qrToken}</p>
+              <p className="text-sm font-mono text-slate-500 bg-slate-50 px-4 py-1.5 rounded-lg">{JSON.parse(qrPayload).token}</p>
             </div>
 
             <div className="text-center">
@@ -528,8 +657,8 @@ export default function ActiveSession() {
             </h3>
             <p className="text-sm text-slate-500 mb-6">
               {sessionExpired
-                ? `Session for ${course.code} has ended. ${studentCount} students marked present.`
-                : `This will end the attendance session for ${course.code}. ${studentCount} students have been marked present.`}
+                ? `Session for ${course?.code} has ended. ${studentCount} students marked present.`
+                : `This will end the attendance session for ${course?.code}. ${studentCount} students have been marked present.`}
             </p>
             <div className="flex gap-3">
               {!sessionExpired && (

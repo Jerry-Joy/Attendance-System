@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, BookOpen, Copy, Check } from 'lucide-react'
+import { useData } from '../context/DataContext'
 
 const LEVELS = ['Level 100', 'Level 200', 'Level 300', 'Level 400']
 
@@ -16,10 +17,12 @@ function generateJoinCode(courseCode: string): string {
 
 export default function CreateCourse() {
   const navigate = useNavigate()
+  const { addCourse } = useData()
   const [code, setCode] = useState('')
   const [name, setName] = useState('')
   const [selectedLevel, setSelectedLevel] = useState('Level 400')
   const [groups, setGroups] = useState('All')
+  const [venueName, setVenueName] = useState('')
   const [state, setState] = useState<'form' | 'success'>('form')
   const [joinCode, setJoinCode] = useState('')
   const [copied, setCopied] = useState(false)
@@ -30,6 +33,19 @@ export default function CreateCourse() {
     if (!isValid) return
     const generated = generateJoinCode(code.trim())
     setJoinCode(generated)
+
+    addCourse({
+      id: `c_${Date.now()}`,
+      code: code.trim().toUpperCase(),
+      name: name.trim(),
+      level: selectedLevel,
+      studentCount: 0,
+      lastSession: 'No sessions yet',
+      groups: groups ? groups.split(',').map((g) => g.trim()) : ['All'],
+      joinCode: generated,
+      venueName: venueName.trim() || undefined,
+    })
+
     setState('success')
   }
 
@@ -67,10 +83,11 @@ export default function CreateCourse() {
         <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-6">
           {[
             { label: 'Level', value: selectedLevel },
+            { label: 'Venue', value: venueName.trim() || 'Not set' },
             { label: 'Groups', value: groups || 'All' },
             { label: 'Students', value: '0 enrolled' },
           ].map((item, i) => (
-            <div key={i} className={`flex items-center justify-between py-3 ${i !== 2 ? 'border-b border-slate-100' : ''}`}>
+            <div key={i} className={`flex items-center justify-between py-3 ${i !== 3 ? 'border-b border-slate-100' : ''}`}>
               <span className="text-sm text-slate-500">{item.label}</span>
               <span className="text-sm font-medium text-slate-800">{item.value}</span>
             </div>
@@ -137,14 +154,26 @@ export default function CreateCourse() {
                 key={lvl}
                 onClick={() => setSelectedLevel(lvl)}
                 className={`flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all ${selectedLevel === lvl
-                    ? 'bg-brand-500 text-white border-brand-500'
-                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+                  ? 'bg-brand-500 text-white border-brand-500'
+                  : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
                   }`}
               >
                 {lvl.replace('Level ', 'L')}
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Venue */}
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">Venue (optional)</label>
+          <input
+            type="text"
+            value={venueName}
+            onChange={(e) => setVenueName(e.target.value)}
+            placeholder="e.g. Room 301, CS Building"
+            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+          />
         </div>
 
         {/* Groups */}

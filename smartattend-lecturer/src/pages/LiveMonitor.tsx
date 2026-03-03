@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -14,75 +14,51 @@ import {
   Clock,
   Hash,
 } from 'lucide-react'
-import { mockAttendingStudents, mockCourses } from '../data/mockData'
-import type { AttendingStudent } from '../types'
+import { useData } from '../context/DataContext'
 
 type FilterType = 'all' | 'gps' | 'qr-only'
 
-/** Polling interval in ms — simulates calling GET /api/session/:id/attendance */
-const POLL_INTERVAL = 3000
-
 export default function LiveMonitor() {
   const navigate = useNavigate()
-  const course = mockCourses[0]
+  const { activeSession, courses } = useData()
 
-  // ── Dynamic student list (simulates polling/websocket updates) ───
-  const [students, setStudents] = useState<AttendingStudent[]>([])
-  const nextIndexRef = useRef(0)
-  const [isPolling, setIsPolling] = useState(true)
-  const [lastPolled, setLastPolled] = useState<Date>(new Date())
+  const course = courses.find((c) => c.id === activeSession?.courseId) ?? null
+
+  /* Redirect if no active session */
+  useEffect(() => {
+    if (!activeSession) {
+      navigate('/courses', { replace: true })
+    }
+  }, [activeSession, navigate])
+
+  // ── Students come from the shared active session ───
+  const students = [...(activeSession?.attendees ?? [])].reverse() // newest first
+  const [prevCount, setPrevCount] = useState(students.length)
   const [newRowId, setNewRowId] = useState<string | null>(null)
   const tableEndRef = useRef<HTMLDivElement>(null)
+
+  // Detect new arrivals
+  useEffect(() => {
+    if (students.length > prevCount) {
+      const newest = students[0]
+      if (newest) {
+        setNewRowId(newest.id)
+        setTimeout(() => setNewRowId(null), 1500)
+        tableEndRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+      }
+    }
+    setPrevCount(students.length)
+  }, [students.length, prevCount, students])
 
   // ── Filters ─────────────────────────────────────────────────
   const [filter, setFilter] = useState<FilterType>('all')
   const [searchQuery, setSearchQuery] = useState('')
 
-  /**
-   * Simulate polling: every POLL_INTERVAL ms, "fetch" the next student
-   * from mockAttendingStudents as if the backend returned a new entry.
-   */
-  const poll = useCallback(() => {
-    setLastPolled(new Date())
-    if (nextIndexRef.current < mockAttendingStudents.length) {
-      const incoming = mockAttendingStudents[nextIndexRef.current]
-      // Give a real timestamp instead of the mock time string
-      const now = new Date()
-      const timeStr = now.toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true,
-      })
-      const newStudent: AttendingStudent = { ...incoming, time: timeStr }
-
-      setStudents((prev) => {
-        // Avoid duplicates
-        if (prev.find((s) => s.id === newStudent.id)) return prev
-        return [newStudent, ...prev] // newest first
-      })
-      setNewRowId(incoming.id)
-      setTimeout(() => setNewRowId(null), 1500)
-      nextIndexRef.current += 1
-
-      // Auto-scroll to see newest entry (top of table)
-      tableEndRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!isPolling) return
-    // Initial immediate poll
-    poll()
-    const interval = setInterval(poll, POLL_INTERVAL)
-    return () => clearInterval(interval)
-  }, [isPolling, poll])
-
   // ── Derived stats ───────────────────────────────────────────
   const totalCount = students.length
   const gpsVerified = students.filter((s) => s.gpsVerified).length
   const qrOnly = totalCount - gpsVerified
-  const enrolled = course.studentCount
+  const enrolled = course?.studentCount ?? 0
 
   const filteredStudents = students.filter((student) => {
     const matchesFilter =
@@ -114,36 +90,23 @@ export default function LiveMonitor() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-bold text-slate-800">Real-Time Attendance</h1>
-              {isPolling && (
+              {activeSession && (
                 <div className="flex items-center gap-1.5 px-2.5 py-0.5 bg-red-50 border border-red-200 rounded-full">
                   <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
                   <span className="text-[10px] font-bold text-red-600 uppercase">Live</span>
                 </div>
               )}
             </div>
-            <p className="text-sm text-slate-500">{course.code} — {course.name}</p>
+            <p className="text-sm text-slate-500">{course?.code} — {course?.name}</p>
           </div>
         </div>
 
-        {/* Polling indicator */}
+        {/* Live indicator */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 text-xs text-slate-400">
-            <RefreshCw className={`w-3.5 h-3.5 ${isPolling ? 'animate-spin' : ''}`} />
-            <span>
-              {isPolling
-                ? `Polling every ${POLL_INTERVAL / 1000}s`
-                : 'Polling paused'}
-            </span>
+            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+            <span>Real-time updates</span>
           </div>
-          <button
-            onClick={() => setIsPolling((p) => !p)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${isPolling
-                ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100'
-                : 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100'
-              }`}
-          >
-            {isPolling ? 'Pause' : 'Resume'}
-          </button>
         </div>
       </div>
 
@@ -184,10 +147,10 @@ export default function LiveMonitor() {
             <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
               <Clock className="w-4 h-4 text-slate-500" />
             </div>
-            <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Last Update</span>
+            <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Live Count</span>
           </div>
           <span className="text-sm font-bold text-slate-700 font-mono">
-            {lastPolled.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true })}
+            {new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true })}
           </span>
         </div>
       </div>
@@ -243,10 +206,10 @@ export default function LiveMonitor() {
               <p className="text-sm text-slate-400 max-w-xs text-center">
                 Waiting for students to scan the QR code. Attendance will appear here in real time.
               </p>
-              {isPolling && (
+              {activeSession && (
                 <div className="flex items-center gap-2 mt-4 text-xs text-slate-400">
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  Polling for check-ins...
+                  Waiting for check-ins...
                 </div>
               )}
             </div>

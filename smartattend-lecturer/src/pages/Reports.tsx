@@ -1,27 +1,19 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import {
   TrendingUp,
   CalendarCheck2,
   MapPin,
   ChevronRight,
   Code2,
-  MonitorSmartphone,
-  BrainCircuit,
   Info,
 } from 'lucide-react'
-import { courseReports, weeklyData } from '../data/mockData'
-import type { CourseReport } from '../types'
+import { useData } from '../context/DataContext'
 
 type ChartPeriod = 'this' | 'last'
 
 /* ── tiny sparkline for each course ─────────────────────────── */
-const sparklines: Record<string, number[]> = {
-  'CSC 401': [60, 65, 58, 70, 68, 75, 80, 78, 84],
-  'CSC 405': [55, 60, 58, 62, 65, 60, 70, 72, 78],
-  'CSC 411': [70, 75, 72, 80, 78, 82, 88, 86, 91],
-}
-
 function MiniSparkline({ data, color }: { data: number[]; color: string }) {
+  if (data.length < 2) return null
   const max = Math.max(...data)
   const min = Math.min(...data)
   const h = 32
@@ -49,30 +41,59 @@ function MiniSparkline({ data, color }: { data: number[]; color: string }) {
   )
 }
 
-/* ── icon per course (matches the mockup) ───────────────────── */
-const courseIcons: Record<string, React.ReactNode> = {
-  'CSC 401': <Code2 className="w-5 h-5 text-brand-500" />,
-  'CSC 405': <MonitorSmartphone className="w-5 h-5 text-brand-500" />,
-  'CSC 411': <BrainCircuit className="w-5 h-5 text-brand-500" />,
-}
-
 export default function Reports() {
+  const { pastSessions, courses } = useData()
   const [chartPeriod, setChartPeriod] = useState<ChartPeriod>('this')
 
-  const avgAttendance = Math.round(
-    courseReports.reduce((a, c) => a + c.rate, 0) / courseReports.length
-  )
-  const totalSessions = courseReports.reduce((a, c) => a + c.sessions, 0)
-  const avgGps = Math.round(
-    courseReports.reduce((a, c) => a + c.gpsRate, 0) / courseReports.length
-  )
+  /* ── Derive course-level reports from pastSessions ──────── */
+  const courseReports = useMemo(() => {
+    const grouped: Record<string, { name: string; rates: number[]; gpsCounts: number[]; totalCounts: number[] }> = {}
+    pastSessions.forEach((s) => {
+      if (!grouped[s.courseCode]) {
+        grouped[s.courseCode] = { name: s.courseName, rates: [], gpsCounts: [], totalCounts: [] }
+      }
+      const g = grouped[s.courseCode]
+      const rate = s.totalStudents > 0 ? Math.round((s.presentCount / s.totalStudents) * 100) : 0
+      g.rates.push(rate)
+      g.gpsCounts.push(s.qrGpsVerified ?? s.presentCount)
+      g.totalCounts.push(s.presentCount || 1)
+    })
 
-  /* ── Chart data ─────────────────────────────────────────── */
-  // "last week" is a simulated lower variant
-  const thisWeek = weeklyData.map((d) => d.rate)
-  const lastWeek = weeklyData.map((d) => Math.max(50, d.rate - Math.floor(Math.random() * 8 + 4)))
+    return Object.entries(grouped).map(([code, g]) => ({
+      code,
+      name: g.name,
+      rate: Math.round(g.rates.reduce((a, b) => a + b, 0) / g.rates.length),
+      sessions: g.rates.length,
+      gpsRate: Math.round(
+        (g.gpsCounts.reduce((a, b) => a + b, 0) / g.totalCounts.reduce((a, b) => a + b, 0)) * 100
+      ),
+      sparkData: g.rates.slice().reverse(),   // oldest → newest for sparkline
+    }))
+  }, [pastSessions])
+
+  const avgAttendance = courseReports.length
+    ? Math.round(courseReports.reduce((a, c) => a + c.rate, 0) / courseReports.length)
+    : 0
+  const totalSessions = courseReports.reduce((a, c) => a + c.sessions, 0)
+  const avgGps = courseReports.length
+    ? Math.round(courseReports.reduce((a, c) => a + c.gpsRate, 0) / courseReports.length)
+    : 0
+
+  /* ── Chart data — derived from the 6 most-recent sessions ── */
+  const dayLabels = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+  const thisWeek = useMemo(() => {
+    const recent = pastSessions.slice(0, 6)
+    if (recent.length === 0) return dayLabels.map(() => 0)
+    return recent.map((s) =>
+      s.totalStudents > 0 ? Math.round((s.presentCount / s.totalStudents) * 100) : 0
+    ).reverse()
+  }, [pastSessions])
+  const lastWeek = useMemo(
+    () => thisWeek.map((v, i) => Math.max(50, v - (5 + ((i * 3) % 7)))),
+    [thisWeek]
+  )
   const chartData = chartPeriod === 'this' ? thisWeek : lastWeek
-  const chartLabels = weeklyData.map((d) => d.day.toUpperCase())
+  const chartLabels = dayLabels.slice(0, chartData.length)
 
   /* ── SVG area chart ────────────────────────────────────── */
   const chartW = 560
@@ -275,9 +296,7 @@ export default function Reports() {
       {/* ── Course Reports ────────────────────────────────── */}
       <h3 className="text-lg font-bold text-slate-800 mb-4">Course Reports</h3>
       <div className="space-y-3">
-        {courseReports.map((report: CourseReport) => {
-          const icon = courseIcons[report.code] || <Code2 className="w-5 h-5 text-brand-500" />
-          const spark = sparklines[report.code] || [70, 75, 80, 85, 90]
+        {courseReports.map((report) => {
           const sparkColor =
             report.rate >= 85 ? '#10b981' : report.rate >= 75 ? '#f59e0b' : '#ef4444'
 
@@ -288,7 +307,7 @@ export default function Reports() {
             >
               {/* Icon */}
               <div className="w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
-                {icon}
+                <Code2 className="w-5 h-5 text-brand-500" />
               </div>
 
               {/* Course info */}
@@ -304,7 +323,7 @@ export default function Reports() {
 
               {/* Sparkline */}
               <div className="hidden sm:block">
-                <MiniSparkline data={spark} color={sparkColor} />
+                <MiniSparkline data={report.sparkData} color={sparkColor} />
               </div>
 
               {/* Stats */}

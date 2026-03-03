@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import {
   CheckCircle,
   Users,
@@ -14,18 +14,57 @@ import {
   TrendingUp,
   FileText,
   Loader2,
+  History,
 } from 'lucide-react'
 import { mockSessionSummary, mockAttendingStudents } from '../data/mockData'
+import type { SessionSummary as SummaryType, PastSession, AttendingStudent } from '../types'
 
 export default function SessionSummary() {
   const navigate = useNavigate()
-  const summary = mockSessionSummary
+  const location = useLocation()
+  const passedState = location.state as {
+    session?: SummaryType | PastSession
+    attendees?: AttendingStudent[]
+  } | null
+
+  /* Build a normalized summary from either a PastSession or a full SessionSummary */
+  const summary: SummaryType = (() => {
+    if (!passedState?.session) return mockSessionSummary
+    const s = passedState.session
+    if ('qrGpsVerified' in s && typeof (s as SummaryType).geofenceRadius === 'number') return s as SummaryType
+    /* PastSession → convert to SummaryType */
+    const ps = s as PastSession
+    return {
+      courseCode: ps.courseCode,
+      courseName: ps.courseName,
+      date: ps.date,
+      startTime: ps.startTime,
+      endTime: ps.endTime,
+      duration: ps.duration,
+      totalStudents: ps.totalStudents,
+      presentCount: ps.presentCount,
+      absentCount: ps.absentCount,
+      qrGpsVerified: ps.qrGpsVerified ?? Math.round(ps.presentCount * 0.92),
+      qrOnlyVerified: ps.qrOnlyVerified ?? (ps.presentCount - Math.round(ps.presentCount * 0.92)),
+      geofenceRadius: ps.geofenceRadius ?? 50,
+      venueName: ps.venue,
+    }
+  })()
+
+  /* Resolve attending students: route state → PastSession.attendees → fallback mock */
+  const attendees: AttendingStudent[] = (() => {
+    if (passedState?.attendees && passedState.attendees.length > 0) return passedState.attendees
+    const s = passedState?.session
+    if (s && 'attendees' in s && (s as PastSession).attendees) return (s as PastSession).attendees!
+    return mockAttendingStudents
+  })()
+
   const [downloading, setDownloading] = useState(false)
 
   const attendanceRate = Math.round((summary.presentCount / summary.totalStudents) * 100)
   const absentCount = summary.totalStudents - summary.presentCount
-  const gpsVerifiedCount = mockAttendingStudents.filter((s) => s.gpsVerified).length
-  const qrOnlyCount = summary.presentCount - gpsVerifiedCount
+  const gpsVerifiedCount = summary.qrGpsVerified
+  const qrOnlyCount = summary.qrOnlyVerified
   const gpsPercent = summary.presentCount > 0 ? Math.round((gpsVerifiedCount / summary.presentCount) * 100) : 0
 
   const rateColor =
@@ -58,7 +97,7 @@ export default function SessionSummary() {
     // Build CSV content
     const csvRows = [
       ['#', 'Student Name', 'Student ID', 'Time Marked', 'GPS Verified'],
-      ...mockAttendingStudents.map((s, i) => [
+      ...attendees.map((s, i) => [
         i + 1,
         s.name,
         s.indexNumber,
@@ -272,7 +311,7 @@ export default function SessionSummary() {
             Student Attendance Log
           </h3>
           <span className="text-xs text-slate-400 font-medium">
-            {mockAttendingStudents.length} check-ins recorded
+            {attendees.length} check-ins recorded
           </span>
         </div>
 
@@ -288,7 +327,7 @@ export default function SessionSummary() {
               </tr>
             </thead>
             <tbody>
-              {mockAttendingStudents.map((student, index) => (
+              {attendees.map((student, index) => (
                 <tr
                   key={student.id}
                   className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors"
@@ -342,6 +381,13 @@ export default function SessionSummary() {
               Download Report
             </>
           )}
+        </button>
+        <button
+          onClick={() => navigate('/session-history')}
+          className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl font-semibold text-sm transition-all"
+        >
+          <History className="w-4 h-4" />
+          Session History
         </button>
         <button
           onClick={() => navigate('/courses')}

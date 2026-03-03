@@ -14,24 +14,62 @@ import {
   Pencil,
   Trash2,
   UserPlus,
+  X,
+  AlertTriangle,
 } from 'lucide-react'
-import { mockCourses, mockLecturer, courseReports } from '../data/mockData'
+import { useData } from '../context/DataContext'
+import { useAuth } from '../context/AuthContext'
+import type { Course } from '../types'
 
 export default function Courses() {
   const navigate = useNavigate()
+  const { courses: mockCourses, deleteCourse, updateCourse, pastSessions } = useData()
+  const { lecturer } = useAuth()
   const [view, setView] = useState<'list' | 'grid'>('list')
   const [openMenu, setOpenMenu] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<Course | null>(null)
+  const [editTarget, setEditTarget] = useState<Course | null>(null)
+  const [editCode, setEditCode] = useState('')
+  const [editName, setEditName] = useState('')
+  const [editVenue, setEditVenue] = useState('')
+
+  const openEditModal = (course: Course) => {
+    setEditCode(course.code)
+    setEditName(course.name)
+    setEditVenue(course.venueName || '')
+    setEditTarget(course)
+    setOpenMenu(null)
+  }
+
+  const handleSaveEdit = () => {
+    if (!editTarget || editCode.trim().length < 3 || editName.trim().length < 3) return
+    updateCourse(editTarget.id, {
+      code: editCode.trim().toUpperCase(),
+      name: editName.trim(),
+      venueName: editVenue.trim() || undefined,
+    })
+    setEditTarget(null)
+  }
+
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return
+    deleteCourse(deleteTarget.id)
+    setDeleteTarget(null)
+  }
 
   const totalStudents = mockCourses.reduce((acc, c) => acc + c.studentCount, 0)
-  const totalSessions = courseReports.reduce((a, c) => a + c.sessions, 0)
+  const totalSessions = pastSessions.length
 
   /* colour for the left border accent per course index */
   const accentColors = ['border-brand-500', 'border-emerald-500', 'border-amber-500']
 
-  /* attendance progress per course from reports data */
+  /* attendance progress per course from past sessions */
   const getProgress = (code: string) => {
-    const r = courseReports.find((cr) => cr.code === code)
-    return r ? r.rate : 0
+    const sessions = pastSessions.filter((s) => s.courseCode === code)
+    if (sessions.length === 0) return 0
+    const avg = sessions.reduce((a, s) =>
+      a + (s.totalStudents > 0 ? (s.presentCount / s.totalStudents) * 100 : 0), 0) / sessions.length
+    return Math.round(avg)
   }
   const getProgressColor = (rate: number) =>
     rate >= 85 ? 'bg-emerald-500' : rate >= 70 ? 'bg-brand-500' : 'bg-amber-500'
@@ -46,7 +84,7 @@ export default function Courses() {
         <div>
           <p className="text-slate-500 text-sm mb-0.5">Welcome back,</p>
           <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
-            {mockLecturer.name}
+            {lecturer?.name ?? 'Lecturer'}
           </h1>
         </div>
         <button
@@ -114,8 +152,8 @@ export default function Courses() {
           <button
             onClick={() => setView('list')}
             className={`p-1.5 rounded-md transition-all ${view === 'list'
-                ? 'bg-white text-slate-700 shadow-sm'
-                : 'text-slate-400 hover:text-slate-600'
+              ? 'bg-white text-slate-700 shadow-sm'
+              : 'text-slate-400 hover:text-slate-600'
               }`}
             title="List view"
           >
@@ -124,8 +162,8 @@ export default function Courses() {
           <button
             onClick={() => setView('grid')}
             className={`p-1.5 rounded-md transition-all ${view === 'grid'
-                ? 'bg-white text-slate-700 shadow-sm'
-                : 'text-slate-400 hover:text-slate-600'
+              ? 'bg-white text-slate-700 shadow-sm'
+              : 'text-slate-400 hover:text-slate-600'
               }`}
             title="Grid view"
           >
@@ -249,7 +287,7 @@ export default function Courses() {
                               Manage Students
                             </button>
                             <button
-                              onClick={() => setOpenMenu(null)}
+                              onClick={() => openEditModal(course)}
                               className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
                             >
                               <Pencil className="w-4 h-4 text-slate-400" />
@@ -257,7 +295,7 @@ export default function Courses() {
                             </button>
                             <div className="my-1 border-t border-slate-100" />
                             <button
-                              onClick={() => setOpenMenu(null)}
+                              onClick={() => { setDeleteTarget(course); setOpenMenu(null) }}
                               className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-red-500 hover:bg-red-50 transition-colors"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -357,6 +395,116 @@ export default function Courses() {
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* ── Empty State ─────────────────────────────────── */}
+      {mockCourses.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <BookOpen className="w-16 h-16 text-slate-300 mb-4" />
+          <h3 className="text-lg font-semibold text-slate-700 mb-1">No courses yet</h3>
+          <p className="text-sm text-slate-400 mb-6">Create your first course to get started</p>
+          <button
+            onClick={() => navigate('/courses/create')}
+            className="flex items-center gap-2 px-5 py-2.5 bg-brand-500 text-white rounded-xl text-sm font-semibold hover:bg-brand-600 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Create Course
+          </button>
+        </div>
+      )}
+
+      {/* ── Delete Confirmation Modal ────────────────────── */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden animate-slide-up">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-red-500" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-800">Delete Course</h3>
+              </div>
+              <p className="text-sm text-slate-500 leading-relaxed">
+                Are you sure you want to delete <span className="font-semibold text-slate-700">{deleteTarget.code} — {deleteTarget.name}</span>? This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex gap-3 px-6 pb-6">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                className="flex-1 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-semibold transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Edit Course Modal ────────────────────────────── */}
+      {editTarget && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-slide-up">
+            <div className="flex items-center justify-between p-5 border-b border-slate-100">
+              <h3 className="text-lg font-bold text-slate-800">Edit Course</h3>
+              <button
+                onClick={() => setEditTarget(null)}
+                className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Course Code</label>
+                <input
+                  value={editCode}
+                  onChange={(e) => setEditCode(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-200 focus:border-brand-400 outline-none transition-all"
+                  placeholder="e.g. CSC301"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Course Name</label>
+                <input
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-200 focus:border-brand-400 outline-none transition-all"
+                  placeholder="e.g. Software Engineering"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase tracking-wider">Venue</label>
+                <input
+                  value={editVenue}
+                  onChange={(e) => setEditVenue(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-200 focus:border-brand-400 outline-none transition-all"
+                  placeholder="e.g. Hall A, Block 3"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 px-5 pb-5">
+              <button
+                onClick={() => setEditTarget(null)}
+                className="flex-1 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={editCode.trim().length < 3 || editName.trim().length < 3}
+                className="flex-1 py-2.5 bg-brand-500 hover:bg-brand-600 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-xl text-sm font-semibold transition-colors"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

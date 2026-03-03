@@ -48,7 +48,7 @@ export default function Layout() {
         className={`
           fixed lg:static inset-y-0 left-0 z-50
           ${collapsed ? 'w-[72px]' : 'w-[272px]'}
-          bg-gradient-to-b from-brand-600 via-brand-600 to-brand-700 flex flex-col
+          bg-gradient-to-b from-slate-800 via-slate-800 to-slate-900 flex flex-col
           transform transition-all duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
