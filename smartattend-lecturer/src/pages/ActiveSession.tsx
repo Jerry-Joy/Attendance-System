@@ -370,7 +370,7 @@ export default function ActiveSession() {
                   size={260}
                   level="H"
                   bgColor="#FFFFFF"
-                  fgColor="#0D47A1"
+                  fgColor="#059669"
                   includeMargin={false}
                 />
               </div>
@@ -406,7 +406,7 @@ export default function ActiveSession() {
                       cy="60"
                       r={circleRadius}
                       fill="none"
-                      stroke={qrSecondsLeft <= 5 ? '#ef4444' : '#1565C0'}
+                      stroke={qrSecondsLeft <= 5 ? '#ef4444' : '#059669'}
                       strokeWidth="6"
                       strokeLinecap="round"
                       strokeDasharray={circumference}
@@ -600,7 +600,7 @@ export default function ActiveSession() {
               size={Math.min(400, window.innerWidth - 120)}
               level="H"
               bgColor="#FFFFFF"
-              fgColor="#0D47A1"
+              fgColor="#059669"
               includeMargin={false}
             />
           </div>
@@ -613,7 +613,7 @@ export default function ActiveSession() {
                 <circle cx="60" cy="60" r={circleRadius} fill="none" stroke="#e2e8f0" strokeWidth="6" />
                 <circle
                   cx="60" cy="60" r={circleRadius} fill="none"
-                  stroke={qrSecondsLeft <= 5 ? '#ef4444' : '#1565C0'}
+                  stroke={qrSecondsLeft <= 5 ? '#ef4444' : '#059669'}
                   strokeWidth="6" strokeLinecap="round"
                   strokeDasharray={circumference}
                   strokeDashoffset={strokeDashoffset}

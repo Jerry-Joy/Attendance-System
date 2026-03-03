@@ -131,37 +131,37 @@ export default function SessionHistory() {
 
       {/* Stats Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3">
+        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3 hover-lift animate-fade-in-up stagger-1">
           <div className="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center">
             <Calendar className="w-5 h-5 text-brand-500" />
           </div>
           <div>
-            <p className="text-xl font-bold text-slate-800">{totalSessions}</p>
+            <p className="text-xl font-bold text-slate-800 animate-number-pop stagger-3">{totalSessions}</p>
             <p className="text-xs text-slate-500">Total Sessions</p>
           </div>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3">
+        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3 hover-lift animate-fade-in-up stagger-2">
           <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
             <UserCheck className="w-5 h-5 text-emerald-600" />
           </div>
           <div>
-            <p className="text-xl font-bold text-slate-800">{totalPresent}</p>
+            <p className="text-xl font-bold text-slate-800 animate-number-pop stagger-4">{totalPresent}</p>
             <p className="text-xs text-slate-500">Total Check-ins</p>
           </div>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3">
+        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3 hover-lift animate-fade-in-up stagger-3">
           <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
             <Users className="w-5 h-5 text-amber-600" />
           </div>
           <div>
-            <p className="text-xl font-bold text-slate-800">{avgAttendance}%</p>
+            <p className="text-xl font-bold text-slate-800 animate-number-pop stagger-5">{avgAttendance}%</p>
             <p className="text-xs text-slate-500">Avg. Attendance</p>
           </div>
         </div>
       </div>
 
       {/* Search + Filter Bar */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-6">
+      <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-6 animate-fade-in-up stagger-4">
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Search */}
           <div className="relative flex-1">
@@ -230,7 +230,7 @@ export default function SessionHistory() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden mb-6">
+      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden mb-6 animate-fade-in-scale stagger-5">
         {filtered.length === 0 ? (
           <div className="py-16 text-center">
             <FileSpreadsheet className="w-12 h-12 text-slate-300 mx-auto mb-3" />
@@ -265,7 +265,7 @@ export default function SessionHistory() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {paginatedSessions.map((session) => {
+                {paginatedSessions.map((session, index) => {
                   const rate = Math.round(
                     (session.presentCount / session.totalStudents) * 100
                   )
@@ -279,7 +279,8 @@ export default function SessionHistory() {
                   return (
                     <tr
                       key={session.id}
-                      className="hover:bg-slate-50/50 transition-colors"
+                      className="hover:bg-slate-50/50 transition-all duration-200 row-animate group"
+                      style={{ animationDelay: `${index * 0.06}s` }}
                     >
                       {/* Course */}
                       <td className="py-4 px-5">
@@ -320,7 +321,7 @@ export default function SessionHistory() {
                       {/* Rate */}
                       <td className="py-4 px-5">
                         <span
-                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${rateColor}`}
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold transition-transform duration-200 group-hover:scale-110 ${rateColor}`}
                         >
                           {rate}%
                         </span>
@@ -331,15 +332,15 @@ export default function SessionHistory() {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => navigate('/session-summary', { state: { session } })}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-brand-600 bg-brand-50 hover:bg-brand-100 transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-brand-600 bg-brand-50 hover:bg-brand-100 hover:scale-105 active:scale-95 transition-all duration-200"
                           >
-                            <Eye className="w-3.5 h-3.5" />
+                            <Eye className="w-3.5 h-3.5 group-hover:animate-pulse" />
                             View Details
                           </button>
                           <button
                             onClick={() => handleDownload(session)}
                             disabled={downloadingId === session.id}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50"
                           >
                             {downloadingId === session.id ? (
                               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -387,7 +388,7 @@ export default function SessionHistory() {
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
-                  className={`w-8 h-8 rounded-lg text-xs font-semibold transition-colors ${page === safeCurrentPage
+                  className={`w-8 h-8 rounded-lg text-xs font-semibold transition-all duration-200 hover:scale-110 active:scale-90 ${page === safeCurrentPage
                     ? 'bg-brand-500 text-white shadow-sm'
                     : 'text-slate-500 hover:bg-white hover:text-slate-700 border border-transparent hover:border-slate-200'
                     }`}
@@ -411,7 +412,7 @@ export default function SessionHistory() {
       {/* Back to Dashboard */}
       <button
         onClick={() => navigate('/courses')}
-        className="w-full sm:w-auto px-8 py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-brand-500/25"
+        className="w-full sm:w-auto px-8 py-3 bg-brand-500 hover:bg-brand-600 hover:scale-[1.02] active:scale-95 text-white rounded-xl font-semibold text-sm transition-all duration-200 shadow-lg shadow-brand-500/25 animate-fade-in-up stagger-6"
       >
         Back to Dashboard
       </button>

@@ -16,6 +16,7 @@ import {
   UserPlus,
   X,
   AlertTriangle,
+  Radio,
 } from 'lucide-react'
 import { useData } from '../context/DataContext'
 import { useAuth } from '../context/AuthContext'
@@ -23,7 +24,7 @@ import type { Course } from '../types'
 
 export default function Courses() {
   const navigate = useNavigate()
-  const { courses: mockCourses, deleteCourse, updateCourse, pastSessions } = useData()
+  const { courses: mockCourses, deleteCourse, updateCourse, pastSessions, activeSession } = useData()
   const { lecturer } = useAuth()
   const [view, setView] = useState<'list' | 'grid'>('list')
   const [openMenu, setOpenMenu] = useState<string | null>(null)
@@ -60,8 +61,11 @@ export default function Courses() {
   const totalStudents = mockCourses.reduce((acc, c) => acc + c.studentCount, 0)
   const totalSessions = pastSessions.length
 
-  /* colour for the left border accent per course index */
-  const accentColors = ['border-brand-500', 'border-emerald-500', 'border-amber-500']
+  /* border accent colour based on attendance progress */
+  const getAccentColor = (rate: number) =>
+    rate >= 85 ? 'border-l-emerald-500' : rate >= 70 ? 'border-l-sky-500' : 'border-l-amber-500'
+  const getAccentColorTop = (rate: number) =>
+    rate >= 85 ? 'border-t-emerald-500' : rate >= 70 ? 'border-t-sky-500' : 'border-t-amber-500'
 
   /* attendance progress per course from past sessions */
   const getProgress = (code: string) => {
@@ -72,7 +76,7 @@ export default function Courses() {
     return Math.round(avg)
   }
   const getProgressColor = (rate: number) =>
-    rate >= 85 ? 'bg-emerald-500' : rate >= 70 ? 'bg-brand-500' : 'bg-amber-500'
+    rate >= 85 ? 'bg-emerald-500' : rate >= 70 ? 'bg-sky-500' : 'bg-amber-500'
 
   /* extract short join code (last part after dash) */
   const shortJoinCode = (code: string) => code.split('-')[1] || code
@@ -178,13 +182,24 @@ export default function Courses() {
           {mockCourses.map((course, idx) => {
             const progress = getProgress(course.code)
             const progressColor = getProgressColor(progress)
-            const accent = accentColors[idx % accentColors.length]
+            const accent = getAccentColor(progress)
+            const isLive = activeSession?.courseId === course.id
 
             return (
               <div
                 key={course.id}
-                className={`bg-white rounded-2xl border border-slate-200 border-l-4 ${accent} hover:shadow-md hover:border-slate-300 transition-all duration-200 relative`}
+                className={`bg-white rounded-2xl border ${isLive ? 'border-emerald-300 ring-2 ring-emerald-100' : 'border-slate-200'} border-l-4 ${isLive ? 'border-l-emerald-500' : accent} hover:shadow-md hover:border-slate-300 transition-all duration-200 relative`}
               >
+                {/* Live indicator */}
+                {isLive && (
+                  <div className="absolute -top-2.5 left-6 flex items-center gap-1.5 px-2.5 py-0.5 bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider rounded-full shadow-md shadow-emerald-500/30">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inset-0 rounded-full bg-white opacity-75" />
+                      <span className="relative rounded-full h-2 w-2 bg-white" />
+                    </span>
+                    Live Session
+                  </div>
+                )}
                 <div className="px-5 py-4 flex flex-col lg:flex-row lg:items-center gap-4">
                   {/* Left: Course info */}
                   <div className="flex-1 min-w-0">
@@ -250,13 +265,23 @@ export default function Courses() {
 
                   {/* Actions */}
                   <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      onClick={() => navigate(`/courses/${course.id}/start-session`)}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-xs font-semibold transition-all hover:-translate-y-[1px] active:translate-y-0"
-                    >
-                      <Play className="w-3 h-3" />
-                      Start Session
-                    </button>
+                    {isLive ? (
+                      <button
+                        onClick={() => navigate('/active-session')}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-xs font-semibold transition-all hover:-translate-y-[1px] active:translate-y-0 shadow-md shadow-emerald-500/20"
+                      >
+                        <Radio className="w-3 h-3" />
+                        Rejoin Session
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => navigate(`/courses/${course.id}/start-session`)}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-xs font-semibold transition-all hover:-translate-y-[1px] active:translate-y-0"
+                      >
+                        <Play className="w-3 h-3" />
+                        Start Session
+                      </button>
+                    )}
 
                     {/* More menu */}
                     <div className="relative">
@@ -317,13 +342,24 @@ export default function Courses() {
           {mockCourses.map((course, idx) => {
             const progress = getProgress(course.code)
             const progressColor = getProgressColor(progress)
-            const accent = accentColors[idx % accentColors.length]
+            const accent = getAccentColorTop(progress)
+            const isLive = activeSession?.courseId === course.id
 
             return (
               <div
                 key={course.id}
-                className={`bg-white rounded-2xl border border-slate-200 border-t-4 ${accent.replace('border-l-', 'border-t-')} hover:shadow-lg hover:border-slate-300 transition-all duration-200 overflow-hidden`}
+                className={`bg-white rounded-2xl border ${isLive ? 'border-emerald-300 ring-2 ring-emerald-100' : 'border-slate-200'} border-t-4 ${isLive ? 'border-t-emerald-500' : accent} hover:shadow-lg hover:border-slate-300 transition-all duration-200 overflow-visible relative`}
               >
+                {/* Live indicator */}
+                {isLive && (
+                  <div className="absolute -top-2.5 left-5 flex items-center gap-1.5 px-2.5 py-0.5 bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider rounded-full shadow-md shadow-emerald-500/30 z-10">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inset-0 rounded-full bg-white opacity-75" />
+                      <span className="relative rounded-full h-2 w-2 bg-white" />
+                    </span>
+                    Live
+                  </div>
+                )}
                 <div className="p-5">
                   <div className="flex items-start justify-between mb-3">
                     <div>
@@ -377,13 +413,23 @@ export default function Courses() {
                   </div>
 
                   <div className="flex gap-2">
-                    <button
-                      onClick={() => navigate(`/courses/${course.id}/start-session`)}
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-semibold transition-all"
-                    >
-                      <Play className="w-3 h-3" />
-                      Start Session
-                    </button>
+                    {isLive ? (
+                      <button
+                        onClick={() => navigate('/active-session')}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-semibold transition-all shadow-md shadow-emerald-500/20"
+                      >
+                        <Radio className="w-3 h-3" />
+                        Rejoin Session
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => navigate(`/courses/${course.id}/start-session`)}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl text-xs font-semibold transition-all"
+                      >
+                        <Play className="w-3 h-3" />
+                        Start Session
+                      </button>
+                    )}
                     <button
                       onClick={() => navigate(`/courses/${course.id}/students`)}
                       className="px-3 py-2.5 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-500 rounded-xl transition-all"

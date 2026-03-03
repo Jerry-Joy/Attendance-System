@@ -206,7 +206,7 @@ export default function StartSession() {
               onChange={(e) => setGeofenceRadius(Number(e.target.value))}
               className="w-full h-2 rounded-full appearance-none cursor-pointer outline-none"
               style={{
-                background: `linear-gradient(to right, #1565C0 0%, #1565C0 ${sliderPercent}%, #e2e8f0 ${sliderPercent}%, #e2e8f0 100%)`,
+                background: `linear-gradient(to right, #059669 0%, #059669 ${sliderPercent}%, #e2e8f0 ${sliderPercent}%, #e2e8f0 100%)`,
               }}
             />
             <div className="flex justify-between mt-1.5">
@@ -321,7 +321,7 @@ export default function StartSession() {
         </div>
 
         {/* QR Info */}
-        <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 flex items-start gap-3">
+        <div className="p-4 bg-brand-50 rounded-xl border border-brand-100 flex items-start gap-3">
           <QrCode className="w-5 h-5 text-brand-500 shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-medium text-brand-700">Dynamic QR Code</p>
