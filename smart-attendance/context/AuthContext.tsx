@@ -1,14 +1,12 @@
 /**
  * AuthContext — Simple authentication state for demo purposes.
- * Manages login/logout and role selection (student/lecturer).
+ * Student-only — manages login/logout.
  */
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { UserRole } from '@/constants/MockData';
 
 interface AuthState {
   isAuthenticated: boolean;
-  role: UserRole | null;
-  login: (role: UserRole) => void;
+  login: () => void;
   logout: () => void;
 }
 
@@ -16,20 +14,17 @@ const AuthContext = createContext<AuthState | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [role, setRole] = useState<UserRole | null>(null);
 
-  const login = (selectedRole: UserRole) => {
-    setRole(selectedRole);
+  const login = () => {
     setIsAuthenticated(true);
   };
 
   const logout = () => {
     setIsAuthenticated(false);
-    setRole(null);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, role, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

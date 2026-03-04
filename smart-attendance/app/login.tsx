@@ -1,6 +1,6 @@
 /**
- * Login Screen — Shared for Student and Lecturer.
- * Role toggle at top, Student ID/Lecturer ID input.
+ * Login Screen — Student authentication.
+ * Simple student login with ID and password.
  */
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
@@ -11,24 +11,18 @@ import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/context/AuthContext';
 import { PrimaryButton, InputField } from '@/components/ui';
 import { Typography, Spacing, BorderRadius } from '@/constants/Layout';
-import { UserRole } from '@/constants/MockData';
 
 export default function LoginScreen() {
   const theme = useTheme();
   const router = useRouter();
   const { login } = useAuth();
-  const [role, setRole] = useState<UserRole>('student');
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = () => {
-    login(role);
-    if (role === 'student') {
-      router.replace('/(student)/home');
-    } else {
-      router.replace('/(lecturer)/courses');
-    }
+    login();
+    router.replace('/(student)/home');
   };
 
   return (
@@ -42,52 +36,6 @@ export default function LoginScreen() {
         showsVerticalScrollIndicator={false}
       >
         <Animated.View entering={FadeInDown.duration(500).delay(100)}>
-          {/* Role Toggle */}
-          <View style={[styles.roleToggle, { backgroundColor: theme.border }]}>
-            <TouchableOpacity
-              onPress={() => setRole('student')}
-              style={[
-                styles.roleTab,
-                role === 'student' && { backgroundColor: theme.primary },
-              ]}
-            >
-              <FontAwesome
-                name="graduation-cap"
-                size={16}
-                color={role === 'student' ? '#fff' : theme.textSecondary}
-              />
-              <Text
-                style={[
-                  Typography.bodySmall,
-                  { color: role === 'student' ? '#fff' : theme.textSecondary, marginLeft: 6 },
-                ]}
-              >
-                Student
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setRole('lecturer')}
-              style={[
-                styles.roleTab,
-                role === 'lecturer' && { backgroundColor: theme.primary },
-              ]}
-            >
-              <FontAwesome
-                name="briefcase"
-                size={16}
-                color={role === 'lecturer' ? '#fff' : theme.textSecondary}
-              />
-              <Text
-                style={[
-                  Typography.bodySmall,
-                  { color: role === 'lecturer' ? '#fff' : theme.textSecondary, marginLeft: 6 },
-                ]}
-              >
-                Lecturer
-              </Text>
-            </TouchableOpacity>
-          </View>
-
           {/* Logo */}
           <View style={styles.logoSection}>
             <View style={[styles.logoCircle, { backgroundColor: theme.primaryLight }]}>
@@ -97,7 +45,7 @@ export default function LoginScreen() {
               Welcome Back
             </Text>
             <Text style={[Typography.bodySmall, { color: theme.textSecondary, marginTop: Spacing.xs }]}>
-              {role === 'student' ? 'Sign in to mark attendance' : 'Sign in to manage sessions'}
+              Sign in to mark attendance
             </Text>
           </View>
 
@@ -106,7 +54,7 @@ export default function LoginScreen() {
             <InputField
               value={userId}
               onChangeText={setUserId}
-              placeholder={role === 'student' ? 'Student ID' : 'Lecturer ID'}
+              placeholder="Student ID"
               icon="user"
               autoCapitalize="none"
               returnKeyType="next"
@@ -159,20 +107,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingTop: 60,
     paddingBottom: 40,
-  },
-  roleToggle: {
-    flexDirection: 'row',
-    borderRadius: BorderRadius.lg,
-    padding: 4,
-    marginBottom: Spacing.xl,
-  },
-  roleTab: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderRadius: BorderRadius.md,
   },
   logoSection: {
     alignItems: 'center',

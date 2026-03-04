@@ -13,20 +13,18 @@ import { useAuth } from '@/context/AuthContext';
 
 export default function SplashPage() {
   const router = useRouter();
-  const { isAuthenticated, role } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (isAuthenticated && role === 'student') {
+      if (isAuthenticated) {
         router.replace('/(student)/home');
-      } else if (isAuthenticated && role === 'lecturer') {
-        router.replace('/(lecturer)/courses');
       } else {
         router.replace('/login');
       }
     }, 2000);
     return () => clearTimeout(timer);
-  }, [isAuthenticated, role]);
+  }, [isAuthenticated]);
 
   return (
     <View style={styles.container}>

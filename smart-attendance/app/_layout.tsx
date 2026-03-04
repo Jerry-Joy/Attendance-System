@@ -46,17 +46,10 @@ function RootLayoutNav() {
         <Stack.Screen name="index" />
         <Stack.Screen name="login" />
         <Stack.Screen name="(student)" />
-        <Stack.Screen name="(lecturer)" />
         <Stack.Screen name="scanner" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="gps-verify" />
         <Stack.Screen name="attendance-confirmed" />
-        <Stack.Screen name="start-session" />
-        <Stack.Screen name="active-session" />
-        <Stack.Screen name="live-monitor" />
-        <Stack.Screen name="session-summary" />
         <Stack.Screen name="join-course" />
-        <Stack.Screen name="manage-students" />
-        <Stack.Screen name="create-course" />
       </Stack>
     </ThemeProvider>
   );
