@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './context/AuthContext'
 import Layout from './components/Layout'
 import Login from './pages/Login'
+import SignUp from './pages/SignUp'
 import Courses from './pages/Courses'
 import CreateCourse from './pages/CreateCourse'
 import ManageStudents from './pages/ManageStudents'
@@ -29,6 +30,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<SignUp />} />
       <Route
         element={
           <ProtectedRoute>
