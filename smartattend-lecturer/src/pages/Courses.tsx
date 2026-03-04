@@ -198,7 +198,7 @@ export default function Courses() {
             return (
               <div
                 key={course.id}
-                className={`bg-white dark:bg-slate-800 rounded-2xl border ${isLive ? 'border-emerald-300 dark:border-emerald-500/50 ring-2 ring-emerald-100 dark:ring-emerald-500/20' : 'border-slate-200 dark:border-slate-700'} border-l-4 ${isLive ? 'border-l-emerald-500' : accent} hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative group`}
+                className={`bg-white dark:bg-slate-800 rounded-2xl border ${isLive ? 'border-emerald-300 dark:border-emerald-500/50 ring-2 ring-emerald-100 dark:ring-emerald-500/20' : 'border-slate-200 dark:border-slate-700'} border-l-4 ${isLive ? 'border-l-emerald-500' : accent} hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative group ${openMenu === course.id ? 'z-50' : 'z-0'}`}
               >
                 {/* Live indicator */}
                 {isLive && (
@@ -358,7 +358,7 @@ export default function Courses() {
             return (
               <div
                 key={course.id}
-                className={`bg-white dark:bg-slate-800 rounded-2xl border ${isLive ? 'border-emerald-300 dark:border-emerald-500/50 ring-2 ring-emerald-100 dark:ring-emerald-500/20' : 'border-slate-200 dark:border-slate-700'} border-t-4 ${isLive ? 'border-t-emerald-500' : accent} hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-visible relative group`}
+                className={`bg-white dark:bg-slate-800 rounded-2xl border ${isLive ? 'border-emerald-300 dark:border-emerald-500/50 ring-2 ring-emerald-100 dark:ring-emerald-500/20' : 'border-slate-200 dark:border-slate-700'} border-t-4 ${isLive ? 'border-t-emerald-500' : accent} hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-visible relative group ${openMenu === course.id ? 'z-50' : 'z-0'}`}
               >
                 {/* Live indicator */}
                 {isLive && (
@@ -444,8 +444,55 @@ export default function Courses() {
                       onClick={() => navigate(`/courses/${course.id}/students`)}
                       className="px-3 py-2.5 border border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-xl transition-all"
                     >
-                      <MoreHorizontal className="w-4 h-4" />
+                      <Users className="w-4 h-4" />
                     </button>
+                    <div className="relative">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setOpenMenu(openMenu === course.id ? null : course.id)
+                        }}
+                        className="px-3 py-2.5 border border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-xl transition-all"
+                      >
+                        <MoreHorizontal className="w-4 h-4" />
+                      </button>
+
+                      {openMenu === course.id && (
+                        <>
+                          <div
+                            className="fixed inset-0 z-40"
+                            onClick={() => setOpenMenu(null)}
+                          />
+                          <div className="absolute right-0 top-full mt-1 w-44 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-black/30 z-50 py-1.5 animate-slide-up">
+                            <button
+                              onClick={() => {
+                                setOpenMenu(null)
+                                navigate(`/courses/${course.id}/students`)
+                              }}
+                              className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                            >
+                              <UserPlus className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                              Manage Students
+                            </button>
+                            <button
+                              onClick={() => openEditModal(course)}
+                              className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                            >
+                              <Pencil className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                              Edit Course
+                            </button>
+                            <div className="my-1 border-t border-slate-100 dark:border-slate-700" />
+                            <button
+                              onClick={() => { setDeleteTarget(course); setOpenMenu(null) }}
+                              className="w-full flex items-center gap-2.5 px-3.5 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                              Delete Course
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
