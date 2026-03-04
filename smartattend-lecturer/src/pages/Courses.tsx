@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Plus,
@@ -38,11 +38,50 @@ export default function Courses() {
     try { localStorage.setItem('smartattend_course_view', v) } catch { /* ignore */ }
   }
   const [openMenu, setOpenMenu] = useState<string | null>(null)
+  const [menuPosition, setMenuPosition] = useState<'above' | 'below'>('below')
+  const menuContainerRef = useRef<HTMLDivElement>(null)
   const [deleteTarget, setDeleteTarget] = useState<Course | null>(null)
   const [editTarget, setEditTarget] = useState<Course | null>(null)
   const [editCode, setEditCode] = useState('')
   const [editName, setEditName] = useState('')
   const [editVenue, setEditVenue] = useState('')
+
+  /* Toggle more-menu & compute whether to open above or below */
+  const handleToggleMenu = useCallback(
+    (courseId: string, e: React.MouseEvent<HTMLButtonElement>) => {
+      if (openMenu === courseId) {
+        setOpenMenu(null)
+        return
+      }
+      const rect = e.currentTarget.getBoundingClientRect()
+      const spaceBelow = window.innerHeight - rect.bottom
+      setMenuPosition(spaceBelow < 180 ? 'above' : 'below')
+      setOpenMenu(courseId)
+    },
+    [openMenu],
+  )
+
+  /* Close menu on outside click or Escape */
+  useEffect(() => {
+    if (!openMenu) return
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        menuContainerRef.current &&
+        !menuContainerRef.current.contains(e.target as Node)
+      ) {
+        setOpenMenu(null)
+      }
+    }
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpenMenu(null)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('keydown', handleEscape)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [openMenu])
 
   const openEditModal = (course: Course) => {
     setEditCode(course.code)
@@ -294,11 +333,9 @@ export default function Courses() {
                     )}
 
                     {/* More menu */}
-                    <div className="relative">
+                    <div className="relative" ref={openMenu === course.id ? menuContainerRef : undefined}>
                       <button
-                        onClick={() =>
-                          setOpenMenu(openMenu === course.id ? null : course.id)
-                        }
+                        onClick={(e) => handleToggleMenu(course.id, e)}
                         className="p-2 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                       >
                         <MoreHorizontal className="w-4 h-4" />
@@ -306,11 +343,7 @@ export default function Courses() {
 
                       {openMenu === course.id && (
                         <>
-                          <div
-                            className="fixed inset-0 z-40"
-                            onClick={() => setOpenMenu(null)}
-                          />
-                          <div className="absolute right-0 top-full mt-1 w-44 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-black/30 z-50 py-1.5 animate-slide-up">
+                          <div className={`absolute right-0 ${menuPosition === 'above' ? 'bottom-full mb-1' : 'top-full mt-1'} w-44 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-black/30 z-50 py-1.5 animate-slide-up`}>
                             <button
                               onClick={() => {
                                 setOpenMenu(null)
@@ -446,11 +479,11 @@ export default function Courses() {
                     >
                       <Users className="w-4 h-4" />
                     </button>
-                    <div className="relative">
+                    <div className="relative" ref={openMenu === course.id ? menuContainerRef : undefined}>
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
-                          setOpenMenu(openMenu === course.id ? null : course.id)
+                          handleToggleMenu(course.id, e)
                         }}
                         className="px-3 py-2.5 border border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-xl transition-all"
                       >
@@ -459,11 +492,7 @@ export default function Courses() {
 
                       {openMenu === course.id && (
                         <>
-                          <div
-                            className="fixed inset-0 z-40"
-                            onClick={() => setOpenMenu(null)}
-                          />
-                          <div className="absolute right-0 top-full mt-1 w-44 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-black/30 z-50 py-1.5 animate-slide-up">
+                          <div className={`absolute right-0 ${menuPosition === 'above' ? 'bottom-full mb-1' : 'top-full mt-1'} w-44 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl shadow-slate-200/50 dark:shadow-black/30 z-50 py-1.5 animate-slide-up`}>
                             <button
                               onClick={() => {
                                 setOpenMenu(null)
