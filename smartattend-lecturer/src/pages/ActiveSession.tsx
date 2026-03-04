@@ -274,28 +274,28 @@ export default function ActiveSession() {
         <div>
           <div className="flex items-center gap-3">
             {sessionExpired ? (
-              <div className="flex items-center gap-2 px-3 py-1 bg-slate-100 border border-slate-200 rounded-full">
-                <AlertTriangle className="w-3.5 h-3.5 text-slate-500" />
-                <span className="text-xs font-bold text-slate-600 uppercase">Session Ended</span>
+              <div className="flex items-center gap-2 px-3 py-1 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-full">
+                <AlertTriangle className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+                <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase">Session Ended</span>
               </div>
             ) : (
-              <div className="flex items-center gap-2 px-3 py-1 bg-red-50 border border-red-200 rounded-full">
+              <div className="flex items-center gap-2 px-3 py-1 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-full">
                 <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                 <span className="text-xs font-bold text-red-600 uppercase">Live Session</span>
               </div>
             )}
           </div>
-          <h1 className="text-xl font-bold text-slate-800 mt-2">{course?.name}</h1>
-          <p className="text-sm text-slate-500">{course?.code}</p>
+          <h1 className="text-xl font-bold text-slate-800 dark:text-white mt-2">{course?.name}</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">{course?.code}</p>
         </div>
 
         {/* Elapsed + remaining */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 rounded-xl">
-            <Clock className="w-4 h-4 text-slate-500" />
-            <span className="text-lg font-bold text-slate-800 font-mono">{formatElapsed(elapsed)}</span>
+          <div className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl">
+            <Clock className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+            <span className="text-lg font-bold text-slate-800 dark:text-white font-mono">{formatElapsed(elapsed)}</span>
           </div>
-          <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${sessionExpired ? 'bg-red-50' : 'bg-brand-50'
+          <div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${sessionExpired ? 'bg-red-50 dark:bg-red-500/10' : 'bg-brand-50 dark:bg-brand-500/10'
             }`}>
             <Timer className={`w-4 h-4 ${countdownColor}`} />
             <span className={`text-lg font-bold font-mono ${countdownColor}`}>
@@ -307,48 +307,48 @@ export default function ActiveSession() {
 
       {/* ── Session Metadata Bar ──────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <div className="bg-white rounded-xl border border-slate-200 px-4 py-3">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-3">
           <div className="flex items-center gap-2 mb-1">
-            <BookOpen className="w-3.5 h-3.5 text-slate-400" />
-            <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Course</span>
+            <BookOpen className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+            <span className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-semibold">Course</span>
           </div>
-          <p className="text-sm font-bold text-slate-800 truncate">{course?.code}</p>
+          <p className="text-sm font-bold text-slate-800 dark:text-white truncate">{course?.code}</p>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 px-4 py-3">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-3">
           <div className="flex items-center gap-2 mb-1">
-            <Target className="w-3.5 h-3.5 text-slate-400" />
-            <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Radius</span>
+            <Target className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+            <span className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-semibold">Radius</span>
           </div>
-          <p className="text-sm font-bold text-slate-800">{radius}m</p>
+          <p className="text-sm font-bold text-slate-800 dark:text-white">{radius}m</p>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 px-4 py-3">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-3">
           <div className="flex items-center gap-2 mb-1">
-            <Clock className="w-3.5 h-3.5 text-slate-400" />
-            <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Duration</span>
+            <Clock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+            <span className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-semibold">Duration</span>
           </div>
-          <p className="text-sm font-bold text-slate-800">{state?.duration || '30 min'}</p>
+          <p className="text-sm font-bold text-slate-800 dark:text-white">{state?.duration || '30 min'}</p>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 px-4 py-3">
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-3">
           <div className="flex items-center gap-2 mb-1">
-            <MapPin className="w-3.5 h-3.5 text-slate-400" />
-            <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Venue</span>
+            <MapPin className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+            <span className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-semibold">Venue</span>
           </div>
-          <p className="text-sm font-bold text-slate-800 truncate">{course?.venueName || 'N/A'}</p>
+          <p className="text-sm font-bold text-slate-800 dark:text-white truncate">{course?.venueName || 'N/A'}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* ── QR Code Section (large & centered) ──────────────── */}
         <div className="lg:col-span-3">
-          <div className="bg-white rounded-2xl border border-slate-200 p-8 flex flex-col items-center">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-8 flex flex-col items-center">
             <div className="flex items-center justify-between w-full mb-6">
-              <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
+              <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 {sessionExpired ? 'Session Has Ended' : 'Scan QR Code to Mark Attendance'}
               </h3>
               {!sessionExpired && (
                 <button
                   onClick={() => setQrFullscreen(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-brand-600 bg-brand-50 hover:bg-brand-100 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10 hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-colors"
                   title="Fullscreen QR"
                 >
                   <Maximize2 className="w-3.5 h-3.5" />
@@ -360,10 +360,10 @@ export default function ActiveSession() {
             {/* QR Code — large, centered, with expiry overlay */}
             <div className="relative mb-6">
               <div className={`p-8 bg-white rounded-2xl border-2 transition-all duration-500 ${qrExpired || sessionExpired
-                ? 'border-slate-300 opacity-30 grayscale'
+                ? 'border-slate-300 dark:border-slate-600 opacity-30 grayscale'
                 : qrSecondsLeft <= 5
-                  ? 'border-red-200 shadow-lg shadow-red-100'
-                  : 'border-slate-100 shadow-inner'
+                  ? 'border-red-200 dark:border-red-500/30 shadow-lg shadow-red-100 dark:shadow-red-500/10'
+                  : 'border-slate-100 dark:border-slate-600 shadow-inner'
                 }`}>
                 <QRCodeSVG
                   value={qrPayload}
@@ -377,11 +377,11 @@ export default function ActiveSession() {
 
               {/* Expired overlay */}
               {sessionExpired && (
-                <div className="absolute inset-0 flex items-center justify-center bg-white/70 rounded-2xl">
+                <div className="absolute inset-0 flex items-center justify-center bg-white/70 dark:bg-slate-800/70 rounded-2xl">
                   <div className="text-center">
                     <AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-2" />
                     <p className="text-sm font-bold text-red-600">QR Disabled</p>
-                    <p className="text-xs text-slate-500">Session time has expired</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Session time has expired</p>
                   </div>
                 </div>
               )}
@@ -420,12 +420,12 @@ export default function ActiveSession() {
                       }`}>
                       {qrSecondsLeft}
                     </span>
-                    <span className="text-[10px] text-slate-400 uppercase">seconds</span>
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase">seconds</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <RefreshCw className={`w-3.5 h-3.5 text-brand-500 ${qrSecondsLeft <= 5 ? 'animate-spin' : ''}`} />
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-slate-500 dark:text-slate-400">
                     QR auto-refreshes every {QR_LIFETIME}s
                   </span>
                 </div>
@@ -433,8 +433,8 @@ export default function ActiveSession() {
             )}
 
             {/* QR Token ID */}
-            <div className="px-4 py-2 bg-slate-50 rounded-lg">
-              <span className="text-[11px] text-slate-400 font-mono">{JSON.parse(qrPayload).token}</span>
+            <div className="px-4 py-2 bg-slate-50 dark:bg-slate-700 rounded-lg">
+              <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">{JSON.parse(qrPayload).token}</span>
             </div>
           </div>
         </div>
@@ -442,77 +442,77 @@ export default function ActiveSession() {
         {/* ── Stats Panel ─────────────────────────────────────── */}
         <div className="lg:col-span-2 space-y-4">
           {/* Student Count */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5">
             <div className="flex items-center gap-2 mb-3">
-              <Users className="w-4 h-4 text-slate-500" />
-              <h3 className="text-sm font-semibold text-slate-500">Students Present</h3>
+              <Users className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+              <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400">Students Present</h3>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-bold text-brand-600">{studentCount}</span>
-              <span className="text-lg text-slate-400">/ {totalStudents}</span>
+              <span className="text-4xl font-bold text-brand-600 dark:text-brand-400">{studentCount}</span>
+              <span className="text-lg text-slate-400 dark:text-slate-500">/ {totalStudents}</span>
             </div>
-            <div className="mt-3 h-2 bg-slate-100 rounded-full overflow-hidden">
+            <div className="mt-3 h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
               <div
                 className="h-full bg-brand-500 rounded-full transition-all duration-1000"
                 style={{ width: `${totalStudents > 0 ? (studentCount / totalStudents) * 100 : 0}%` }}
               />
             </div>
-            <p className="text-xs text-slate-400 mt-2">
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
               {totalStudents > 0 ? Math.round((studentCount / totalStudents) * 100) : 0}% attendance so far
             </p>
           </div>
 
           {/* GPS Geofence */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5">
             <div className="flex items-center gap-2 mb-3">
-              <MapPin className="w-4 h-4 text-slate-500" />
-              <h3 className="text-sm font-semibold text-slate-500">GPS Geofence</h3>
+              <MapPin className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+              <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400">GPS Geofence</h3>
             </div>
-            <div className="flex items-center gap-3 p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+            <div className="flex items-center gap-3 p-3 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl border border-emerald-100 dark:border-emerald-500/20">
               <div className="relative">
-                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                  <Shield className="w-5 h-5 text-emerald-600" />
+                <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 {!sessionExpired && (
                   <div className="absolute inset-0 rounded-full border-2 border-emerald-400 animate-pulse-ring" />
                 )}
               </div>
               <div>
-                <p className="text-sm font-semibold text-emerald-700">
+                <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
                   {sessionExpired ? 'Inactive' : 'Active'}
                 </p>
-                <p className="text-xs text-emerald-600">{radius}m radius · {course?.venueName}</p>
+                <p className="text-xs text-emerald-600 dark:text-emerald-400/80">{radius}m radius · {course?.venueName}</p>
               </div>
             </div>
             {state?.latitude != null && state?.longitude != null && (
               <div className="mt-3 grid grid-cols-2 gap-2">
-                <div className="bg-slate-50 rounded-lg p-2 text-center">
-                  <p className="text-[9px] text-slate-400 uppercase tracking-wider">Lat</p>
-                  <p className="text-xs font-mono font-bold text-slate-700">{state.latitude.toFixed(6)}</p>
+                <div className="bg-slate-50 dark:bg-slate-700 rounded-lg p-2 text-center">
+                  <p className="text-[9px] text-slate-400 dark:text-slate-500 uppercase tracking-wider">Lat</p>
+                  <p className="text-xs font-mono font-bold text-slate-700 dark:text-slate-200">{state.latitude.toFixed(6)}</p>
                 </div>
-                <div className="bg-slate-50 rounded-lg p-2 text-center">
-                  <p className="text-[9px] text-slate-400 uppercase tracking-wider">Lng</p>
-                  <p className="text-xs font-mono font-bold text-slate-700">{state.longitude.toFixed(6)}</p>
+                <div className="bg-slate-50 dark:bg-slate-700 rounded-lg p-2 text-center">
+                  <p className="text-[9px] text-slate-400 dark:text-slate-500 uppercase tracking-wider">Lng</p>
+                  <p className="text-xs font-mono font-bold text-slate-700 dark:text-slate-200">{state.longitude.toFixed(6)}</p>
                 </div>
               </div>
             )}
           </div>
 
           {/* Verification Stats */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5">
             <div className="flex items-center gap-2 mb-3">
-              <Wifi className="w-4 h-4 text-slate-500" />
-              <h3 className="text-sm font-semibold text-slate-500">Verification</h3>
+              <Wifi className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+              <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400">Verification</h3>
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-600">QR + GPS Verified</span>
+                <span className="text-slate-600 dark:text-slate-300">QR + GPS Verified</span>
                 <span className="font-bold text-emerald-600">
                   {(activeSession?.attendees ?? []).filter(s => s.gpsVerified).length}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-600">QR Only</span>
+                <span className="text-slate-600 dark:text-slate-300">QR Only</span>
                 <span className="font-bold text-amber-600">{(activeSession?.attendees ?? []).filter(s => !s.gpsVerified).length}</span>
               </div>
             </div>
@@ -520,10 +520,10 @@ export default function ActiveSession() {
 
           {/* Session countdown card */}
           <div className={`rounded-2xl border p-5 ${sessionExpired
-            ? 'bg-red-50 border-red-200'
+            ? 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20'
             : sessionTimeLeft <= 300
-              ? 'bg-amber-50 border-amber-200'
-              : 'bg-brand-50 border-brand-200'
+              ? 'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20'
+              : 'bg-brand-50 dark:bg-brand-500/10 border-brand-200 dark:border-brand-500/20'
             }`}>
             <div className="flex items-center gap-2 mb-2">
               <Timer className={`w-4 h-4 ${countdownColor}`} />
@@ -544,7 +544,7 @@ export default function ActiveSession() {
         {!sessionExpired && (
           <button
             onClick={() => navigate('/live-monitor')}
-            className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-white border border-slate-200 hover:border-brand-300 hover:bg-brand-50 text-slate-700 rounded-xl font-semibold text-sm transition-all"
+            className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-brand-300 dark:hover:border-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/10 text-slate-700 dark:text-slate-200 rounded-xl font-semibold text-sm transition-all"
           >
             <Monitor className="w-4 h-4" />
             Live Monitor
@@ -564,11 +564,11 @@ export default function ActiveSession() {
 
       {/* ── Fullscreen QR Modal ───────────────────────────────── */}
       {qrFullscreen && !sessionExpired && (
-        <div className="fixed inset-0 bg-white z-[60] flex flex-col items-center justify-center">
+        <div className="fixed inset-0 bg-white dark:bg-slate-900 z-[60] flex flex-col items-center justify-center">
           {/* Close button */}
           <button
             onClick={() => setQrFullscreen(false)}
-            className="absolute top-5 right-5 p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors z-10"
+            className="absolute top-5 right-5 p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors z-10"
             title="Exit fullscreen"
           >
             <X className="w-5 h-5" />
@@ -577,7 +577,7 @@ export default function ActiveSession() {
           {/* Minimize hint */}
           <button
             onClick={() => setQrFullscreen(false)}
-            className="absolute top-5 left-5 flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-semibold transition-colors z-10"
+            className="absolute top-5 left-5 flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold transition-colors z-10"
           >
             <Minimize2 className="w-4 h-4" />
             Exit Fullscreen
@@ -585,16 +585,16 @@ export default function ActiveSession() {
 
           {/* Course info */}
           <div className="mb-6 text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-50 border border-red-200 rounded-full mb-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-full mb-3">
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
               <span className="text-xs font-bold text-red-600 uppercase">Live</span>
             </div>
-            <h2 className="text-lg font-bold text-slate-800">{course?.code} — {course?.name}</h2>
-            <p className="text-sm text-slate-500 mt-1">{course?.venueName}</p>
+            <h2 className="text-lg font-bold text-slate-800 dark:text-white">{course?.code} — {course?.name}</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{course?.venueName}</p>
           </div>
 
           {/* Large QR */}
-          <div className="p-10 bg-white rounded-3xl border-2 border-slate-100 shadow-2xl shadow-slate-200/50 mb-6">
+          <div className="p-10 bg-white rounded-3xl border-2 border-slate-100 dark:border-slate-300 shadow-2xl shadow-slate-200/50 dark:shadow-black/30 mb-6">
             <QRCodeSVG
               value={qrPayload}
               size={Math.min(400, window.innerWidth - 120)}
@@ -628,12 +628,12 @@ export default function ActiveSession() {
             </div>
 
             <div className="text-center">
-              <p className="text-xs text-slate-400 mb-1">Token</p>
-              <p className="text-sm font-mono text-slate-500 bg-slate-50 px-4 py-1.5 rounded-lg">{JSON.parse(qrPayload).token}</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mb-1">Token</p>
+              <p className="text-sm font-mono text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-4 py-1.5 rounded-lg">{JSON.parse(qrPayload).token}</p>
             </div>
 
             <div className="text-center">
-              <p className="text-xs text-slate-400 mb-1">Session ends in</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mb-1">Session ends in</p>
               <p className={`text-lg font-bold font-mono ${countdownColor}`}>
                 {formatCountdown(sessionTimeLeft)}
               </p>
@@ -641,9 +641,9 @@ export default function ActiveSession() {
           </div>
 
           {/* Student count */}
-          <div className="mt-6 flex items-center gap-2 px-4 py-2 bg-brand-50 rounded-xl">
-            <Users className="w-4 h-4 text-brand-500" />
-            <span className="text-sm font-semibold text-brand-700">{studentCount} students present</span>
+          <div className="mt-6 flex items-center gap-2 px-4 py-2 bg-brand-50 dark:bg-brand-500/10 rounded-xl">
+            <Users className="w-4 h-4 text-brand-500 dark:text-brand-400" />
+            <span className="text-sm font-semibold text-brand-700 dark:text-brand-300">{studentCount} students present</span>
           </div>
         </div>
       )}
@@ -651,11 +651,11 @@ export default function ActiveSession() {
       {/* ── End Confirm Modal ─────────────────────────────────── */}
       {showEndConfirm && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full animate-slide-up">
-            <h3 className="text-lg font-bold text-slate-800 mb-2">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 max-w-sm w-full animate-slide-up">
+            <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">
               {sessionExpired ? 'Session Complete' : 'End Session?'}
             </h3>
-            <p className="text-sm text-slate-500 mb-6">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
               {sessionExpired
                 ? `Session for ${course?.code} has ended. ${studentCount} students marked present.`
                 : `This will end the attendance session for ${course?.code}. ${studentCount} students have been marked present.`}
@@ -664,7 +664,7 @@ export default function ActiveSession() {
               {!sessionExpired && (
                 <button
                   onClick={() => setShowEndConfirm(false)}
-                  className="flex-1 py-2.5 border border-slate-200 text-slate-600 rounded-xl font-medium text-sm hover:bg-slate-50 transition-colors"
+                  className="flex-1 py-2.5 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 rounded-xl font-medium text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                 >
                   Cancel
                 </button>

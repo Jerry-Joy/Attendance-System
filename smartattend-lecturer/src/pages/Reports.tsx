@@ -117,41 +117,41 @@ export default function Reports() {
       {/* ── Stat Cards ─────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
         {/* Avg Attendance */}
-        <div className="bg-white rounded-2xl border border-slate-200 px-6 py-5 flex items-center justify-between">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 px-6 py-5 flex items-center justify-between">
           <div>
             <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
               Avg. Attendance
             </p>
-            <p className="text-4xl font-extrabold text-slate-800">{avgAttendance}%</p>
+            <p className="text-4xl font-extrabold text-slate-800 dark:text-white">{avgAttendance}%</p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-brand-50 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center">
             <TrendingUp className="w-6 h-6 text-brand-500" />
           </div>
         </div>
 
         {/* Total Sessions */}
-        <div className="bg-white rounded-2xl border border-slate-200 px-6 py-5 flex items-center justify-between">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 px-6 py-5 flex items-center justify-between">
           <div>
             <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
               Total Sessions
             </p>
-            <p className="text-4xl font-extrabold text-slate-800">{totalSessions}</p>
+            <p className="text-4xl font-extrabold text-slate-800 dark:text-white">{totalSessions}</p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-brand-50 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center">
             <CalendarCheck2 className="w-6 h-6 text-brand-500" />
           </div>
         </div>
 
         {/* GPS Verified */}
-        <div className="bg-white rounded-2xl border border-slate-200 px-6 py-5 flex items-center justify-between">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 px-6 py-5 flex items-center justify-between">
           <div>
             <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
               GPS Verified
             </p>
-            <p className="text-4xl font-extrabold text-slate-800">{avgGps}%</p>
+            <p className="text-4xl font-extrabold text-slate-800 dark:text-white">{avgGps}%</p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center">
-            <MapPin className="w-6 h-6 text-amber-500" />
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center">
+            <MapPin className="w-6 h-6 text-amber-500 dark:text-amber-400" />
           </div>
         </div>
       </div>
@@ -159,18 +159,18 @@ export default function Reports() {
       {/* ── Charts Row ────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
         {/* Weekly Attendance Trends — area chart */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-6">
+        <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-base font-bold text-slate-800">Weekly Attendance Trends</h3>
-            <div className="flex gap-0.5 p-0.5 bg-slate-100 rounded-lg">
+            <h3 className="text-base font-bold text-slate-800 dark:text-white">Weekly Attendance Trends</h3>
+            <div className="flex gap-0.5 p-0.5 bg-slate-100 dark:bg-slate-700 rounded-lg">
               {([['this', 'This Week'], ['last', 'Last Week']] as [ChartPeriod, string][]).map(
                 ([key, label]) => (
                   <button
                     key={key}
                     onClick={() => setChartPeriod(key)}
                     className={`px-3.5 py-1.5 rounded-md text-xs font-semibold transition-all ${chartPeriod === key
-                      ? 'bg-white text-slate-800 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-700'
+                      ? 'bg-white dark:bg-slate-600 text-slate-800 dark:text-white shadow-sm'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white'
                       }`}
                   >
                     {label}
@@ -199,6 +199,7 @@ export default function Reports() {
                   x2={padX + innerW}
                   y2={toY(v)}
                   stroke="#f1f5f9"
+                  className="dark:stroke-slate-700"
                   strokeWidth="1"
                 />
               ))}
@@ -223,7 +224,7 @@ export default function Reports() {
                   cx={toX(i)}
                   cy={toY(v)}
                   r="4.5"
-                  fill="white"
+                  className="fill-white dark:fill-slate-800"
                   stroke="#4F46E5"
                   strokeWidth="2.5"
                 />
@@ -246,17 +247,17 @@ export default function Reports() {
         </div>
 
         {/* Verification Methods */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col">
-          <h3 className="text-base font-bold text-slate-800 mb-6">Verification Methods</h3>
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 flex flex-col">
+          <h3 className="text-base font-bold text-slate-800 dark:text-white mb-6">Verification Methods</h3>
 
           <div className="space-y-5 flex-1">
             {/* QR + GPS */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-slate-600">QR + GPS</span>
-                <span className="text-sm font-bold text-emerald-600">{avgGps}%</span>
+                <span className="text-sm font-medium text-slate-600 dark:text-slate-300">QR + GPS</span>
+                <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{avgGps}%</span>
               </div>
-              <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-3 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-emerald-500 rounded-full transition-all duration-700"
                   style={{ width: `${avgGps}%` }}
@@ -267,10 +268,10 @@ export default function Reports() {
             {/* QR Only */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-slate-600">QR Only</span>
-                <span className="text-sm font-bold text-amber-500">{100 - avgGps}%</span>
+                <span className="text-sm font-medium text-slate-600 dark:text-slate-300">QR Only</span>
+                <span className="text-sm font-bold text-amber-500 dark:text-amber-400">{100 - avgGps}%</span>
               </div>
-              <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+              <div className="h-3 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-amber-500 rounded-full transition-all duration-700"
                   style={{ width: `${100 - avgGps}%` }}
@@ -281,9 +282,9 @@ export default function Reports() {
 
           {/* Info card */}
           <div className="mt-auto pt-5">
-            <div className="p-4 bg-brand-50/70 rounded-xl border border-brand-100 flex gap-3">
+            <div className="p-4 bg-brand-50/70 dark:bg-brand-500/10 rounded-xl border border-brand-100 dark:border-brand-500/20 flex gap-3">
               <Info className="w-5 h-5 text-brand-500 shrink-0 mt-0.5" />
-              <p className="text-xs leading-relaxed text-brand-700 font-medium">
+              <p className="text-xs leading-relaxed text-brand-700 dark:text-brand-300 font-medium">
                 GPS verification rate is{' '}
                 {avgGps >= 90 ? 'excellent' : avgGps >= 80 ? 'good' : 'needs improvement'}.
                 Your sessions maintain high integrity standards.
@@ -294,7 +295,7 @@ export default function Reports() {
       </div>
 
       {/* ── Course Reports ────────────────────────────────── */}
-      <h3 className="text-lg font-bold text-slate-800 mb-4">Course Reports</h3>
+      <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-4">Course Reports</h3>
       <div className="space-y-3">
         {courseReports.map((report) => {
           const sparkColor =
@@ -303,22 +304,22 @@ export default function Reports() {
           return (
             <div
               key={report.code}
-              className="bg-white rounded-2xl border border-slate-200 px-5 py-4 flex items-center gap-4 hover:shadow-md hover:border-slate-300 transition-all cursor-pointer group"
+              className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 px-5 py-4 flex items-center gap-4 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 transition-all cursor-pointer group"
             >
               {/* Icon */}
-              <div className="w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
+              <div className="w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
                 <Code2 className="w-5 h-5 text-brand-500" />
               </div>
 
               {/* Course info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <h4 className="text-sm font-bold text-slate-800">{report.code}</h4>
-                  <span className="px-2 py-0.5 bg-brand-50 text-brand-600 text-[10px] font-bold uppercase rounded-md tracking-wide">
+                  <h4 className="text-sm font-bold text-slate-800 dark:text-white">{report.code}</h4>
+                  <span className="px-2 py-0.5 bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 text-[10px] font-bold uppercase rounded-md tracking-wide">
                     Active
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 mt-0.5">{report.name}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{report.name}</p>
               </div>
 
               {/* Sparkline */}
@@ -331,14 +332,14 @@ export default function Reports() {
                 <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
                   Total Attendance
                 </p>
-                <p className="text-2xl font-extrabold text-slate-800">{report.rate}%</p>
-                <p className="text-[11px] text-slate-400 font-medium">
+                <p className="text-2xl font-extrabold text-slate-800 dark:text-white">{report.rate}%</p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
                   {report.sessions} Sessions
                 </p>
               </div>
 
               {/* Chevron */}
-              <ChevronRight className="w-5 h-5 text-slate-300 group-hover:text-slate-500 transition-colors shrink-0" />
+              <ChevronRight className="w-5 h-5 text-slate-300 dark:text-slate-600 group-hover:text-slate-500 dark:group-hover:text-slate-400 transition-colors shrink-0" />
             </div>
           )
         })}

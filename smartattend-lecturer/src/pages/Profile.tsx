@@ -30,98 +30,98 @@ export default function Profile() {
 
   return (
     <div className="p-5 lg:p-8 max-w-3xl mx-auto animate-slide-up">
-      <h1 className="text-2xl font-bold text-slate-800 mb-6">Profile</h1>
+      <h1 className="text-2xl font-bold text-slate-800 dark:text-white mb-6">Profile</h1>
 
       {/* Profile Card */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 mb-6">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-2xl bg-brand-500 flex items-center justify-center text-white font-bold text-xl">
             {lecturer?.avatarInitials ?? '??'}
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-800">{lecturer?.name}</h2>
-            <p className="text-sm text-slate-500">{lecturer?.title}</p>
-            <p className="text-sm text-slate-400">{lecturer?.department}</p>
+            <h2 className="text-lg font-bold text-slate-800 dark:text-white">{lecturer?.name}</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{lecturer?.title}</p>
+            <p className="text-sm text-slate-400 dark:text-slate-500">{lecturer?.department}</p>
           </div>
         </div>
 
-        <div className="mt-5 pt-5 border-t border-slate-100 space-y-3">
+        <div className="mt-5 pt-5 border-t border-slate-100 dark:border-slate-700 space-y-3">
           <div className="flex items-center gap-3 text-sm">
             <Mail className="w-4 h-4 text-slate-400" />
-            <span className="text-slate-600">{lecturer?.email}</span>
+            <span className="text-slate-600 dark:text-slate-300">{lecturer?.email}</span>
           </div>
           <div className="flex items-center gap-3 text-sm">
             <Building2 className="w-4 h-4 text-slate-400" />
-            <span className="text-slate-600">{lecturer?.department}</span>
+            <span className="text-slate-600 dark:text-slate-300">{lecturer?.department}</span>
           </div>
           <div className="flex items-center gap-3 text-sm">
             <User className="w-4 h-4 text-slate-400" />
-            <span className="text-slate-600">Lecturer ID: {lecturer?.id}</span>
+            <span className="text-slate-600 dark:text-slate-300">Lecturer ID: {lecturer?.id}</span>
           </div>
         </div>
       </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 text-center">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 text-center">
           <BookOpen className="w-5 h-5 text-brand-500 mx-auto mb-1.5" />
-          <p className="text-xl font-bold text-slate-800">{courses.length}</p>
-          <p className="text-xs text-slate-500">Courses</p>
+          <p className="text-xl font-bold text-slate-800 dark:text-white">{courses.length}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Courses</p>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 text-center">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 text-center">
           <Users className="w-5 h-5 text-brand-500 mx-auto mb-1.5" />
-          <p className="text-xl font-bold text-slate-800">{totalStudents}</p>
-          <p className="text-xs text-slate-500">Students</p>
+          <p className="text-xl font-bold text-slate-800 dark:text-white">{totalStudents}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Students</p>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 text-center">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 text-center">
           <Calendar className="w-5 h-5 text-brand-500 mx-auto mb-1.5" />
-          <p className="text-xl font-bold text-slate-800">{pastSessions.length}</p>
-          <p className="text-xs text-slate-500">Sessions</p>
+          <p className="text-xl font-bold text-slate-800 dark:text-white">{pastSessions.length}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Sessions</p>
         </div>
       </div>
 
       {/* Session Settings */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-6">
-        <h3 className="text-sm font-semibold text-slate-700 mb-4">Session Settings</h3>
+      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 mb-6">
+        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-4">Session Settings</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-brand-50 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-lg bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center">
                 <QrCode className="w-4 h-4 text-brand-500" />
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-700">QR Auto-Refresh</p>
-                <p className="text-xs text-slate-400">Refresh QR code every 30 seconds</p>
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-200">QR Auto-Refresh</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500">Refresh QR code every 30 seconds</p>
               </div>
             </div>
             <Toggle checked={preferences.qrAutoRefresh} onChange={(v) => updatePreferences({ qrAutoRefresh: v })} />
           </div>
 
-          <div className="border-t border-slate-50" />
+          <div className="border-t border-slate-50 dark:border-slate-700" />
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
-                <MapPin className="w-4 h-4 text-emerald-600" />
+              <div className="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center">
+                <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-700">GPS Verification Required</p>
-                <p className="text-xs text-slate-400">Require GPS for attendance</p>
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-200">GPS Verification Required</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500">Require GPS for attendance</p>
               </div>
             </div>
             <Toggle checked={preferences.gpsRequired} onChange={(v) => updatePreferences({ gpsRequired: v })} />
           </div>
 
-          <div className="border-t border-slate-50" />
+          <div className="border-t border-slate-50 dark:border-slate-700" />
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center">
-                <Bell className="w-4 h-4 text-amber-600" />
+              <div className="w-9 h-9 rounded-lg bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center">
+                <Bell className="w-4 h-4 text-amber-600 dark:text-amber-400" />
               </div>
               <div>
-                <p className="text-sm font-medium text-slate-700">Notifications</p>
-                <p className="text-xs text-slate-400">Get alerts when students check in</p>
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Notifications</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500">Get alerts when students check in</p>
               </div>
             </div>
             <Toggle checked={preferences.notifications} onChange={(v) => updatePreferences({ notifications: v })} />
@@ -130,18 +130,18 @@ export default function Profile() {
       </div>
 
       {/* Actions */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden mb-6">
-        <button className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50 transition-colors border-b border-slate-100">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden mb-6">
+        <button className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors border-b border-slate-100 dark:border-slate-700">
           <div className="flex items-center gap-3">
             <Shield className="w-5 h-5 text-slate-400" />
-            <span className="text-sm font-medium text-slate-700">Privacy & Security</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Privacy & Security</span>
           </div>
           <ChevronRight className="w-4 h-4 text-slate-400" />
         </button>
-        <button className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50 transition-colors">
+        <button className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
           <div className="flex items-center gap-3">
             <Mail className="w-5 h-5 text-slate-400" />
-            <span className="text-sm font-medium text-slate-700">Help & Support</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Help & Support</span>
           </div>
           <ChevronRight className="w-4 h-4 text-slate-400" />
         </button>
@@ -150,13 +150,13 @@ export default function Profile() {
       {/* Logout */}
       <button
         onClick={handleLogout}
-        className="w-full flex items-center justify-center gap-2 py-3.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl font-semibold text-sm transition-colors border border-red-100"
+        className="w-full flex items-center justify-center gap-2 py-3.5 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 rounded-xl font-semibold text-sm transition-colors border border-red-100 dark:border-red-500/20"
       >
         <LogOut className="w-4 h-4" />
         Sign Out
       </button>
 
-      <p className="text-center text-xs text-slate-400 mt-6">SmartAttend v1.0.0</p>
+      <p className="text-center text-xs text-slate-400 dark:text-slate-500 mt-6">SmartAttend v1.0.0</p>
     </div>
   )
 }
@@ -166,7 +166,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
   return (
     <button
       onClick={() => onChange(!checked)}
-      className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${checked ? 'bg-brand-500' : 'bg-slate-200'
+      className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${checked ? 'bg-brand-500' : 'bg-slate-200 dark:bg-slate-600'
         }`}
     >
       <span

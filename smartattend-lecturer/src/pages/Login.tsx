@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Lock, User, MapPin, QrCode, GraduationCap, Eye, EyeOff, AlertCircle, Fingerprint, ShieldCheck, ScanFace } from 'lucide-react'
+import { Lock, User, MapPin, QrCode, GraduationCap, Eye, EyeOff, AlertCircle, Fingerprint, ShieldCheck, ScanFace, Moon, Sun } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 
 export default function Login() {
   const navigate = useNavigate()
   const { login } = useAuth()
+  const { isDark, toggleTheme } = useTheme()
   const [lecturerId, setLecturerId] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -45,20 +47,27 @@ export default function Login() {
   ]
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-white to-brand-50/30">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-white to-brand-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
       {/* Top navbar */}
       <nav className="flex items-center justify-between px-6 lg:px-10 py-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-brand-500 flex items-center justify-center shadow-lg shadow-brand-200">
+          <div className="w-9 h-9 rounded-xl bg-brand-500 flex items-center justify-center shadow-lg shadow-brand-200 dark:shadow-brand-500/20">
             <GraduationCap className="w-5 h-5 text-white" />
           </div>
-          <span className="font-bold text-slate-800 text-lg tracking-tight">SmartAttendance</span>
+          <span className="font-bold text-slate-800 dark:text-white text-lg tracking-tight">SmartAttendance</span>
         </div>
         <div className="flex items-center gap-3">
-          <button className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 transition-colors">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
+          <button className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
             University Portal
           </button>
-          <button className="px-4 py-2 text-sm font-medium text-brand-600 bg-brand-50 hover:bg-brand-100 rounded-lg transition-colors">
+          <button className="px-4 py-2 text-sm font-medium text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10 hover:bg-brand-100 dark:hover:bg-brand-500/20 rounded-lg transition-colors">
             Support
           </button>
         </div>
@@ -69,15 +78,15 @@ export default function Login() {
         <div className="w-full max-w-[440px]">
           {/* Logo / crest */}
           <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-brand-50 flex items-center justify-center mb-5 shadow-lg shadow-brand-200/50">
+            <div className="w-16 h-16 rounded-2xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center mb-5 shadow-lg shadow-brand-200/50 dark:shadow-brand-500/10">
               <GraduationCap className="w-8 h-8 text-brand-500" />
             </div>
-            <h1 className="text-[26px] font-bold text-slate-800 tracking-tight">Lecturer Portal</h1>
-            <p className="text-slate-500 text-sm mt-1">Sign in to manage your attendance sessions</p>
+            <h1 className="text-[26px] font-bold text-slate-800 dark:text-white tracking-tight">Lecturer Portal</h1>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Sign in to manage your attendance sessions</p>
           </div>
 
           {/* Card */}
-          <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-black/20 border border-slate-100 dark:border-slate-700 p-8">
             <form onSubmit={handleLogin} className="space-y-5">
               {error && (
                 <div className="flex items-center gap-2.5 p-3.5 bg-red-50 border border-red-200 rounded-xl">
@@ -128,10 +137,10 @@ export default function Login() {
 
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-brand-500 accent-brand-500" />
-                  <span className="text-sm text-slate-600">Remember me</span>
+                  <input type="checkbox" className="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-brand-500 accent-brand-500" />
+                  <span className="text-sm text-slate-600 dark:text-slate-400">Remember me</span>
                 </label>
-                <button type="button" className="text-sm text-brand-500 hover:text-brand-600 font-medium transition-colors">
+                <button type="button" className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400 dark:hover:text-brand-300 font-medium transition-colors">
                   Forgot password?
                 </button>
               </div>
@@ -150,8 +159,8 @@ export default function Login() {
             </form>
 
             {/* Demo credentials */}
-            <div className="mt-5 p-3 bg-amber-50 rounded-xl border border-amber-100">
-              <p className="text-xs text-amber-700 font-medium text-center">Demo: <span className="font-mono">LEC001</span> / <span className="font-mono">password</span></p>
+            <div className="mt-5 p-3 bg-amber-50 dark:bg-amber-500/10 rounded-xl border border-amber-100 dark:border-amber-500/20">
+              <p className="text-xs text-amber-700 dark:text-amber-400 font-medium text-center">Demo: <span className="font-mono">LEC001</span> / <span className="font-mono">password</span></p>
             </div>
           </div>
 
@@ -159,15 +168,15 @@ export default function Login() {
           <div className="flex items-center justify-center gap-5 mt-8 flex-wrap">
             {features.map((f, i) => (
               <div key={i} className="flex flex-col items-center gap-2 text-center">
-                <div className="h-10 w-10 bg-white rounded-full shadow-sm flex items-center justify-center text-brand-500">
+                <div className="h-10 w-10 bg-white dark:bg-slate-800 rounded-full shadow-sm dark:shadow-black/20 flex items-center justify-center text-brand-500">
                   <f.icon className="w-5 h-5" />
                 </div>
-                <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide max-w-[80px]">{f.label}</span>
+                <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide max-w-[80px]">{f.label}</span>
               </div>
             ))}
           </div>
 
-          <p className="text-center text-xs text-slate-400 mt-6">SmartAttend v1.0 · QR + GPS Geofencing</p>
+          <p className="text-center text-xs text-slate-400 dark:text-slate-500 mt-6">SmartAttend v1.0 · QR + GPS Geofencing</p>
         </div>
       </div>
     </div>

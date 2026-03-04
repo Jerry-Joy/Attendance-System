@@ -15,6 +15,11 @@ body {
   background: #F8FAFC;
 }
 
+.dark body,
+html.dark body {
+  background: #0f172a;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -31,6 +36,14 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94A3B8;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
 }
 
 /* Selection Color */

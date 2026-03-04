@@ -119,11 +119,11 @@ export default function SessionHistory() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2.5">
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2.5">
             <History className="w-6 h-6 text-brand-500" />
             Session History
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Browse and manage all past attendance sessions
           </p>
         </div>
@@ -131,37 +131,37 @@ export default function SessionHistory() {
 
       {/* Stats Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3 hover-lift animate-fade-in-up stagger-1">
-          <div className="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 flex items-center gap-3 hover-lift animate-fade-in-up stagger-1">
+          <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center">
             <Calendar className="w-5 h-5 text-brand-500" />
           </div>
           <div>
-            <p className="text-xl font-bold text-slate-800 animate-number-pop stagger-3">{totalSessions}</p>
-            <p className="text-xs text-slate-500">Total Sessions</p>
+            <p className="text-xl font-bold text-slate-800 dark:text-white animate-number-pop stagger-3">{totalSessions}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Total Sessions</p>
           </div>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3 hover-lift animate-fade-in-up stagger-2">
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
-            <UserCheck className="w-5 h-5 text-emerald-600" />
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 flex items-center gap-3 hover-lift animate-fade-in-up stagger-2">
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center">
+            <UserCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
           </div>
           <div>
-            <p className="text-xl font-bold text-slate-800 animate-number-pop stagger-4">{totalPresent}</p>
-            <p className="text-xs text-slate-500">Total Check-ins</p>
+            <p className="text-xl font-bold text-slate-800 dark:text-white animate-number-pop stagger-4">{totalPresent}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Total Check-ins</p>
           </div>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center gap-3 hover-lift animate-fade-in-up stagger-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
-            <Users className="w-5 h-5 text-amber-600" />
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 flex items-center gap-3 hover-lift animate-fade-in-up stagger-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center">
+            <Users className="w-5 h-5 text-amber-600 dark:text-amber-400" />
           </div>
           <div>
-            <p className="text-xl font-bold text-slate-800 animate-number-pop stagger-5">{avgAttendance}%</p>
-            <p className="text-xs text-slate-500">Avg. Attendance</p>
+            <p className="text-xl font-bold text-slate-800 dark:text-white animate-number-pop stagger-5">{avgAttendance}%</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Avg. Attendance</p>
           </div>
         </div>
       </div>
 
       {/* Search + Filter Bar */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-6 animate-fade-in-up stagger-4">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 mb-6 animate-fade-in-up stagger-4">
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Search */}
           <div className="relative flex-1">
@@ -171,7 +171,7 @@ export default function SessionHistory() {
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
               placeholder="Search by course, date, venue..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition-all"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm text-slate-800 dark:text-white bg-white dark:bg-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-500/20 transition-all"
             />
           </div>
 
@@ -181,7 +181,7 @@ export default function SessionHistory() {
             <select
               value={courseFilter}
               onChange={(e) => handleCourseFilterChange(e.target.value)}
-              className="appearance-none pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-800 bg-white focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition-all cursor-pointer"
+              className="appearance-none pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm text-slate-800 dark:text-white bg-white dark:bg-slate-700 focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 dark:focus:ring-brand-500/20 transition-all cursor-pointer"
             >
               <option value="all">All Courses</option>
               {courseOptions.map((opt) => (
@@ -196,12 +196,12 @@ export default function SessionHistory() {
 
         {/* Active filter chips */}
         {(searchQuery || courseFilter !== 'all') && (
-          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100">
+          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
             <span className="text-xs text-slate-400">Filters:</span>
             {courseFilter !== 'all' && (
               <button
                 onClick={() => handleCourseFilterChange('all')}
-                className="inline-flex items-center gap-1 px-2.5 py-1 bg-brand-50 text-brand-600 rounded-full text-xs font-medium hover:bg-brand-100 transition-colors"
+                className="inline-flex items-center gap-1 px-2.5 py-1 bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 rounded-full text-xs font-medium hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-colors"
               >
                 {courseFilter}
                 <span className="ml-0.5">×</span>
@@ -210,7 +210,7 @@ export default function SessionHistory() {
             {searchQuery && (
               <button
                 onClick={() => handleSearchChange('')}
-                className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-medium hover:bg-slate-200 transition-colors"
+                className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full text-xs font-medium hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
               >
                 "{searchQuery}"
                 <span className="ml-0.5">×</span>
@@ -221,7 +221,7 @@ export default function SessionHistory() {
                 handleSearchChange('')
                 handleCourseFilterChange('all')
               }}
-              className="text-xs text-slate-400 hover:text-slate-600 ml-1 transition-colors"
+              className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 ml-1 transition-colors"
             >
               Clear all
             </button>
@@ -230,12 +230,12 @@ export default function SessionHistory() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden mb-6 animate-fade-in-scale stagger-5">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden mb-6 animate-fade-in-scale stagger-5">
         {filtered.length === 0 ? (
           <div className="py-16 text-center">
-            <FileSpreadsheet className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-sm font-medium text-slate-500">No sessions found</p>
-            <p className="text-xs text-slate-400 mt-1">
+            <FileSpreadsheet className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">No sessions found</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
               Try adjusting your search or filter criteria
             </p>
           </div>
@@ -243,52 +243,52 @@ export default function SessionHistory() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200">
-                  <th className="text-left py-3.5 px-5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                <tr className="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
+                  <th className="text-left py-3.5 px-5 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Course
                   </th>
-                  <th className="text-left py-3.5 px-5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  <th className="text-left py-3.5 px-5 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Date
                   </th>
-                  <th className="text-left py-3.5 px-5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  <th className="text-left py-3.5 px-5 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Duration
                   </th>
-                  <th className="text-left py-3.5 px-5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  <th className="text-left py-3.5 px-5 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Present
                   </th>
-                  <th className="text-left py-3.5 px-5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  <th className="text-left py-3.5 px-5 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Rate
                   </th>
-                  <th className="text-right py-3.5 px-5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  <th className="text-right py-3.5 px-5 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                 {paginatedSessions.map((session, index) => {
                   const rate = Math.round(
                     (session.presentCount / session.totalStudents) * 100
                   )
                   const rateColor =
                     rate >= 80
-                      ? 'text-emerald-600 bg-emerald-50'
+                      ? 'text-emerald-600 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-500/10'
                       : rate >= 60
-                        ? 'text-amber-600 bg-amber-50'
-                        : 'text-red-600 bg-red-50'
+                        ? 'text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-500/10'
+                        : 'text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-500/10'
 
                   return (
                     <tr
                       key={session.id}
-                      className="hover:bg-slate-50/50 transition-all duration-200 row-animate group"
+                      className="hover:bg-slate-50/50 dark:hover:bg-slate-700/30 transition-all duration-200 row-animate group"
                       style={{ animationDelay: `${index * 0.06}s` }}
                     >
                       {/* Course */}
                       <td className="py-4 px-5">
                         <div>
-                          <p className="font-semibold text-slate-800">
+                          <p className="font-semibold text-slate-800 dark:text-white">
                             {session.courseCode}
                           </p>
-                          <p className="text-xs text-slate-500 mt-0.5">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                             {session.courseName}
                           </p>
                         </div>
@@ -296,15 +296,15 @@ export default function SessionHistory() {
 
                       {/* Date */}
                       <td className="py-4 px-5">
-                        <p className="text-slate-700">{session.date}</p>
-                        <p className="text-xs text-slate-400 mt-0.5">
+                        <p className="text-slate-700 dark:text-slate-200">{session.date}</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                           {session.startTime} – {session.endTime}
                         </p>
                       </td>
 
                       {/* Duration */}
                       <td className="py-4 px-5">
-                        <div className="inline-flex items-center gap-1.5 text-slate-600">
+                        <div className="inline-flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
                           <Clock className="w-3.5 h-3.5 text-slate-400" />
                           {session.duration}
                         </div>
@@ -312,10 +312,10 @@ export default function SessionHistory() {
 
                       {/* Present */}
                       <td className="py-4 px-5">
-                        <span className="font-semibold text-slate-800">
+                        <span className="font-semibold text-slate-800 dark:text-white">
                           {session.presentCount}
                         </span>
-                        <span className="text-slate-400">/{session.totalStudents}</span>
+                        <span className="text-slate-400 dark:text-slate-500">/{session.totalStudents}</span>
                       </td>
 
                       {/* Rate */}
@@ -332,7 +332,7 @@ export default function SessionHistory() {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => navigate('/session-summary', { state: { session } })}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-brand-600 bg-brand-50 hover:bg-brand-100 hover:scale-105 active:scale-95 transition-all duration-200"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10 hover:bg-brand-100 dark:hover:bg-brand-500/20 hover:scale-105 active:scale-95 transition-all duration-200"
                           >
                             <Eye className="w-3.5 h-3.5 group-hover:animate-pulse" />
                             View Details
@@ -340,7 +340,7 @@ export default function SessionHistory() {
                           <button
                             onClick={() => handleDownload(session)}
                             disabled={downloadingId === session.id}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50"
                           >
                             {downloadingId === session.id ? (
                               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -361,25 +361,25 @@ export default function SessionHistory() {
 
         {/* Pagination Footer */}
         {filtered.length > 0 && (
-          <div className="flex items-center justify-between px-5 py-3.5 border-t border-slate-200 bg-slate-50/50">
-            <p className="text-xs text-slate-500">
+          <div className="flex items-center justify-between px-5 py-3.5 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-700/30">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Showing{' '}
-              <span className="font-semibold text-slate-700">
+              <span className="font-semibold text-slate-700 dark:text-slate-200">
                 {(safeCurrentPage - 1) * ROWS_PER_PAGE + 1}
               </span>
               –
-              <span className="font-semibold text-slate-700">
+              <span className="font-semibold text-slate-700 dark:text-slate-200">
                 {Math.min(safeCurrentPage * ROWS_PER_PAGE, filtered.length)}
               </span>{' '}
               of{' '}
-              <span className="font-semibold text-slate-700">{filtered.length}</span>{' '}
+              <span className="font-semibold text-slate-700 dark:text-slate-200">{filtered.length}</span>{' '}
               sessions
             </p>
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={safeCurrentPage <= 1}
-                className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-white hover:text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-500 hover:bg-white dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -390,7 +390,7 @@ export default function SessionHistory() {
                   onClick={() => setCurrentPage(page)}
                   className={`w-8 h-8 rounded-lg text-xs font-semibold transition-all duration-200 hover:scale-110 active:scale-90 ${page === safeCurrentPage
                     ? 'bg-brand-500 text-white shadow-sm'
-                    : 'text-slate-500 hover:bg-white hover:text-slate-700 border border-transparent hover:border-slate-200'
+                    : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-white border border-transparent hover:border-slate-200 dark:hover:border-slate-600'
                     }`}
                 >
                   {page}
@@ -400,7 +400,7 @@ export default function SessionHistory() {
               <button
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={safeCurrentPage >= totalPages}
-                className="p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:bg-white hover:text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-500 hover:bg-white dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
