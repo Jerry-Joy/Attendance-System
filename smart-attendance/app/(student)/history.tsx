@@ -16,21 +16,38 @@ import { useTheme } from '@/hooks/useTheme';
 import { Spacing, Typography, BorderRadius } from '@/constants/Layout';
 import { Card, StatusBadge } from '@/components/ui';
 import { mockAttendance, AttendanceRecord } from '@/constants/MockData';
+import { useAttendance } from '@/context/AttendanceContext';
 
 type FilterOption = 'all' | 'present' | 'absent';
 
 export default function StudentHistoryScreen() {
   const theme = useTheme();
   const [filter, setFilter] = useState<FilterOption>('all');
+  const { records: liveRecords } = useAttendance();
 
-  const filtered = mockAttendance.filter((r) => {
+  // Merge live records (from real scans) with mock history
+  const allRecords: AttendanceRecord[] = [
+    ...liveRecords.map((r) => ({
+      id: r.id,
+      courseCode: r.courseCode,
+      courseName: r.courseName,
+      date: r.date,
+      time: r.time,
+      status: r.status as 'present',
+      method: r.method,
+      lecturer: '',
+    })),
+    ...mockAttendance,
+  ];
+
+  const filtered = allRecords.filter((r) => {
     if (filter === 'present') return r.status === 'present';
     if (filter === 'absent') return r.status === 'absent';
     return true;
   });
 
-  const presentCount = mockAttendance.filter((r) => r.status === 'present').length;
-  const absentCount = mockAttendance.filter((r) => r.status === 'absent').length;
+  const presentCount = allRecords.filter((r) => r.status === 'present').length;
+  const absentCount = allRecords.filter((r) => r.status === 'absent').length;
 
   const renderItem = ({ item }: { item: AttendanceRecord }) => (
     <Card style={{ marginBottom: Spacing.sm }}>
@@ -77,14 +94,14 @@ export default function StudentHistoryScreen() {
       <View style={styles.header}>
         <Text style={[Typography.h2, { color: theme.text }]}>Attendance History</Text>
         <Text style={[Typography.bodySmall, { color: theme.textSecondary }]}>
-          {mockAttendance.length} records
+          {allRecords.length} records
         </Text>
       </View>
 
       {/* Filter Bar */}
       <View style={styles.filterRow}>
         {([
-          { key: 'all', label: 'All', count: mockAttendance.length },
+          { key: 'all', label: 'All', count: allRecords.length },
           { key: 'present', label: 'Present', count: presentCount },
           { key: 'absent', label: 'Absent', count: absentCount },
         ] as const).map((f) => (

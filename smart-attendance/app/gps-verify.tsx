@@ -1,7 +1,7 @@
 /**
- * GPS Verify Screen — Verifies student location within geofence
- * Replaces the old BLE proximity verification with GPS geofencing.
- * Flow: QR Scanned → GPS Location Check → Geofence Validation → Attendance Confirmed
+ * GPS Verify Screen — Real location verification via expo-location.
+ * Receives QR payload data via route params from scanner.tsx.
+ * Gets the student's GPS coords → calculates Haversine distance → compares to geofence radius.
  */
 import React, { useState, useEffect, useRef } from 'react';
 import {
@@ -13,13 +13,15 @@ import {
   SafeAreaView,
   StatusBar,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import * as Location from 'expo-location';
 import { FontAwesome } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import { Spacing, Typography, BorderRadius, Shadows } from '@/constants/Layout';
-import { Card, GPSStatusIndicator, GeofenceBadge } from '@/components/ui';
+import { Card, GPSStatusIndicator, GeofenceBadge, PrimaryButton } from '@/components/ui';
+import { mockCourses } from '@/constants/MockData';
 
-type VerifyStep = 'locating' | 'checking' | 'verifying' | 'success' | 'failed';
+type VerifyStep = 'permission' | 'locating' | 'checking' | 'success' | 'failed';
 
 interface StepConfig {
   icon: keyof typeof FontAwesome.glyphMap;
@@ -29,15 +31,50 @@ interface StepConfig {
   gpsStatus: 'searching' | 'found' | 'verified' | 'outside';
 }
 
+/** Haversine formula — returns distance in metres between two lat/lng pairs */
+function haversineDistance(
+  lat1: number, lng1: number,
+  lat2: number, lng2: number,
+): number {
+  const R = 6_371_000; // Earth radius in metres
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 export default function GPSVerifyScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const params = useLocalSearchParams<{
+    token: string;
+    courseId: string;
+    courseCode: string;
+    lat: string;
+    lng: string;
+    radius: string;
+    exp: string;
+  }>();
+
   const [step, setStep] = useState<VerifyStep>('locating');
+  const [distance, setDistance] = useState<number | null>(null);
+  const [failReason, setFailReason] = useState('');
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
   const pinBounce = useRef(new Animated.Value(0)).current;
 
-  // Pulse animation for the location icon
+  const venueLat = params.lat ? parseFloat(params.lat) : null;
+  const venueLng = params.lng ? parseFloat(params.lng) : null;
+  const radius = params.radius ? parseFloat(params.radius) : 50;
+
+  // Look up course info from mock data for display
+  const course = mockCourses.find((c) => c.id === params.courseId || c.code === params.courseCode);
+  const venueName = course?.venueName ?? 'Lecture Venue';
+
+  // ── Pulse animation ──
   useEffect(() => {
     if (step !== 'success' && step !== 'failed') {
       const pulse = Animated.loop(
@@ -61,7 +98,7 @@ export default function GPSVerifyScreen() {
     }
   }, [step]);
 
-  // Pin drop animation on success
+  // ── Pin drop animation on success ──
   useEffect(() => {
     if (step === 'success') {
       Animated.sequence([
@@ -80,57 +117,120 @@ export default function GPSVerifyScreen() {
     }
   }, [step]);
 
-  // Simulate GPS verification steps
+  // ── Real GPS verification ──
   useEffect(() => {
-    const timers: ReturnType<typeof setTimeout>[] = [];
+    let cancelled = false;
 
-    // Step 1 → 2: Getting GPS coordinates
-    timers.push(
-      setTimeout(() => {
-        setStep('checking');
-        Animated.timing(progressAnim, {
-          toValue: 0.33,
-          duration: 400,
-          useNativeDriver: false,
-        }).start();
-      }, 1500)
-    );
+    async function verify() {
+      // 1. Request permission
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        if (!cancelled) {
+          setFailReason('Location permission was denied. Please allow GPS access and try again.');
+          setStep('failed');
+        }
+        return;
+      }
 
-    // Step 2 → 3: Checking geofence
-    timers.push(
-      setTimeout(() => {
-        setStep('verifying');
-        Animated.timing(progressAnim, {
-          toValue: 0.66,
-          duration: 400,
-          useNativeDriver: false,
-        }).start();
-      }, 3000)
-    );
+      // 2. Start locating
+      if (!cancelled) {
+        setStep('locating');
+        animateProgress(0.25);
+      }
 
-    // Step 3 → Success
-    timers.push(
-      setTimeout(() => {
+      // 3. Get current position
+      let location: Location.LocationObject;
+      try {
+        location = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.High,
+        });
+      } catch {
+        if (!cancelled) {
+          setFailReason('Could not get your GPS location. Make sure location services are enabled.');
+          setStep('failed');
+        }
+        return;
+      }
+
+      if (cancelled) return;
+
+      setStep('checking');
+      animateProgress(0.6);
+
+      const studentLat = location.coords.latitude;
+      const studentLng = location.coords.longitude;
+
+      // 4. If lecturer didn't share location, skip geofence (QR Only)
+      if (venueLat == null || venueLng == null) {
+        // No GPS coords in QR — just confirm with QR Only
+        await delay(500);
+        if (!cancelled) {
+          setStep('success');
+          animateProgress(1);
+          await delay(1500);
+          navigateToConfirmed('QR Only', null);
+        }
+        return;
+      }
+
+      // 5. Calculate distance
+      const dist = haversineDistance(studentLat, studentLng, venueLat, venueLng);
+      if (!cancelled) setDistance(Math.round(dist));
+
+      await delay(600);
+      if (cancelled) return;
+
+      // 6. Check geofence
+      if (dist <= radius) {
         setStep('success');
-        Animated.timing(progressAnim, {
-          toValue: 1,
-          duration: 400,
-          useNativeDriver: false,
-        }).start();
-      }, 4500)
-    );
+        animateProgress(1);
+        await delay(1500);
+        if (!cancelled) navigateToConfirmed('QR+GPS', Math.round(dist));
+      } else {
+        setFailReason(
+          `You are ${Math.round(dist)}m away from the venue. You need to be within ${radius}m.`,
+        );
+        setStep('failed');
+        animateProgress(1);
+      }
+    }
 
-    // Navigate to confirmed
-    timers.push(
-      setTimeout(() => {
-        router.replace('/attendance-confirmed');
-      }, 6000)
-    );
-
-    return () => timers.forEach(clearTimeout);
+    verify();
+    return () => { cancelled = true; };
   }, []);
 
+  function animateProgress(to: number) {
+    Animated.timing(progressAnim, {
+      toValue: to,
+      duration: 400,
+      useNativeDriver: false,
+    }).start();
+  }
+
+  function navigateToConfirmed(method: 'QR+GPS' | 'QR Only', dist: number | null) {
+    router.replace({
+      pathname: '/attendance-confirmed',
+      params: {
+        token: params.token,
+        courseId: params.courseId,
+        courseCode: params.courseCode,
+        method,
+        venueName,
+        radius: radius.toString(),
+        distance: dist?.toString() ?? '',
+      },
+    });
+  }
+
+  // ── Step config ──
   const stepConfig: Record<VerifyStep, StepConfig> = {
+    permission: {
+      icon: 'lock',
+      title: 'Permission Required',
+      subtitle: 'Requesting location access...',
+      color: theme.warning,
+      gpsStatus: 'searching',
+    },
     locating: {
       icon: 'location-arrow',
       title: 'Getting Your Location',
@@ -141,28 +241,25 @@ export default function GPSVerifyScreen() {
     checking: {
       icon: 'map-marker',
       title: 'Location Found',
-      subtitle: 'Checking geofence boundary...',
+      subtitle: distance != null
+        ? `You are ${distance}m from the venue — checking geofence...`
+        : 'Checking geofence boundary...',
       color: theme.info,
-      gpsStatus: 'found',
-    },
-    verifying: {
-      icon: 'map-marker',
-      title: 'Verifying Position',
-      subtitle: 'Confirming you are within 50m of the venue...',
-      color: theme.primary,
       gpsStatus: 'found',
     },
     success: {
       icon: 'check-circle',
       title: 'Location Verified!',
-      subtitle: 'You are within the geofenced area',
+      subtitle: distance != null
+        ? `You are ${distance}m from the venue (within ${radius}m)`
+        : 'QR verified — GPS geofence not required for this session',
       color: theme.success,
       gpsStatus: 'verified',
     },
     failed: {
       icon: 'times-circle',
-      title: 'Outside Geofence',
-      subtitle: 'You are not within the required area',
+      title: 'Verification Failed',
+      subtitle: failReason,
       color: theme.error,
       gpsStatus: 'outside',
     },
@@ -189,12 +286,10 @@ export default function GPSVerifyScreen() {
 
       {/* Main Animation Area */}
       <View style={styles.animationArea}>
-        {/* Geofence rings */}
         <View style={[styles.geofenceRing, styles.ringOuter, { borderColor: current.color + '15' }]} />
         <View style={[styles.geofenceRing, styles.ringMiddle, { borderColor: current.color + '25' }]} />
         <View style={[styles.geofenceRing, styles.ringInner, { borderColor: current.color + '40' }]} />
 
-        {/* Center icon */}
         <Animated.View
           style={[
             styles.iconCircle,
@@ -234,8 +329,8 @@ export default function GPSVerifyScreen() {
         </View>
         <View style={styles.progressSteps}>
           <StepDot active={true} color={current.color} label="QR Scanned" theme={theme} />
-          <StepDot active={step !== 'locating'} color={current.color} label="GPS Located" theme={theme} />
-          <StepDot active={step === 'verifying' || step === 'success'} color={current.color} label="Geofence OK" theme={theme} />
+          <StepDot active={step !== 'permission' && step !== 'locating'} color={current.color} label="GPS Located" theme={theme} />
+          <StepDot active={step === 'success'} color={current.color} label="Geofence OK" theme={theme} />
           <StepDot active={step === 'success'} color={current.color} label="Confirmed" theme={theme} />
         </View>
       </View>
@@ -246,22 +341,54 @@ export default function GPSVerifyScreen() {
           <FontAwesome name="building" size={16} color={theme.textSecondary} />
           <View style={{ marginLeft: Spacing.sm, flex: 1 }}>
             <Text style={[Typography.caption, { color: theme.textSecondary }]}>Venue</Text>
-            <Text style={[Typography.body, { color: theme.text }]}>Room 301, CS Building</Text>
+            <Text style={[Typography.body, { color: theme.text }]}>{venueName}</Text>
           </View>
         </View>
         <View style={[styles.infoRow, { marginTop: Spacing.sm }]}>
           <FontAwesome name="bullseye" size={16} color={theme.textSecondary} />
           <View style={{ marginLeft: Spacing.sm, flex: 1 }}>
             <Text style={[Typography.caption, { color: theme.textSecondary }]}>Geofence Radius</Text>
-            <Text style={[Typography.body, { color: theme.text }]}>50 meters</Text>
+            <Text style={[Typography.body, { color: theme.text }]}>{radius} meters</Text>
           </View>
         </View>
         <View style={{ marginTop: Spacing.md, alignItems: 'flex-start' }}>
           <GPSStatusIndicator status={current.gpsStatus} />
         </View>
       </Card>
+
+      {/* Retry button on failure */}
+      {step === 'failed' && (
+        <View style={styles.retryArea}>
+          <PrimaryButton
+            title="Retry Verification"
+            icon="refresh"
+            onPress={() => router.replace({
+              pathname: '/gps-verify',
+              params: {
+                token: params.token,
+                courseId: params.courseId,
+                courseCode: params.courseCode,
+                lat: params.lat,
+                lng: params.lng,
+                radius: params.radius,
+                exp: params.exp,
+              },
+            })}
+          />
+          <Text
+            style={[Typography.bodySmall, { color: theme.primary, textAlign: 'center', marginTop: Spacing.md }]}
+            onPress={() => router.replace('/(student)/home')}
+          >
+            Back to Home
+          </Text>
+        </View>
+      )}
     </SafeAreaView>
   );
+}
+
+function delay(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
 }
 
 // Step dot component
@@ -364,5 +491,10 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  retryArea: {
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing.xxl,
+    paddingTop: Spacing.md,
   },
 });

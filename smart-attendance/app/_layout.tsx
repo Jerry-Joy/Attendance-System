@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 import 'react-native-reanimated';
 import { AuthProvider } from '@/context/AuthContext';
+import { AttendanceProvider } from '@/context/AttendanceContext';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -32,7 +33,9 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <RootLayoutNav />
+      <AttendanceProvider>
+        <RootLayoutNav />
+      </AttendanceProvider>
     </AuthProvider>
   );
 }

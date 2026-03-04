@@ -1,5 +1,6 @@
 /**
- * Attendance Confirmed Screen — Success state after QR + GPS verification
+ * Attendance Confirmed Screen — Success state after QR + GPS verification.
+ * Receives real session data via route params, saves record to AttendanceContext.
  */
 import React, { useEffect, useRef } from 'react';
 import {
@@ -11,18 +12,62 @@ import {
   Animated,
   Easing,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
-import { Spacing, Typography, BorderRadius, Shadows } from '@/constants/Layout';
+import { Spacing, Typography, BorderRadius } from '@/constants/Layout';
 import { PrimaryButton, Card, GeofenceBadge } from '@/components/ui';
+import { useAttendance } from '@/context/AttendanceContext';
+import { mockCourses } from '@/constants/MockData';
 
 export default function AttendanceConfirmedScreen() {
   const router = useRouter();
   const theme = useTheme();
+  const { addRecord } = useAttendance();
+
+  const params = useLocalSearchParams<{
+    token: string;
+    courseId: string;
+    courseCode: string;
+    method: string;
+    venueName: string;
+    radius: string;
+    distance: string;
+  }>();
+
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
+  // Derive display values from params + mock data
+  const course = mockCourses.find((c) => c.id === params.courseId || c.code === params.courseCode);
+  const courseCode = params.courseCode || course?.code || 'Unknown';
+  const courseName = course?.name || courseCode;
+  const method = (params.method === 'QR+GPS' || params.method === 'QR Only') ? params.method : 'QR+GPS';
+  const venueName = params.venueName || course?.venueName || 'Lecture Venue';
+  const radius = params.radius ? parseFloat(params.radius) : 50;
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+  // Save attendance record once
+  useEffect(() => {
+    if (params.token) {
+      addRecord({
+        courseCode,
+        courseName,
+        date: dateStr,
+        time: timeStr,
+        status: 'present',
+        method,
+        venueName,
+        radius,
+        token: params.token,
+      });
+    }
+  }, [params.token]);
+
+  // Animations
   useEffect(() => {
     Animated.sequence([
       Animated.spring(scaleAnim, {
@@ -72,47 +117,28 @@ export default function AttendanceConfirmedScreen() {
         <View style={[styles.verifyBadge, { backgroundColor: theme.success + '10', borderColor: theme.success + '30' }]}>
           <FontAwesome name="shield" size={16} color={theme.success} />
           <Text style={[Typography.bodySmall, { color: theme.success, fontWeight: '600', marginLeft: 8 }]}>
-            QR + GPS Verified
+            {method} Verified
           </Text>
         </View>
 
         {/* Details Card */}
         <Animated.View style={{ opacity: fadeAnim, width: '100%', paddingHorizontal: Spacing.lg, marginTop: Spacing.lg }}>
           <Card>
-            <DetailRow
-              icon="book"
-              label="Course"
-              value="CSC 401 — Software Engineering"
-              theme={theme}
-            />
-            <DetailRow
-              icon="calendar"
-              label="Date"
-              value="Wed, 19 Feb 2026"
-              theme={theme}
-            />
-            <DetailRow
-              icon="clock-o"
-              label="Time"
-              value="10:32 AM"
-              theme={theme}
-            />
-            <DetailRow
-              icon="user"
-              label="Lecturer"
-              value="Prof. Adeyemi"
-              theme={theme}
-            />
+            <DetailRow icon="book" label="Course" value={`${courseCode} — ${courseName}`} theme={theme} />
+            <DetailRow icon="calendar" label="Date" value={dateStr} theme={theme} />
+            <DetailRow icon="clock-o" label="Time" value={timeStr} theme={theme} />
             <View style={[styles.detailRow, { borderBottomWidth: 0 }]}>
               <FontAwesome name="map-marker" size={16} color={theme.textSecondary} />
               <View style={{ marginLeft: Spacing.sm, flex: 1 }}>
                 <Text style={[Typography.caption, { color: theme.textSecondary }]}>Venue</Text>
-                <Text style={[Typography.body, { color: theme.text }]}>Room 301, CS Building</Text>
+                <Text style={[Typography.body, { color: theme.text }]}>{venueName}</Text>
               </View>
             </View>
-            <View style={{ marginTop: Spacing.sm, alignItems: 'flex-start' }}>
-              <GeofenceBadge radius={50} isActive={true} />
-            </View>
+            {method === 'QR+GPS' && (
+              <View style={{ marginTop: Spacing.sm, alignItems: 'flex-start' }}>
+                <GeofenceBadge radius={radius} isActive={true} />
+              </View>
+            )}
           </Card>
         </Animated.View>
       </View>
