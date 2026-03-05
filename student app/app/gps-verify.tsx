@@ -159,6 +159,9 @@ export default function GPSVerifyScreen() {
 
       const studentLat = location.coords.latitude;
       const studentLng = location.coords.longitude;
+      // GPS accuracy reported by the device (metres). We use this as a buffer
+      // so that natural GPS drift doesn't cause false negatives.
+      const gpsAccuracy = location.coords.accuracy ?? 0;
 
       // 4. If lecturer didn't share location, skip geofence (QR Only)
       if (venueLat == null || venueLng == null) {
@@ -180,8 +183,10 @@ export default function GPSVerifyScreen() {
       await delay(600);
       if (cancelled) return;
 
-      // 6. Check geofence
-      if (dist <= radius) {
+      // 6. Check geofence — add GPS accuracy as a tolerance buffer so that
+      //    normal GPS drift (especially indoors) doesn't cause false failures.
+      const effectiveRadius = radius + Math.min(gpsAccuracy, 30); // cap buffer at 30 m
+      if (dist <= effectiveRadius) {
         setStep('success');
         animateProgress(1);
         await delay(1500);

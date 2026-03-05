@@ -14,7 +14,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Smart Attendance needs camera access to scan attendance QR codes.",
+        "NSLocationWhenInUseUsageDescription": "Smart Attendance needs your location to verify you are at the lecture venue."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -30,7 +34,20 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Smart Attendance needs your location to verify you are at the lecture venue.",
+          "locationWhenInUsePermission": "Smart Attendance needs your location to verify you are at the lecture venue."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Smart Attendance needs camera access to scan attendance QR codes."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
