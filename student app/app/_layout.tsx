@@ -48,6 +48,7 @@ function RootLayoutNav() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="login" />
+        <Stack.Screen name="signup" />
         <Stack.Screen name="(student)" />
         <Stack.Screen name="scanner" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="gps-verify" />

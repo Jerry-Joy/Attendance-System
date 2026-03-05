@@ -91,6 +91,18 @@ export default function LoginScreen() {
                 This app uses GPS location to verify your presence during attendance sessions.
               </Text>
             </View>
+
+            {/* Sign Up Link */}
+            <View style={styles.signupLink}>
+              <Text style={[Typography.bodySmall, { color: theme.textSecondary }]}>
+                Don't have an account?{' '}
+              </Text>
+              <TouchableOpacity onPress={() => router.push('/signup')}>
+                <Text style={[Typography.bodySmall, { color: theme.primary, fontWeight: '600' }]}>
+                  Create Account
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </Animated.View>
       </ScrollView>
@@ -132,5 +144,11 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     borderRadius: BorderRadius.md,
     borderWidth: 1,
+  },
+  signupLink: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: Spacing.xl,
+    paddingVertical: Spacing.md,
   },
 });

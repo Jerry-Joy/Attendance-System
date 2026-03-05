@@ -4,9 +4,16 @@
  */
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
+interface SignUpData {
+  fullName: string;
+  email: string;
+  studentId: string;
+}
+
 interface AuthState {
   isAuthenticated: boolean;
   login: () => void;
+  signup: (data: SignUpData) => void;
   logout: () => void;
 }
 
@@ -19,12 +26,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsAuthenticated(true);
   };
 
+  const signup = (_data: SignUpData) => {
+    setIsAuthenticated(true);
+  };
+
   const logout = () => {
     setIsAuthenticated(false);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );
