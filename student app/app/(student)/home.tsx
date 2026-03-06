@@ -1,5 +1,5 @@
 /**
- * Student Home Screen — Dashboard with enrolled courses, quick scan, and GPS status
+ * Student Home Screen — Dashboard with enrolled courses, live sessions, quick scan, and GPS status
  */
 import React, { useEffect, useState, useCallback } from 'react';
 import {
@@ -19,12 +19,14 @@ import { useTheme } from '@/hooks/useTheme';
 import { Spacing, Typography, BorderRadius, Shadows } from '@/constants/Layout';
 import { PrimaryButton, Card, Avatar, GPSStatusIndicator } from '@/components/ui';
 import { useAuth } from '@/context/AuthContext';
+import { useLiveSessions } from '@/context/LiveSessionContext';
 import { api, mapCourse, MappedCourse } from '@/lib/api';
 
 export default function StudentHomeScreen() {
   const router = useRouter();
   const theme = useTheme();
   const { student } = useAuth();
+  const { liveSessions, loading: liveLoading, refresh: refreshLive } = useLiveSessions();
 
   const [courses, setCourses] = useState<MappedCourse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +45,7 @@ export default function StudentHomeScreen() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadCourses();
+    await Promise.all([loadCourses(), refreshLive()]);
     setRefreshing(false);
   };
 
@@ -96,6 +98,65 @@ export default function StudentHomeScreen() {
           onPress={() => router.push('/scanner')}
           style={{ marginTop: Spacing.lg }}
         />
+
+        {/* Live Sessions */}
+        {liveSessions.length > 0 && (
+          <>
+            <View style={styles.sectionHeaderRow}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.xs }}>
+                <View style={[styles.liveDot, { backgroundColor: theme.error }]} />
+                <Text style={[Typography.h3, { color: theme.text }]}>Live Now</Text>
+              </View>
+              <Text style={[Typography.caption, { color: theme.textSecondary }]}>
+                {liveSessions.length} active
+              </Text>
+            </View>
+            {liveSessions.map((session) => (
+              <TouchableOpacity
+                key={session.sessionId}
+                activeOpacity={0.7}
+                onPress={() => {
+                  if (!session.alreadyMarked) router.push('/scanner');
+                }}
+              >
+                <Card style={[styles.liveCard, { borderLeftColor: session.alreadyMarked ? theme.success : theme.error }]}>
+                  <View style={styles.courseRow}>
+                    <View style={[styles.courseIcon, { backgroundColor: session.alreadyMarked ? theme.success + '20' : theme.error + '20' }]}>
+                      <FontAwesome
+                        name={session.alreadyMarked ? 'check' : 'wifi'}
+                        size={18}
+                        color={session.alreadyMarked ? theme.success : theme.error}
+                      />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[Typography.body, { color: theme.text, fontWeight: '600' }]}>
+                        {session.courseCode}
+                      </Text>
+                      <Text style={[Typography.caption, { color: theme.textSecondary }]}>
+                        {session.courseName}{session.venue ? ` • ${session.venue}` : ''}
+                      </Text>
+                    </View>
+                    {session.alreadyMarked ? (
+                      <View style={[styles.statusBadge, { backgroundColor: theme.success + '15' }]}>
+                        <Text style={[Typography.caption, { color: theme.success, fontWeight: '600' }]}>Marked ✓</Text>
+                      </View>
+                    ) : (
+                      <View style={[styles.statusBadge, { backgroundColor: theme.error + '15' }]}>
+                        <Text style={[Typography.caption, { color: theme.error, fontWeight: '600' }]}>Scan Now</Text>
+                      </View>
+                    )}
+                  </View>
+                  <View style={styles.liveTimerRow}>
+                    <FontAwesome name="clock-o" size={12} color={theme.textTertiary} />
+                    <Text style={[Typography.caption, { color: theme.textTertiary, marginLeft: 4 }]}>
+                      {session.duration} min session
+                    </Text>
+                  </View>
+                </Card>
+              </TouchableOpacity>
+            ))}
+          </>
+        )}
 
         {/* My Courses */}
         <View style={styles.sectionHeaderRow}>
@@ -192,5 +253,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.sm,
+  },
+  liveDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  liveCard: {
+    marginBottom: Spacing.sm,
+    borderLeftWidth: 3,
+  },
+  statusBadge: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.sm,
+  },
+  liveTimerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: Spacing.xs,
+    paddingLeft: 40 + Spacing.sm,
   },
 });

@@ -265,16 +265,16 @@ export default function Reports() {
               </div>
             </div>
 
-            {/* QR Only */}
+            {/* All verified */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-slate-600 dark:text-slate-300">QR Only</span>
-                <span className="text-sm font-bold text-amber-500 dark:text-amber-400">{100 - avgGps}%</span>
+                <span className="text-sm font-medium text-slate-600 dark:text-slate-300">QR + GPS Verified</span>
+                <span className="text-sm font-bold text-emerald-500 dark:text-emerald-400">100%</span>
               </div>
               <div className="h-3 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-amber-500 rounded-full transition-all duration-700"
-                  style={{ width: `${100 - avgGps}%` }}
+                  className="h-full bg-emerald-500 rounded-full transition-all duration-700"
+                  style={{ width: '100%' }}
                 />
               </div>
             </div>

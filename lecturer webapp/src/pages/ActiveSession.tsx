@@ -201,7 +201,6 @@ export default function ActiveSession() {
 
     const attendees = activeSession?.attendees ?? []
     const gpsCount = attendees.filter((s) => s.gpsVerified).length
-    const qrOnlyCount = attendees.length - gpsCount
 
     const sessionData = {
       courseCode: course?.code ?? '',
@@ -214,7 +213,6 @@ export default function ActiveSession() {
       presentCount: attendees.length,
       absentCount: totalStudents - attendees.length,
       qrGpsVerified: gpsCount,
-      qrOnlyVerified: qrOnlyCount,
       geofenceRadius: radius,
       venueName: course?.venueName || 'Unknown',
     }
@@ -233,7 +231,6 @@ export default function ActiveSession() {
       absentCount: sessionData.absentCount,
       venue: sessionData.venueName,
       qrGpsVerified: gpsCount,
-      qrOnlyVerified: qrOnlyCount,
       geofenceRadius: radius,
       attendees: [...attendees],
     })
@@ -510,8 +507,8 @@ export default function ActiveSession() {
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-600 dark:text-slate-300">QR Only</span>
-                <span className="font-bold text-amber-600">{(activeSession?.attendees ?? []).filter(s => !s.gpsVerified).length}</span>
+                <span className="text-slate-600 dark:text-slate-300">Pending</span>
+                <span className="font-bold text-slate-500">{(activeSession?.attendees ?? []).filter(s => !s.gpsVerified).length}</span>
               </div>
             </div>
           </div>

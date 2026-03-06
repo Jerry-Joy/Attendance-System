@@ -1,7 +1,6 @@
 import {
   IsNotEmpty,
   IsNumber,
-  IsOptional,
   IsString,
 } from 'class-validator';
 
@@ -14,11 +13,9 @@ export class MarkAttendanceDto {
   @IsNotEmpty()
   courseId: string;
 
-  @IsOptional()
   @IsNumber()
-  latitude?: number;
+  latitude: number;
 
-  @IsOptional()
   @IsNumber()
-  longitude?: number;
+  longitude: number;
 }

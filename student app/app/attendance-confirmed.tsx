@@ -2,7 +2,7 @@
  * Attendance Confirmed Screen — Success state after QR + GPS verification.
  * Receives real session data via route params, saves record to AttendanceContext.
  */
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -18,17 +18,18 @@ import { useTheme } from '@/hooks/useTheme';
 import { Spacing, Typography, BorderRadius } from '@/constants/Layout';
 import { PrimaryButton, Card, GeofenceBadge } from '@/components/ui';
 import { useAttendance } from '@/context/AttendanceContext';
+import { ApiError } from '@/lib/api';
 
 export default function AttendanceConfirmedScreen() {
   const router = useRouter();
   const theme = useTheme();
   const { addRecord, markOnServer } = useAttendance();
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const params = useLocalSearchParams<{
     token: string;
     courseId: string;
     courseCode: string;
-    method: string;
     venueName: string;
     radius: string;
     distance: string;
@@ -42,7 +43,7 @@ export default function AttendanceConfirmedScreen() {
   // Derive display values from route params
   const courseCode = params.courseCode || 'Unknown';
   const courseName = params.courseCode || courseCode;
-  const method = (params.method === 'QR+GPS' || params.method === 'QR Only') ? params.method : 'QR+GPS';
+  const method = 'QR+GPS';
   const venueName = params.venueName || 'Lecture Venue';
   const radius = params.radius ? parseFloat(params.radius) : 50;
 
@@ -71,8 +72,11 @@ export default function AttendanceConfirmedScreen() {
         courseId: params.courseId,
         latitude: params.latitude ? parseFloat(params.latitude) : undefined,
         longitude: params.longitude ? parseFloat(params.longitude) : undefined,
-      }).catch(() => {
-        // Silently fail — local record still saved
+      }).catch((err) => {
+        if (err instanceof ApiError && err.status === 409) {
+          setServerError('Attendance was already recorded for this session.');
+        }
+        // Other errors silently ignored — local record still saved
       });
     }
   }, [params.token]);
@@ -117,17 +121,17 @@ export default function AttendanceConfirmedScreen() {
 
         {/* Title */}
         <Text style={[Typography.h1, { color: theme.text, textAlign: 'center', marginTop: Spacing.lg }]}>
-          Attendance Confirmed!
+          {serverError ? 'Already Recorded' : 'Attendance Confirmed!'}
         </Text>
-        <Text style={[Typography.body, { color: theme.textSecondary, textAlign: 'center', marginTop: Spacing.sm }]}>
-          Your attendance has been recorded successfully
+        <Text style={[Typography.body, { color: serverError ? theme.warning : theme.textSecondary, textAlign: 'center', marginTop: Spacing.sm }]}>
+          {serverError || 'Your attendance has been recorded successfully'}
         </Text>
 
         {/* Verification Badge */}
         <View style={[styles.verifyBadge, { backgroundColor: theme.success + '10', borderColor: theme.success + '30' }]}>
           <FontAwesome name="shield" size={16} color={theme.success} />
           <Text style={[Typography.bodySmall, { color: theme.success, fontWeight: '600', marginLeft: 8 }]}>
-            {method} Verified
+            QR + GPS Verified
           </Text>
         </View>
 

@@ -62,26 +62,29 @@ export class AttendanceService {
     if (existing)
       throw new ConflictException('Attendance already marked for this session');
 
-    // 5. GPS verification
-    let method: VerificationMethod = VerificationMethod.QR_ONLY;
-    let distance: number | null = null;
-
-    if (
-      dto.latitude != null &&
-      dto.longitude != null &&
-      session.latitude != null &&
-      session.longitude != null
-    ) {
-      distance = haversineDistance(
-        session.latitude,
-        session.longitude,
-        dto.latitude,
-        dto.longitude,
+    // 5. GPS verification — always required
+    if (session.latitude == null || session.longitude == null) {
+      throw new BadRequestException(
+        'Session has no venue GPS coordinates. Ask your lecturer to restart the session with location enabled.',
       );
-      if (distance <= session.geofenceRadius + 30) {
-        method = VerificationMethod.QR_GPS;
-      }
     }
+
+    const distance = haversineDistance(
+      session.latitude,
+      session.longitude,
+      dto.latitude,
+      dto.longitude,
+    );
+
+    // Allow generous tolerance for indoor GPS drift (both devices combined)
+    const effectiveRadius = session.geofenceRadius + 80;
+    if (distance > effectiveRadius) {
+      throw new BadRequestException(
+        `You are ${Math.round(distance)}m from the venue. You need to be within ${session.geofenceRadius}m.`,
+      );
+    }
+
+    const method = VerificationMethod.QR_GPS;
 
     // 6. Create attendance record
     const attendance = await this.prisma.attendance.create({
@@ -89,7 +92,7 @@ export class AttendanceService {
         sessionId: session.id,
         studentId,
         method,
-        distance: distance != null ? Math.round(distance * 100) / 100 : null,
+        distance: Math.round(distance * 100) / 100,
       },
       include: {
         student: {

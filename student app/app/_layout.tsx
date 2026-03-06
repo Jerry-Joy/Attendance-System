@@ -8,6 +8,7 @@ import { useColorScheme } from 'react-native';
 import 'react-native-reanimated';
 import { AuthProvider } from '@/context/AuthContext';
 import { AttendanceProvider } from '@/context/AttendanceContext';
+import { LiveSessionProvider } from '@/context/LiveSessionContext';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -34,7 +35,9 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <AttendanceProvider>
-        <RootLayoutNav />
+        <LiveSessionProvider>
+          <RootLayoutNav />
+        </LiveSessionProvider>
       </AttendanceProvider>
     </AuthProvider>
   );

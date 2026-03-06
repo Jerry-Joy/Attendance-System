@@ -12,7 +12,7 @@ export interface LiveAttendanceRecord {
   date: string;
   time: string;
   status: 'present';
-  method: 'QR+GPS' | 'QR Only';
+  method: 'QR+GPS';
   venueName?: string;
   radius?: number;
   token: string;

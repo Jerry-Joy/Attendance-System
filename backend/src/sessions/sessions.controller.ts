@@ -5,6 +5,7 @@ import {
   Patch,
   Param,
   Body,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { SessionsService } from './sessions.service';
@@ -24,6 +25,23 @@ export class SessionsController {
   @Post('sessions')
   create(@CurrentUser() user: any, @Body() dto: CreateSessionDto) {
     return this.sessionsService.create(user.id, dto);
+  }
+
+  /** Students: get all active sessions for enrolled courses */
+  @Roles(Role.STUDENT)
+  @Get('sessions/active')
+  getActiveSessions(@CurrentUser() user: any) {
+    return this.sessionsService.getActiveForStudent(user.id);
+  }
+
+  /** Students: check if already attended a session for a course */
+  @Roles(Role.STUDENT)
+  @Get('sessions/check-attendance')
+  checkAttendance(
+    @CurrentUser() user: any,
+    @Query('courseId') courseId: string,
+  ) {
+    return this.sessionsService.checkAttendance(user.id, courseId);
   }
 
   @Get('sessions/:id')

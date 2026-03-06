@@ -104,7 +104,6 @@ interface BackendSessionSummary {
   presentCount: number
   absentCount: number
   qrGpsVerified: number
-  qrOnlyVerified: number
 }
 
 interface BackendAttendanceRecord {

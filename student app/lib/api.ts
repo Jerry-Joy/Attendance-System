@@ -82,7 +82,7 @@ export interface BackendHistoryRecord {
   lecturer: string;
   date: string;       // ISO string of session startedAt
   markedAt: string;    // ISO string
-  method: string;      // QR_GPS | QR_ONLY
+  method: string;      // QR_GPS
   distance: number | null;
 }
 
@@ -151,7 +151,7 @@ export interface MappedHistoryRecord {
   date: string;
   time: string;
   status: 'present';
-  method: 'QR+GPS' | 'QR Only';
+  method: 'QR+GPS';
   lecturer: string;
 }
 
@@ -164,7 +164,7 @@ export function mapHistoryRecord(r: BackendHistoryRecord): MappedHistoryRecord {
     date: d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }),
     time: d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
     status: 'present',
-    method: r.method === 'QR_GPS' ? 'QR+GPS' : 'QR Only',
+    method: 'QR+GPS',
     lecturer: r.lecturer,
   };
 }
@@ -206,4 +206,22 @@ export const api = {
     }),
 
   getHistory: () => request<BackendHistoryRecord[]>('/attendance/history'),
+
+  // Sessions (student)
+  getActiveSessions: () =>
+    request<{
+      sessionId: string;
+      courseId: string;
+      courseCode: string;
+      courseName: string;
+      venue: string | null;
+      startedAt: string;
+      duration: number;
+      alreadyMarked: boolean;
+    }[]>('/sessions/active'),
+
+  checkAttendance: (courseId: string) =>
+    request<{ alreadyMarked: boolean; sessionId?: string }>(
+      `/sessions/check-attendance?courseId=${encodeURIComponent(courseId)}`,
+    ),
 };

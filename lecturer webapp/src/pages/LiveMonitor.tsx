@@ -3,10 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import {
   ArrowLeft,
   MapPin,
-  QrCode,
   CheckCircle,
-  XCircle,
   Shield,
+  Target,
   Users,
   Search,
   RefreshCw,
@@ -16,7 +15,7 @@ import {
 } from 'lucide-react'
 import { useData } from '../context/DataContext'
 
-type FilterType = 'all' | 'gps' | 'qr-only'
+type FilterType = 'all' | 'gps'
 
 export default function LiveMonitor() {
   const navigate = useNavigate()
@@ -57,16 +56,13 @@ export default function LiveMonitor() {
   // ── Derived stats ───────────────────────────────────────────
   const totalCount = students.length
   const gpsVerified = students.filter((s) => s.gpsVerified).length
-  const qrOnly = totalCount - gpsVerified
   const enrolled = course?.studentCount ?? 0
 
   const filteredStudents = students.filter((student) => {
     const matchesFilter =
       filter === 'all'
         ? true
-        : filter === 'gps'
-          ? student.gpsVerified
-          : !student.gpsVerified
+        : student.gpsVerified
 
     const matchesSearch =
       searchQuery === '' ||
@@ -136,11 +132,11 @@ export default function LiveMonitor() {
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center">
-              <QrCode className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+              <Target className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             </div>
-            <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-semibold">QR Only</span>
+            <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-semibold">Attendance %</span>
           </div>
-          <span className="text-3xl font-bold text-amber-600 dark:text-amber-400">{qrOnly}</span>
+          <span className="text-3xl font-bold text-amber-600 dark:text-amber-400">{enrolled > 0 ? Math.round((totalCount / enrolled) * 100) : 0}%</span>
         </div>
         <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
           <div className="flex items-center gap-2 mb-2">
@@ -162,7 +158,6 @@ export default function LiveMonitor() {
             [
               { key: 'all', label: 'All', count: totalCount },
               { key: 'gps', label: 'GPS Verified', count: gpsVerified },
-              { key: 'qr-only', label: 'QR Only', count: qrOnly },
             ] as { key: FilterType; label: string; count: number }[]
           ).map((f) => (
             <button
@@ -299,12 +294,12 @@ export default function LiveMonitor() {
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full text-xs font-semibold">
                               <CheckCircle className="w-3.5 h-3.5" />
                               <MapPin className="w-3 h-3" />
-                              GPS
+                              QR + GPS
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-full text-xs font-semibold">
-                              <XCircle className="w-3.5 h-3.5" />
-                              QR Only
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 dark:bg-slate-500/10 text-slate-600 dark:text-slate-400 rounded-full text-xs font-semibold">
+                              <Clock className="w-3.5 h-3.5" />
+                              Verifying...
                             </span>
                           )}
                         </div>

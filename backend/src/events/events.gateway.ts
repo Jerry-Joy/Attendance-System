@@ -71,6 +71,18 @@ export class EventsGateway
     client.leave(`session:${data.sessionId}`);
   }
 
+  /** Students join their enrolled course rooms to receive live-session alerts */
+  @SubscribeMessage('course:join')
+  handleJoinCourse(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { courseIds: string[] },
+  ) {
+    for (const id of data.courseIds) {
+      client.join(`course:${id}`);
+    }
+    return { event: 'course:joined', data: { courseIds: data.courseIds } };
+  }
+
   /** Called by AttendanceService after a student marks attendance */
   emitNewAttendance(sessionId: string, attendance: any) {
     this.server.to(`session:${sessionId}`).emit('attendance:new', attendance);
@@ -81,10 +93,26 @@ export class EventsGateway
     this.server.to(`session:${sessionId}`).emit('session:ended', { sessionId });
   }
 
+  /** Called by SessionsService — also notify students via course room */
+  emitSessionEndedToCourse(courseId: string, sessionId: string) {
+    this.server.to(`course:${courseId}`).emit('session:ended', { sessionId });
+  }
+
   /** Called by SessionsService when QR is refreshed */
   emitQrRefreshed(sessionId: string, newToken: string) {
     this.server
       .to(`session:${sessionId}`)
       .emit('session:qr-refreshed', { sessionId, token: newToken });
+  }
+
+  /** Called by SessionsService when a new session is started — notifies enrolled students */
+  emitSessionStarted(courseId: string, payload: {
+    sessionId: string;
+    courseCode: string;
+    courseName: string;
+    venue: string | null;
+    duration: number;
+  }) {
+    this.server.to(`course:${courseId}`).emit('session:started', payload);
   }
 }

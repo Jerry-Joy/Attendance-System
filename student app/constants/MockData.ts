@@ -39,7 +39,7 @@ export interface AttendanceRecord {
   date: string;
   time: string;
   status: 'present' | 'absent';
-  method?: 'QR+GPS' | 'QR Only';
+  method?: 'QR+GPS';
   lecturer: string;
 }
 
@@ -160,7 +160,7 @@ export const mockAttendance: AttendanceRecord[] = [
     date: 'Mon, 10 Feb 2026',
     time: '08:10 AM',
     status: 'present',
-    method: 'QR Only',
+    method: 'QR+GPS',
     lecturer: 'Dr. Okafor',
   },
   {

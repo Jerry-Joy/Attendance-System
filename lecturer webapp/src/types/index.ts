@@ -52,7 +52,6 @@ export interface SessionSummary {
   presentCount: number
   absentCount: number
   qrGpsVerified: number
-  qrOnlyVerified: number
   geofenceRadius: number
   venueName: string
 }
@@ -83,7 +82,6 @@ export interface PastSession {
   absentCount: number
   venue: string
   qrGpsVerified?: number
-  qrOnlyVerified?: number
   geofenceRadius?: number
   attendees?: AttendingStudent[]
 }

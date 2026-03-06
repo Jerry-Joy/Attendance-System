@@ -159,19 +159,17 @@ export default function GPSVerifyScreen() {
       const studentLat = location.coords.latitude;
       const studentLng = location.coords.longitude;
       if (!cancelled) setStudentCoords({ lat: studentLat, lng: studentLng });
-      // GPS accuracy reported by the device (metres). We use this as a buffer
-      // so that natural GPS drift doesn't cause false negatives.
+      // GPS accuracy reported by the device (metres). Indoor GPS can easily
+      // be 30-65 m off on each device — combined drift between the lecturer's
+      // browser and the student's phone can exceed 80 m even in the same room.
       const gpsAccuracy = location.coords.accuracy ?? 0;
 
-      // 4. If lecturer didn't share location, skip geofence (QR Only)
+      // 4. Session must include venue GPS — if missing, reject
       if (venueLat == null || venueLng == null) {
-        // No GPS coords in QR — just confirm with QR Only
-        await delay(500);
         if (!cancelled) {
-          setStep('success');
+          setFailReason('This session has no venue GPS coordinates. Ask your lecturer to restart the session with location enabled.');
+          setStep('failed');
           animateProgress(1);
-          await delay(1500);
-          navigateToConfirmed('QR Only', null);
         }
         return;
       }
@@ -185,12 +183,14 @@ export default function GPSVerifyScreen() {
 
       // 6. Check geofence — add GPS accuracy as a tolerance buffer so that
       //    normal GPS drift (especially indoors) doesn't cause false failures.
-      const effectiveRadius = radius + Math.min(gpsAccuracy, 30); // cap buffer at 30 m
+      //    Indoor GPS on two devices can drift 50-100 m apart, so we use a
+      //    generous cap to avoid blocking students who are physically present.
+      const effectiveRadius = radius + Math.min(gpsAccuracy, 80); // cap buffer at 80 m
       if (dist <= effectiveRadius) {
         setStep('success');
         animateProgress(1);
         await delay(1500);
-        if (!cancelled) navigateToConfirmed('QR+GPS', Math.round(dist));
+        if (!cancelled) navigateToConfirmed(Math.round(dist), studentLat, studentLng);
       } else {
         setFailReason(
           `You are ${Math.round(dist)}m away from the venue. You need to be within ${radius}m.`,
@@ -212,19 +212,18 @@ export default function GPSVerifyScreen() {
     }).start();
   }
 
-  function navigateToConfirmed(method: 'QR+GPS' | 'QR Only', dist: number | null) {
+  function navigateToConfirmed(dist: number, lat: number, lng: number) {
     router.replace({
       pathname: '/attendance-confirmed',
       params: {
         token: params.token,
         courseId: params.courseId,
         courseCode: params.courseCode,
-        method,
         venueName,
         radius: radius.toString(),
-        distance: dist?.toString() ?? '',
-        latitude: studentCoords?.lat?.toString() ?? '',
-        longitude: studentCoords?.lng?.toString() ?? '',
+        distance: dist.toString(),
+        latitude: lat.toString(),
+        longitude: lng.toString(),
       },
     });
   }
@@ -257,9 +256,7 @@ export default function GPSVerifyScreen() {
     success: {
       icon: 'check-circle',
       title: 'Location Verified!',
-      subtitle: distance != null
-        ? `You are ${distance}m from the venue (within ${radius}m)`
-        : 'QR verified — GPS geofence not required for this session',
+      subtitle: `You are ${distance ?? 0}m from the venue (within ${radius}m)`,
       color: theme.success,
       gpsStatus: 'verified',
     },
@@ -382,6 +379,11 @@ export default function GPSVerifyScreen() {
               },
             })}
           />
+          <Text
+            style={[Typography.caption, { color: theme.textSecondary, textAlign: 'center', marginTop: Spacing.sm, paddingHorizontal: Spacing.lg }]}
+          >
+            Make sure you are within the lecture venue and your GPS is enabled.
+          </Text>
           <Text
             style={[Typography.bodySmall, { color: theme.primary, textAlign: 'center', marginTop: Spacing.md }]}
             onPress={() => router.replace('/(student)/home')}

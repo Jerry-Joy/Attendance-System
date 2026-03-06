@@ -57,6 +57,16 @@ export class SessionsService {
         course: { select: { courseCode: true, courseName: true, venue: true } },
         _count: { select: { attendances: true } },
       },
+    }).then((session) => {
+      // Notify enrolled students via WebSocket
+      this.events.emitSessionStarted(dto.courseId, {
+        sessionId: session.id,
+        courseCode: session.course.courseCode,
+        courseName: session.course.courseName,
+        venue: session.course.venue,
+        duration: session.duration,
+      });
+      return session;
     });
   }
 
@@ -111,6 +121,7 @@ export class SessionsService {
       },
     });
     this.events.emitSessionEnded(sessionId);
+    this.events.emitSessionEndedToCourse(ended.courseId, sessionId);
     return ended;
   }
 
@@ -175,12 +186,7 @@ export class SessionsService {
 
     const totalStudents = session.course._count.enrollments;
     const presentCount = session.attendances.length;
-    const qrGpsVerified = session.attendances.filter(
-      (a) => a.method === 'QR_GPS',
-    ).length;
-    const qrOnlyVerified = session.attendances.filter(
-      (a) => a.method === 'QR_ONLY',
-    ).length;
+    const qrGpsVerified = presentCount;
 
     return {
       sessionId: session.id,
@@ -196,7 +202,64 @@ export class SessionsService {
       presentCount,
       absentCount: totalStudents - presentCount,
       qrGpsVerified,
-      qrOnlyVerified,
     };
+  }
+
+  /** Return active sessions for all courses a student is enrolled in */
+  async getActiveForStudent(studentId: string) {
+    const enrollments = await this.prisma.enrollment.findMany({
+      where: { studentId },
+      select: { courseId: true },
+    });
+    const courseIds = enrollments.map((e) => e.courseId);
+    if (courseIds.length === 0) return [];
+
+    const sessions = await this.prisma.session.findMany({
+      where: {
+        courseId: { in: courseIds },
+        status: SessionStatus.ACTIVE,
+      },
+      include: {
+        course: { select: { courseCode: true, courseName: true, venue: true } },
+        attendances: {
+          where: { studentId },
+          select: { id: true },
+        },
+      },
+      orderBy: { startedAt: 'desc' },
+    });
+
+    // Filter out expired sessions and return with attendance status
+    const now = new Date();
+    return sessions
+      .filter((s) => {
+        const endTime = new Date(s.startedAt.getTime() + s.duration * 60_000);
+        return now <= endTime;
+      })
+      .map((s) => ({
+        sessionId: s.id,
+        courseId: s.courseId,
+        courseCode: s.course.courseCode,
+        courseName: s.course.courseName,
+        venue: s.course.venue,
+        startedAt: s.startedAt,
+        duration: s.duration,
+        alreadyMarked: s.attendances.length > 0,
+      }));
+  }
+
+  /** Check if a student already has attendance for a given session (by courseId + active session) */
+  async checkAttendance(studentId: string, courseId: string) {
+    const session = await this.prisma.session.findFirst({
+      where: { courseId, status: SessionStatus.ACTIVE },
+    });
+    if (!session) return { alreadyMarked: false };
+
+    const existing = await this.prisma.attendance.findUnique({
+      where: {
+        sessionId_studentId: { sessionId: session.id, studentId },
+      },
+    });
+    return { alreadyMarked: !!existing, sessionId: session.id };
   }
 }

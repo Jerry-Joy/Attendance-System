@@ -21,7 +21,7 @@ import type { SessionSummary as SummaryType, PastSession, AttendingStudent } fro
 const emptySummary: SummaryType = {
   courseCode: '', courseName: '', date: '', startTime: '', endTime: '',
   duration: '', totalStudents: 0, presentCount: 0, absentCount: 0,
-  qrGpsVerified: 0, qrOnlyVerified: 0, geofenceRadius: 50, venueName: '',
+  qrGpsVerified: 0, geofenceRadius: 50, venueName: '',
 }
 
 export default function SessionSummary() {
@@ -49,8 +49,7 @@ export default function SessionSummary() {
       totalStudents: ps.totalStudents,
       presentCount: ps.presentCount,
       absentCount: ps.absentCount,
-      qrGpsVerified: ps.qrGpsVerified ?? Math.round(ps.presentCount * 0.92),
-      qrOnlyVerified: ps.qrOnlyVerified ?? (ps.presentCount - Math.round(ps.presentCount * 0.92)),
+      qrGpsVerified: ps.qrGpsVerified ?? ps.presentCount,
       geofenceRadius: ps.geofenceRadius ?? 50,
       venueName: ps.venue,
     }
@@ -69,7 +68,6 @@ export default function SessionSummary() {
   const attendanceRate = Math.round((summary.presentCount / summary.totalStudents) * 100)
   const absentCount = summary.totalStudents - summary.presentCount
   const gpsVerifiedCount = summary.qrGpsVerified
-  const qrOnlyCount = summary.qrOnlyVerified
   const gpsPercent = summary.presentCount > 0 ? Math.round((gpsVerifiedCount / summary.presentCount) * 100) : 0
 
   const rateColor =
@@ -119,7 +117,6 @@ export default function SessionSummary() {
       ['Absent', absentCount],
       ['Attendance Rate', `${attendanceRate}%`],
       ['GPS Verified', gpsVerifiedCount],
-      ['QR Only', qrOnlyCount],
     ]
 
     const csvContent = csvRows.map((row) => row.join(',')).join('\n')
@@ -281,19 +278,19 @@ export default function SessionSummary() {
               </div>
             </div>
 
-            {/* QR Only */}
+            {/* QR + GPS — all attendees */}
             <div>
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-amber-500" />
-                  <span className="text-sm text-slate-600 dark:text-slate-300">QR Only</span>
+                  <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                  <span className="text-sm text-slate-600 dark:text-slate-300">QR + GPS Verified</span>
                 </div>
-                <span className="text-sm font-bold text-amber-600 dark:text-amber-400">{qrOnlyCount}</span>
+                <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{gpsVerifiedCount}</span>
               </div>
               <div className="h-3 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full transition-all duration-700"
-                  style={{ width: `${100 - gpsPercent}%` }}
+                  className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-700"
+                  style={{ width: `${gpsPercent}%` }}
                 />
               </div>
             </div>
@@ -302,7 +299,7 @@ export default function SessionSummary() {
           <div className="mt-5 p-3.5 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl border border-emerald-100 dark:border-emerald-500/20 flex items-center gap-2.5">
             <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
             <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
-              {gpsPercent}% of present students fully verified with GPS
+              All present students verified with QR + GPS
             </span>
           </div>
         </div>
@@ -355,9 +352,9 @@ export default function SessionSummary() {
                         QR + GPS
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-full text-[11px] font-semibold">
-                        <QrCode className="w-3 h-3" />
-                        QR Only
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-50 dark:bg-slate-500/10 text-slate-600 dark:text-slate-400 rounded-full text-[11px] font-semibold">
+                        <Clock className="w-3 h-3" />
+                        Verifying...
                       </span>
                     )}
                   </td>

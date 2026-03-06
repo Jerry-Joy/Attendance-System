@@ -97,8 +97,7 @@ export const mockSessionSummary: SessionSummary = {
   totalStudents: 45,
   presentCount: 38,
   absentCount: 7,
-  qrGpsVerified: 35,
-  qrOnlyVerified: 3,
+  qrGpsVerified: 38,
   geofenceRadius: 50,
   venueName: 'Room 301, CS Building',
 }

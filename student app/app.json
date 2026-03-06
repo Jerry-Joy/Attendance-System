@@ -48,7 +48,8 @@
           "cameraPermission": "Smart Attendance needs camera access to scan attendance QR codes."
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true
