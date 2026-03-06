@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = 'http://192.168.100.153:3001/api';
 const TOKEN_KEY = 'smartattend_token';
 
 let cachedToken: string | null = null;

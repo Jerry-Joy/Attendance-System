@@ -17,9 +17,10 @@ async function bootstrap() {
   // CORS — allow both frontends
   app.enableCors({
     origin: [
-      'http://localhost:5173', // Lecturer web app (Vite)
-      'http://localhost:8082', // Student mobile app (Expo)
-      /\.ngrok-free\.app$/,   // Expo tunnel URLs
+      'http://localhost:5173',        // Lecturer web app (Vite)
+      'http://localhost:8082',        // Student mobile app (Expo)
+      'http://192.168.100.153:3001',  // LAN access from phone
+      /\.ngrok-free\.app$/,           // Expo tunnel URLs
     ],
     credentials: true,
   });
