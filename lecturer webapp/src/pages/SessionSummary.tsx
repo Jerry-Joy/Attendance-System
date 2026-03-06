@@ -16,8 +16,13 @@ import {
   Loader2,
   History,
 } from 'lucide-react'
-import { mockSessionSummary, mockAttendingStudents } from '../data/mockData'
 import type { SessionSummary as SummaryType, PastSession, AttendingStudent } from '../types'
+
+const emptySummary: SummaryType = {
+  courseCode: '', courseName: '', date: '', startTime: '', endTime: '',
+  duration: '', totalStudents: 0, presentCount: 0, absentCount: 0,
+  qrGpsVerified: 0, qrOnlyVerified: 0, geofenceRadius: 50, venueName: '',
+}
 
 export default function SessionSummary() {
   const navigate = useNavigate()
@@ -29,7 +34,7 @@ export default function SessionSummary() {
 
   /* Build a normalized summary from either a PastSession or a full SessionSummary */
   const summary: SummaryType = (() => {
-    if (!passedState?.session) return mockSessionSummary
+    if (!passedState?.session) return emptySummary
     const s = passedState.session
     if ('qrGpsVerified' in s && typeof (s as SummaryType).geofenceRadius === 'number') return s as SummaryType
     /* PastSession → convert to SummaryType */
@@ -56,7 +61,7 @@ export default function SessionSummary() {
     if (passedState?.attendees && passedState.attendees.length > 0) return passedState.attendees
     const s = passedState?.session
     if (s && 'attendees' in s && (s as PastSession).attendees) return (s as PastSession).attendees!
-    return mockAttendingStudents
+    return []
   })()
 
   const [downloading, setDownloading] = useState(false)

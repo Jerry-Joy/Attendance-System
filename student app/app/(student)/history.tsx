@@ -1,7 +1,7 @@
 /**
- * Student History Screen — Attendance history with filtering
+ * Student History Screen — Attendance history from real API with filtering
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,46 +10,31 @@ import {
   SafeAreaView,
   StatusBar,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import { Spacing, Typography, BorderRadius } from '@/constants/Layout';
 import { Card, StatusBadge } from '@/components/ui';
-import { mockAttendance, AttendanceRecord } from '@/constants/MockData';
 import { useAttendance } from '@/context/AttendanceContext';
+import { MappedHistoryRecord } from '@/lib/api';
 
-type FilterOption = 'all' | 'present' | 'absent';
+type FilterOption = 'all' | 'present';
 
 export default function StudentHistoryScreen() {
   const theme = useTheme();
   const [filter, setFilter] = useState<FilterOption>('all');
-  const { records: liveRecords } = useAttendance();
+  const { history, historyLoading, fetchHistory } = useAttendance();
 
-  // Merge live records (from real scans) with mock history
-  const allRecords: AttendanceRecord[] = [
-    ...liveRecords.map((r) => ({
-      id: r.id,
-      courseCode: r.courseCode,
-      courseName: r.courseName,
-      date: r.date,
-      time: r.time,
-      status: r.status as 'present',
-      method: r.method,
-      lecturer: '',
-    })),
-    ...mockAttendance,
-  ];
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
 
-  const filtered = allRecords.filter((r) => {
-    if (filter === 'present') return r.status === 'present';
-    if (filter === 'absent') return r.status === 'absent';
-    return true;
-  });
+  const allRecords = history;
 
-  const presentCount = allRecords.filter((r) => r.status === 'present').length;
-  const absentCount = allRecords.filter((r) => r.status === 'absent').length;
+  const filtered = filter === 'all' ? allRecords : allRecords.filter((r) => r.status === 'present');
 
-  const renderItem = ({ item }: { item: AttendanceRecord }) => (
+  const renderItem = ({ item }: { item: MappedHistoryRecord }) => (
     <Card style={{ marginBottom: Spacing.sm }}>
       <View style={styles.recordRow}>
         <View style={[styles.statusDot, { backgroundColor: item.status === 'present' ? theme.success : theme.error }]} />
@@ -102,8 +87,7 @@ export default function StudentHistoryScreen() {
       <View style={styles.filterRow}>
         {([
           { key: 'all', label: 'All', count: allRecords.length },
-          { key: 'present', label: 'Present', count: presentCount },
-          { key: 'absent', label: 'Absent', count: absentCount },
+          { key: 'present', label: 'Present', count: allRecords.length },
         ] as const).map((f) => (
           <TouchableOpacity
             key={f.key}
@@ -132,20 +116,24 @@ export default function StudentHistoryScreen() {
       </View>
 
       {/* List */}
-      <FlatList
-        data={filtered}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={{ padding: Spacing.md }}
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <FontAwesome name="calendar-o" size={48} color={theme.textTertiary} />
-            <Text style={[Typography.body, { color: theme.textSecondary, marginTop: Spacing.md }]}>
-              No records found
-            </Text>
-          </View>
-        }
-      />
+      {historyLoading && allRecords.length === 0 ? (
+        <ActivityIndicator size="large" color={theme.primary} style={{ marginTop: Spacing.xxl }} />
+      ) : (
+        <FlatList
+          data={filtered}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={{ padding: Spacing.md }}
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <FontAwesome name="calendar-o" size={48} color={theme.textTertiary} />
+              <Text style={[Typography.body, { color: theme.textSecondary, marginTop: Spacing.md }]}>
+                No attendance records yet
+              </Text>
+            </View>
+          }
+        />
+      )}
     </SafeAreaView>
   );
 }

@@ -79,27 +79,25 @@ export default function SignUp() {
     if (validateStep1()) setStep(2)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     if (!validateStep2()) return
 
     setLoading(true)
-    setTimeout(() => {
-      const result = signup({
-        id: lecturerId.trim().toUpperCase(),
-        name: name.trim(),
-        email: email.trim(),
-        department: department.trim(),
-        password,
-      })
-      if (result.success) {
-        navigate('/courses')
-      } else {
-        setError(result.error || 'Signup failed')
-        setLoading(false)
-      }
-    }, 1000)
+    const result = await signup({
+      name: name.trim(),
+      email: email.trim(),
+      department: department.trim(),
+      staffId: lecturerId.trim().toUpperCase(),
+      password,
+    })
+    if (result.success) {
+      navigate('/courses')
+    } else {
+      setError(result.error || 'Signup failed')
+      setLoading(false)
+    }
   }
 
   /* Password strength */

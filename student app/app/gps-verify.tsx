@@ -19,7 +19,6 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import { Spacing, Typography, BorderRadius, Shadows } from '@/constants/Layout';
 import { Card, GPSStatusIndicator, GeofenceBadge, PrimaryButton } from '@/components/ui';
-import { mockCourses } from '@/constants/MockData';
 
 type VerifyStep = 'permission' | 'locating' | 'checking' | 'success' | 'failed';
 
@@ -62,6 +61,7 @@ export default function GPSVerifyScreen() {
   const [step, setStep] = useState<VerifyStep>('locating');
   const [distance, setDistance] = useState<number | null>(null);
   const [failReason, setFailReason] = useState('');
+  const [studentCoords, setStudentCoords] = useState<{ lat: number; lng: number } | null>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
   const pinBounce = useRef(new Animated.Value(0)).current;
@@ -70,9 +70,8 @@ export default function GPSVerifyScreen() {
   const venueLng = params.lng ? parseFloat(params.lng) : null;
   const radius = params.radius ? parseFloat(params.radius) : 50;
 
-  // Look up course info from mock data for display
-  const course = mockCourses.find((c) => c.id === params.courseId || c.code === params.courseCode);
-  const venueName = course?.venueName ?? 'Lecture Venue';
+  // Venue name passed through route params or fallback
+  const venueName = (params as any).venueName || 'Lecture Venue';
 
   // ── Pulse animation ──
   useEffect(() => {
@@ -159,6 +158,7 @@ export default function GPSVerifyScreen() {
 
       const studentLat = location.coords.latitude;
       const studentLng = location.coords.longitude;
+      if (!cancelled) setStudentCoords({ lat: studentLat, lng: studentLng });
       // GPS accuracy reported by the device (metres). We use this as a buffer
       // so that natural GPS drift doesn't cause false negatives.
       const gpsAccuracy = location.coords.accuracy ?? 0;
@@ -223,6 +223,8 @@ export default function GPSVerifyScreen() {
         venueName,
         radius: radius.toString(),
         distance: dist?.toString() ?? '',
+        latitude: studentCoords?.lat?.toString() ?? '',
+        longitude: studentCoords?.lng?.toString() ?? '',
       },
     });
   }

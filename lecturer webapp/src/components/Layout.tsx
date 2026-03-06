@@ -16,7 +16,6 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
-import { mockLecturer } from '../data/mockData'
 
 const navItems = [
   { to: '/courses', icon: LayoutDashboard, label: 'Dashboard' },
@@ -26,7 +25,7 @@ const navItems = [
 ]
 
 export default function Layout() {
-  const { logout } = useAuth()
+  const { logout, lecturer } = useAuth()
   const { isDark, toggleTheme } = useTheme()
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -143,18 +142,18 @@ export default function Layout() {
           </div>
           <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3 px-3'} py-2`}>
             <div className="w-9 h-9 rounded-full bg-brand-100 dark:bg-brand-500/20 flex items-center justify-center text-brand-700 dark:text-brand-400 font-bold text-xs shrink-0 group relative">
-              {mockLecturer.avatarInitials}
+              {lecturer?.avatarInitials ?? '??'}
               {collapsed && (
                 <span className="absolute left-full ml-3 px-2.5 py-1.5 bg-slate-800 dark:bg-slate-600 text-white text-xs font-medium rounded-lg whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none shadow-lg z-[60]">
-                  {mockLecturer.name}
+                  {lecturer?.name ?? 'User'}
                 </span>
               )}
             </div>
             {!collapsed && (
               <>
                 <div className="flex-1 min-w-0">
-                  <p className="text-slate-800 dark:text-white text-sm font-semibold truncate">{mockLecturer.name}</p>
-                  <p className="text-slate-400 dark:text-slate-500 text-xs truncate">{mockLecturer.department}</p>
+                  <p className="text-slate-800 dark:text-white text-sm font-semibold truncate">{lecturer?.name ?? 'User'}</p>
+                  <p className="text-slate-400 dark:text-slate-500 text-xs truncate">{lecturer?.department ?? ''}</p>
                 </div>
                 <button
                   onClick={handleLogout}
@@ -199,11 +198,11 @@ export default function Layout() {
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
             <div className="text-right">
-              <p className="text-sm font-semibold text-slate-800 dark:text-white">{mockLecturer.name}</p>
-              <p className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wider">{mockLecturer.title}</p>
+              <p className="text-sm font-semibold text-slate-800 dark:text-white">{lecturer?.name ?? 'User'}</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wider">{lecturer?.title ?? 'Lecturer'}</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-500/20 flex items-center justify-center text-brand-700 dark:text-brand-400 font-bold text-sm">
-              {mockLecturer.avatarInitials}
+              {lecturer?.avatarInitials ?? '??'}
             </div>
             <button
               onClick={handleLogout}

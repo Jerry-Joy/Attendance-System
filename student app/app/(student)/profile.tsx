@@ -19,14 +19,14 @@ import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/context/AuthContext';
 import { Spacing, Typography, BorderRadius, Shadows } from '@/constants/Layout';
 import { Card, Avatar, DestructiveButton, SectionHeader, GPSStatusIndicator } from '@/components/ui';
-import { mockStudent } from '@/constants/MockData';
+import { Platform } from 'react-native';
 
 export default function StudentProfileScreen() {
   const router = useRouter();
   const theme = useTheme();
-  const { logout } = useAuth();
+  const { logout, student } = useAuth();
 
-  const [locationEnabled, setLocationEnabled] = useState(mockStudent.locationEnabled);
+  const [locationEnabled, setLocationEnabled] = useState(true);
   const [highAccuracy, setHighAccuracy] = useState(true);
   const [notifications, setNotifications] = useState(true);
 
@@ -36,13 +36,18 @@ export default function StudentProfileScreen() {
       {
         text: 'Logout',
         style: 'destructive',
-        onPress: () => {
-          logout();
+        onPress: async () => {
+          await logout();
           router.replace('/login');
         },
       },
     ]);
   };
+
+  const displayName = student?.name ?? 'Student';
+  const displayInitials = student?.avatarInitials ?? '?';
+  const displayIndex = student?.indexNumber ?? '';
+  const displayEmail = student?.email ?? '';
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
@@ -55,36 +60,15 @@ export default function StudentProfileScreen() {
         {/* Profile Card */}
         <Card elevated style={{ marginTop: Spacing.md }}>
           <View style={styles.profileRow}>
-            <Avatar initials={mockStudent.avatarInitials} size={64} />
+            <Avatar initials={displayInitials} size={64} />
             <View style={{ flex: 1, marginLeft: Spacing.md }}>
-              <Text style={[Typography.h3, { color: theme.text }]}>{mockStudent.name}</Text>
+              <Text style={[Typography.h3, { color: theme.text }]}>{displayName}</Text>
               <Text style={[Typography.bodySmall, { color: theme.textSecondary }]}>
-                {mockStudent.indexNumber}
+                {displayIndex}
               </Text>
               <Text style={[Typography.caption, { color: theme.textSecondary, marginTop: 2 }]}>
-                {mockStudent.department} • {mockStudent.level}
+                {displayEmail}
               </Text>
-            </View>
-          </View>
-        </Card>
-
-        {/* Attendance Stats */}
-        <SectionHeader title="Attendance Overview" />
-        <Card>
-          <View style={styles.statRow}>
-            <View style={styles.statItem}>
-              <Text style={[Typography.h2, { color: theme.success }]}>{mockStudent.attendanceRate}%</Text>
-              <Text style={[Typography.caption, { color: theme.textSecondary }]}>Rate</Text>
-            </View>
-            <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
-            <View style={styles.statItem}>
-              <Text style={[Typography.h2, { color: theme.primary }]}>{mockStudent.totalSessions}</Text>
-              <Text style={[Typography.caption, { color: theme.textSecondary }]}>Sessions</Text>
-            </View>
-            <View style={[styles.statDivider, { backgroundColor: theme.border }]} />
-            <View style={styles.statItem}>
-              <Text style={[Typography.h2, { color: theme.error }]}>{mockStudent.missedSessions}</Text>
-              <Text style={[Typography.caption, { color: theme.textSecondary }]}>Missed</Text>
             </View>
           </View>
         </Card>
@@ -171,8 +155,8 @@ export default function StudentProfileScreen() {
           <View style={styles.settingRow}>
             <FontAwesome name="mobile" size={22} color={theme.textSecondary} />
             <View style={{ flex: 1, marginLeft: Spacing.sm }}>
-              <Text style={[Typography.body, { color: theme.text }]}>{mockStudent.device}</Text>
-              <Text style={[Typography.caption, { color: theme.textSecondary }]}>Registered device</Text>
+              <Text style={[Typography.body, { color: theme.text }]}>{Platform.OS === 'ios' ? 'iOS' : 'Android'}</Text>
+              <Text style={[Typography.caption, { color: theme.textSecondary }]}>Current device</Text>
             </View>
           </View>
         </Card>

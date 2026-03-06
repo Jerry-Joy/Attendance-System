@@ -1,9 +1,8 @@
 /**
- * Login Screen — Student authentication.
- * Simple student login with ID and password.
+ * Login Screen — Student authentication via real backend API.
  */
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -16,13 +15,24 @@ export default function LoginScreen() {
   const theme = useTheme();
   const router = useRouter();
   const { login } = useAuth();
-  const [userId, setUserId] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    login();
-    router.replace('/(student)/home');
+  const handleLogin = async () => {
+    if (!email.trim() || !password) return;
+    setError('');
+    setLoading(true);
+    try {
+      await login(email.trim(), password);
+      router.replace('/(student)/home');
+    } catch (e: any) {
+      setError(e.message || 'Login failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -51,11 +61,21 @@ export default function LoginScreen() {
 
           {/* Form */}
           <View style={styles.form}>
+            {error ? (
+              <View style={[styles.errorBox, { backgroundColor: '#FEE2E2', borderColor: '#FECACA' }]}>
+                <FontAwesome name="exclamation-circle" size={16} color="#EF4444" />
+                <Text style={[Typography.bodySmall, { color: '#DC2626', marginLeft: 8, flex: 1 }]}>
+                  {error}
+                </Text>
+              </View>
+            ) : null}
+
             <InputField
-              value={userId}
-              onChangeText={setUserId}
-              placeholder="Student ID"
-              icon="user"
+              value={email}
+              onChangeText={setEmail}
+              placeholder="Email Address"
+              icon="envelope"
+              keyboardType="email-address"
               autoCapitalize="none"
               returnKeyType="next"
             />
@@ -78,9 +98,10 @@ export default function LoginScreen() {
             </TouchableOpacity>
 
             <PrimaryButton
-              title="Sign In"
+              title={loading ? 'Signing In...' : 'Sign In'}
               onPress={handleLogin}
               icon="sign-in"
+              disabled={loading || !email.trim() || !password}
               style={{ marginTop: Spacing.lg }}
             />
 
@@ -132,6 +153,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   form: {},
+  errorBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    marginBottom: Spacing.md,
+  },
   forgotLink: {
     alignSelf: 'flex-end',
     marginTop: Spacing.sm,

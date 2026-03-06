@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
+import { io, type Socket } from 'socket.io-client'
 import {
   Monitor,
   Square,
@@ -18,31 +19,8 @@ import {
   Minimize2,
   X,
 } from 'lucide-react'
-import { mockEnrolledStudents } from '../data/mockData'
 import { useData } from '../context/DataContext'
-import type { AttendingStudent } from '../types'
-
-/* ── Helpers ──────────────────────────────────────────────────── */
-
-/** Generate a structured QR payload the student app can parse */
-function generateQrPayload(opts: {
-  courseId: string
-  courseCode: string
-  latitude?: number
-  longitude?: number
-  radius: number
-}) {
-  const token = `SA-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`
-  return JSON.stringify({
-    token,
-    courseId: opts.courseId,
-    courseCode: opts.courseCode,
-    lat: opts.latitude ?? null,
-    lng: opts.longitude ?? null,
-    radius: opts.radius,
-    exp: Date.now() + 30_000, // expires in 30s
-  })
-}
+import { api, getToken, mapAttendance } from '../lib/api'
 
 function formatElapsed(totalSeconds: number) {
   const hrs = Math.floor(totalSeconds / 3600)
@@ -68,18 +46,22 @@ const QR_LIFETIME = 30
 export default function ActiveSession() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { courses, activeSession, startActiveSession, addAttendee, endActiveSession, addPastSession, enrolledStudents } = useData()
+  const { courses, activeSession, startActiveSession, addAttendee, endActiveSession, addPastSession } = useData()
+  const socketRef = useRef<Socket | null>(null)
   const state = location.state as {
+    sessionId: string
     courseId: string
     radius: number
     duration: string
     latitude?: number
     longitude?: number
+    qrToken: string
   } | null
 
   /* If no state and no active session, redirect to dashboard */
   const course = courses.find((c) => c.id === (activeSession?.courseId ?? state?.courseId)) || null
   const radius = activeSession?.radius ?? state?.radius ?? 50
+  const sessionId = state?.sessionId ?? ''
 
   /* Bootstrap the shared active session on first mount */
   useEffect(() => {
@@ -114,32 +96,19 @@ export default function ActiveSession() {
     return num * 60
   }, [activeSession?.duration, state?.duration])
 
-  /* Build the pool of students to simulate from — use enrolled for THIS course */
-  const simulationPool = useMemo<AttendingStudent[]>(() => {
-    const courseId = activeSession?.courseId ?? state?.courseId ?? ''
-    const enrolled = enrolledStudents[courseId] || mockEnrolledStudents[courseId] || mockEnrolledStudents['1'] || []
-    return enrolled.map((s) => ({
-      id: s.id,
-      name: s.name,
-      indexNumber: s.indexNumber,
-      time: '',
-      gpsVerified: Math.random() > 0.15, // ~85% GPS verified
-      avatarInitials: s.avatarInitials,
-    }))
-  }, [activeSession?.courseId, state?.courseId, enrolledStudents])
-
   // ── Core timers ────────────────────────────────────────────
   const [elapsed, setElapsed] = useState(0)
   const [qrSecondsLeft, setQrSecondsLeft] = useState(QR_LIFETIME)
-  const [qrPayload, setQrPayload] = useState(() =>
-    generateQrPayload({
-      courseId: state?.courseId ?? '',
-      courseCode: course?.code ?? '',
-      latitude: state?.latitude,
-      longitude: state?.longitude,
-      radius: radius,
-    })
-  )
+  const [currentQrToken, setCurrentQrToken] = useState(state?.qrToken ?? '')
+  const qrPayload = useMemo(() => JSON.stringify({
+    token: currentQrToken,
+    courseId: state?.courseId ?? '',
+    courseCode: course?.code ?? '',
+    lat: state?.latitude ?? null,
+    lng: state?.longitude ?? null,
+    radius: radius,
+    exp: Date.now() + QR_LIFETIME * 1000,
+  }), [currentQrToken, state, course, radius])
   const [showEndConfirm, setShowEndConfirm] = useState(false)
   const [qrFullscreen, setQrFullscreen] = useState(false)
 
@@ -153,39 +122,57 @@ export default function ActiveSession() {
   useEffect(() => {
     const interval = setInterval(() => {
       setElapsed((prev) => prev + 1)
-
       setQrSecondsLeft((prev) => {
         const next = prev - 1
         if (next <= 0) {
-          // Regenerate structured QR payload
-          setQrPayload(generateQrPayload({
-            courseId: activeSession?.courseId ?? state?.courseId ?? '',
-            courseCode: course?.code ?? '',
-            latitude: activeSession?.latitude ?? state?.latitude,
-            longitude: activeSession?.longitude ?? state?.longitude,
-            radius,
-          }))
+          // Refresh QR token from server
+          if (sessionId) {
+            api.refreshQr(sessionId)
+              .then(({ qrToken }) => {
+                setCurrentQrToken(qrToken)
+              })
+              .catch(() => { /* ignore */ })
+          }
           return QR_LIFETIME
         }
         return next
       })
     }, 1000)
     return () => clearInterval(interval)
-  }, [activeSession, state, course, radius])
+  }, [sessionId])
 
-  /* ── Simulate students joining progressively (using enrolled pool) ── */
-  const [nextSimIdx, setNextSimIdx] = useState(0)
+  /* ── WebSocket: listen for real-time attendance events ── */
   useEffect(() => {
-    if (nextSimIdx >= simulationPool.length) return
-    const timer = setTimeout(() => {
-      const student = simulationPool[nextSimIdx]
-      const now = new Date()
-      const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
-      addAttendee({ ...student, time: timeStr })
-      setNextSimIdx((prev) => prev + 1)
-    }, 2500 + Math.random() * 1500)
-    return () => clearTimeout(timer)
-  }, [nextSimIdx, simulationPool, addAttendee])
+    if (!sessionId) return
+    const token = getToken()
+    if (!token) return
+
+    const socket = io('http://localhost:3001', {
+      auth: { token },
+      transports: ['websocket'],
+    })
+    socketRef.current = socket
+
+    socket.on('connect', () => {
+      socket.emit('session:join', { sessionId })
+    })
+
+    socket.on('attendance:new', (data) => {
+      const attendee = mapAttendance(data)
+      addAttendee(attendee)
+    })
+
+    socket.on('session:qr-refreshed', (data: { token: string }) => {
+      setCurrentQrToken(data.token)
+      setQrSecondsLeft(QR_LIFETIME)
+    })
+
+    return () => {
+      socket.emit('session:leave', { sessionId })
+      socket.disconnect()
+      socketRef.current = null
+    }
+  }, [sessionId, addAttendee])
 
   /* ── Auto-end when session expires ── */
   useEffect(() => {
@@ -194,7 +181,18 @@ export default function ActiveSession() {
     }
   }, [sessionExpired])
 
-  const handleEndSession = useCallback(() => {
+  const handleEndSession = useCallback(async () => {
+    // End session on server
+    if (sessionId) {
+      try { await api.endSession(sessionId) } catch { /* ignore */ }
+    }
+
+    // Disconnect WebSocket
+    if (socketRef.current) {
+      socketRef.current.disconnect()
+      socketRef.current = null
+    }
+
     const now = new Date()
     const startTime = new Date(now.getTime() - elapsed * 1000)
     const fmt = (d: Date) =>
@@ -249,7 +247,7 @@ export default function ActiveSession() {
         attendees: [...attendees],
       },
     })
-  }, [navigate, elapsed, activeSession, course, radius, totalStudents, addPastSession, endActiveSession])
+  }, [navigate, elapsed, activeSession, course, radius, totalStudents, addPastSession, endActiveSession, sessionId])
 
   /* ── Countdown ring for QR timer ── */
   const circleRadius = 54
@@ -434,7 +432,7 @@ export default function ActiveSession() {
 
             {/* QR Token ID */}
             <div className="px-4 py-2 bg-slate-50 dark:bg-slate-700 rounded-lg">
-              <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">{JSON.parse(qrPayload).token}</span>
+              <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">{currentQrToken}</span>
             </div>
           </div>
         </div>
@@ -629,7 +627,7 @@ export default function ActiveSession() {
 
             <div className="text-center">
               <p className="text-xs text-slate-400 dark:text-slate-500 mb-1">Token</p>
-              <p className="text-sm font-mono text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-4 py-1.5 rounded-lg">{JSON.parse(qrPayload).token}</p>
+              <p className="text-sm font-mono text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 px-4 py-1.5 rounded-lg">{currentQrToken}</p>
             </div>
 
             <div className="text-center">

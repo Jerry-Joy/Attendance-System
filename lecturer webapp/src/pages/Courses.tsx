@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import { useData } from '../context/DataContext'
 import { useAuth } from '../context/AuthContext'
+import { api } from '../lib/api'
 import type { Course } from '../types'
 
 export default function Courses() {
@@ -91,19 +92,29 @@ export default function Courses() {
     setOpenMenu(null)
   }
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editTarget || editCode.trim().length < 3 || editName.trim().length < 3) return
-    updateCourse(editTarget.id, {
-      code: editCode.trim().toUpperCase(),
-      name: editName.trim(),
-      venueName: editVenue.trim() || undefined,
-    })
+    try {
+      await api.updateCourse(editTarget.id, {
+        courseCode: editCode.trim().toUpperCase(),
+        courseName: editName.trim(),
+        venue: editVenue.trim() || undefined,
+      })
+      updateCourse(editTarget.id, {
+        code: editCode.trim().toUpperCase(),
+        name: editName.trim(),
+        venueName: editVenue.trim() || undefined,
+      })
+    } catch { /* ignore */ }
     setEditTarget(null)
   }
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!deleteTarget) return
-    deleteCourse(deleteTarget.id)
+    try {
+      await api.deleteCourse(deleteTarget.id)
+      deleteCourse(deleteTarget.id)
+    } catch { /* ignore */ }
     setDeleteTarget(null)
   }
 

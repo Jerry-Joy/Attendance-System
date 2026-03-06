@@ -18,12 +18,11 @@ import { useTheme } from '@/hooks/useTheme';
 import { Spacing, Typography, BorderRadius } from '@/constants/Layout';
 import { PrimaryButton, Card, GeofenceBadge } from '@/components/ui';
 import { useAttendance } from '@/context/AttendanceContext';
-import { mockCourses } from '@/constants/MockData';
 
 export default function AttendanceConfirmedScreen() {
   const router = useRouter();
   const theme = useTheme();
-  const { addRecord } = useAttendance();
+  const { addRecord, markOnServer } = useAttendance();
 
   const params = useLocalSearchParams<{
     token: string;
@@ -33,24 +32,25 @@ export default function AttendanceConfirmedScreen() {
     venueName: string;
     radius: string;
     distance: string;
+    latitude: string;
+    longitude: string;
   }>();
 
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  // Derive display values from params + mock data
-  const course = mockCourses.find((c) => c.id === params.courseId || c.code === params.courseCode);
-  const courseCode = params.courseCode || course?.code || 'Unknown';
-  const courseName = course?.name || courseCode;
+  // Derive display values from route params
+  const courseCode = params.courseCode || 'Unknown';
+  const courseName = params.courseCode || courseCode;
   const method = (params.method === 'QR+GPS' || params.method === 'QR Only') ? params.method : 'QR+GPS';
-  const venueName = params.venueName || course?.venueName || 'Lecture Venue';
+  const venueName = params.venueName || 'Lecture Venue';
   const radius = params.radius ? parseFloat(params.radius) : 50;
 
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
   const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
 
-  // Save attendance record once
+  // Save attendance record locally + mark on server
   useEffect(() => {
     if (params.token) {
       addRecord({
@@ -63,6 +63,16 @@ export default function AttendanceConfirmedScreen() {
         venueName,
         radius,
         token: params.token,
+      });
+
+      // Fire API call to record attendance on backend
+      markOnServer({
+        token: params.token,
+        courseId: params.courseId,
+        latitude: params.latitude ? parseFloat(params.latitude) : undefined,
+        longitude: params.longitude ? parseFloat(params.longitude) : undefined,
+      }).catch(() => {
+        // Silently fail — local record still saved
       });
     }
   }, [params.token]);

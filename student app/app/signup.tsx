@@ -41,6 +41,7 @@ export default function SignUpScreen() {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const isStep1Valid = fullName.trim() && email.trim() && studentId.trim();
   const passwordsMatch = password === confirmPassword;
@@ -74,7 +75,7 @@ export default function SignUpScreen() {
     setStep(2);
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     setError('');
     if (password.length < 6) {
       setError('Password must be at least 6 characters.');
@@ -84,8 +85,15 @@ export default function SignUpScreen() {
       setError('Passwords do not match.');
       return;
     }
-    signup({ fullName: fullName.trim(), email: email.trim(), studentId: studentId.trim() });
-    router.replace('/(student)/home');
+    setLoading(true);
+    try {
+      await signup({ fullName: fullName.trim(), email: email.trim(), studentId: studentId.trim(), password });
+      router.replace('/(student)/home');
+    } catch (e: any) {
+      setError(e.message || 'Sign up failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const strength = getPasswordStrength();
@@ -282,9 +290,10 @@ export default function SignUpScreen() {
 
               <View style={{ flex: 1, marginLeft: Spacing.md }}>
                 <PrimaryButton
-                  title="Create Account"
+                  title={loading ? 'Creating...' : 'Create Account'}
                   onPress={handleSignUp}
                   icon="check"
+                  disabled={loading}
                 />
               </View>
             </View>

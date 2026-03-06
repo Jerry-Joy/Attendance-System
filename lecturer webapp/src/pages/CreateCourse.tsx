@@ -2,18 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, BookOpen, Copy, Check } from 'lucide-react'
 import { useData } from '../context/DataContext'
+import { api, mapCourse } from '../lib/api'
 
 const LEVELS = ['Level 100', 'Level 200', 'Level 300', 'Level 400']
-
-function generateJoinCode(courseCode: string): string {
-  const stripped = courseCode.replace(/\s+/g, '').toUpperCase()
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  let suffix = ''
-  for (let i = 0; i < 4; i++) {
-    suffix += chars[Math.floor(Math.random() * chars.length)]
-  }
-  return `${stripped}-${suffix}`
-}
 
 export default function CreateCourse() {
   const navigate = useNavigate()
@@ -26,27 +17,32 @@ export default function CreateCourse() {
   const [state, setState] = useState<'form' | 'success'>('form')
   const [joinCode, setJoinCode] = useState('')
   const [copied, setCopied] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const isValid = code.trim().length >= 3 && name.trim().length >= 3
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!isValid) return
-    const generated = generateJoinCode(code.trim())
-    setJoinCode(generated)
-
-    addCourse({
-      id: `c_${Date.now()}`,
-      code: code.trim().toUpperCase(),
-      name: name.trim(),
-      level: selectedLevel,
-      studentCount: 0,
-      lastSession: 'No sessions yet',
-      groups: groups ? groups.split(',').map((g) => g.trim()) : ['All'],
-      joinCode: generated,
-      venueName: venueName.trim() || undefined,
-    })
-
-    setState('success')
+    setLoading(true)
+    setError('')
+    try {
+      const raw = await api.createCourse({
+        courseCode: code.trim().toUpperCase(),
+        courseName: name.trim(),
+        venue: venueName.trim() || undefined,
+      })
+      const mapped = mapCourse(raw)
+      mapped.level = selectedLevel
+      mapped.groups = groups ? groups.split(',').map((g) => g.trim()) : ['All']
+      setJoinCode(raw.joinCode)
+      addCourse(mapped)
+      setState('success')
+    } catch (err: any) {
+      setError(err.message || 'Failed to create course')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleCopy = () => {
@@ -196,13 +192,23 @@ export default function CreateCourse() {
           </p>
         </div>
 
+        {error && (
+          <div className="p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl">
+            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          </div>
+        )}
+
         {/* Submit */}
         <button
           onClick={handleCreate}
-          disabled={!isValid}
-          className="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-brand-500/25 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+          disabled={!isValid || loading}
+          className="w-full py-3.5 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-brand-500/25 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center"
         >
-          Create Course
+          {loading ? (
+            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          ) : (
+            'Create Course'
+          )}
         </button>
       </div>
     </div>

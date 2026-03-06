@@ -13,6 +13,7 @@ import {
   BookOpen,
 } from 'lucide-react'
 import { useData } from '../context/DataContext'
+import { api } from '../lib/api'
 
 const DURATION_PRESETS = [15, 30, 45, 60, 90, 120]
 
@@ -80,20 +81,32 @@ export default function StartSession() {
   }
 
   // ── Submit ──────────────────────────────────────────────────
-  const handleStart = () => {
+  const handleStart = async () => {
     if (!locationCaptured) return
     setLoading(true)
-    setTimeout(() => {
+    try {
+      const session = await api.createSession({
+        courseId: selectedCourse.id,
+        duration: durationMinutes,
+        latitude: latitude!,
+        longitude: longitude!,
+        geofenceRadius,
+      })
       navigate('/active-session', {
         state: {
+          sessionId: session.id,
           courseId: selectedCourse.id,
           radius: geofenceRadius,
           duration: `${durationMinutes} min`,
           latitude,
           longitude,
+          qrToken: session.qrToken,
         },
       })
-    }, 1000)
+    } catch (err: any) {
+      setGpsError(err.message || 'Failed to start session')
+      setLoading(false)
+    }
   }
 
   // Slider percentage for gradient fill

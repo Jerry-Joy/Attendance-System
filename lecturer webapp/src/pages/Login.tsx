@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import {
   Lock,
-  User,
+  Mail,
   QrCode,
   GraduationCap,
   Eye,
@@ -22,36 +22,34 @@ export default function Login() {
   const navigate = useNavigate()
   const { login } = useAuth()
   const { isDark, toggleTheme } = useTheme()
-  const [lecturerId, setLecturerId] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [fieldErrors, setFieldErrors] = useState<{ id?: string; password?: string }>({})
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({})
 
   const validate = () => {
-    const errs: { id?: string; password?: string } = {}
-    if (!lecturerId.trim()) errs.id = 'Lecturer ID is required'
+    const errs: { email?: string; password?: string } = {}
+    if (!email.trim()) errs.email = 'Email is required'
     if (!password) errs.password = 'Password is required'
     setFieldErrors(errs)
     return Object.keys(errs).length === 0
   }
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     if (!validate()) return
 
     setLoading(true)
-    setTimeout(() => {
-      const result = login(lecturerId.trim(), password)
-      if (result.success) {
-        navigate('/courses')
-      } else {
-        setError(result.error || 'Login failed')
-        setLoading(false)
-      }
-    }, 800)
+    const result = await login(email.trim(), password)
+    if (result.success) {
+      navigate('/courses')
+    } else {
+      setError(result.error || 'Login failed')
+      setLoading(false)
+    }
   }
 
   const highlights = [
@@ -184,30 +182,30 @@ export default function Login() {
                   </div>
                 )}
 
-                {/* Lecturer ID */}
+                {/* Email */}
                 <div>
                   <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
-                    Lecturer ID
+                    Email Address
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400 dark:text-slate-500" />
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400 dark:text-slate-500" />
                     <input
-                      type="text"
-                      value={lecturerId}
+                      type="email"
+                      value={email}
                       onChange={(e) => {
-                        setLecturerId(e.target.value)
-                        setFieldErrors((p) => ({ ...p, id: undefined }))
+                        setEmail(e.target.value)
+                        setFieldErrors((p) => ({ ...p, email: undefined }))
                         setError('')
                       }}
-                      placeholder="e.g. LEC001"
-                      className={`w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-700/50 border rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:focus:ring-brand-500/20 focus:border-brand-500 transition-all ${fieldErrors.id
+                      placeholder="e.g. adeyemi@university.edu"
+                      className={`w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-700/50 border rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:focus:ring-brand-500/20 focus:border-brand-500 transition-all ${fieldErrors.email
                         ? 'border-red-300 dark:border-red-500/40 bg-red-50/50 dark:bg-red-500/5'
                         : 'border-slate-200 dark:border-slate-600'
                         }`}
                     />
                   </div>
-                  {fieldErrors.id && (
-                    <p className="text-xs text-red-500 mt-1">{fieldErrors.id}</p>
+                  {fieldErrors.email && (
+                    <p className="text-xs text-red-500 mt-1">{fieldErrors.email}</p>
                   )}
                 </div>
 
@@ -287,7 +285,7 @@ export default function Login() {
               {/* Demo credentials */}
               <div className="mt-4 p-2.5 bg-amber-50 dark:bg-amber-500/10 rounded-xl border border-amber-100 dark:border-amber-500/20">
                 <p className="text-xs text-amber-700 dark:text-amber-400 font-medium text-center">
-                  Demo: <span className="font-mono">LEC001</span> /{' '}
+                  Demo: <span className="font-mono">adeyemi@university.edu</span> /{' '}
                   <span className="font-mono">password</span>
                 </p>
               </div>

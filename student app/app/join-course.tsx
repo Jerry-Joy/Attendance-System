@@ -8,9 +8,9 @@ import { useRouter } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
 import Animated, { FadeInDown, BounceIn } from 'react-native-reanimated';
 import { useTheme } from '@/hooks/useTheme';
-import { PrimaryButton, SecondaryButton, InputField, Card, StatusBadge } from '@/components/ui';
+import { PrimaryButton, SecondaryButton, InputField, Card } from '@/components/ui';
 import { Typography, Spacing, BorderRadius } from '@/constants/Layout';
-import { mockCourses, Course } from '@/constants/MockData';
+import { api, MappedCourse, mapCourse } from '@/lib/api';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type JoinState = 'enter' | 'preview' | 'success';
@@ -20,26 +20,34 @@ export default function JoinCourseScreen() {
   const router = useRouter();
   const [code, setCode] = useState('');
   const [state, setState] = useState<JoinState>('enter');
-  const [foundCourse, setFoundCourse] = useState<Course | null>(null);
+  const [foundCourse, setFoundCourse] = useState<MappedCourse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleLookup = () => {
-    const trimmed = code.trim().toUpperCase();
-    // Search mock courses by joinCode (case-insensitive)
-    const course = mockCourses.find(
-      (c) => c.joinCode.toUpperCase() === trimmed
-    );
-
-    if (course) {
-      setFoundCourse(course);
+  const handleLookup = async () => {
+    const trimmed = code.trim();
+    if (trimmed.length < 4) return;
+    setLoading(true);
+    setError('');
+    try {
+      const raw = await api.joinCourse(trimmed);
+      setFoundCourse(mapCourse(raw));
       setState('preview');
-    } else {
-      Alert.alert('Course Not Found', 'No course matches this code. Please check and try again.', [
-        { text: 'OK' },
-      ]);
+    } catch (e: any) {
+      if (e.message?.toLowerCase().includes('already enrolled')) {
+        Alert.alert('Already Enrolled', 'You are already enrolled in this course.');
+      } else {
+        Alert.alert('Course Not Found', e.message || 'No course matches this code. Please check and try again.', [
+          { text: 'OK' },
+        ]);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleJoin = () => {
+    // Already joined in handleLookup (POST /courses/join), just show success
     setState('success');
   };
 
@@ -90,10 +98,10 @@ export default function JoinCourseScreen() {
               />
 
               <PrimaryButton
-                title="Find Course"
+                title={loading ? 'Searching...' : 'Find Course'}
                 onPress={handleLookup}
                 icon="search"
-                disabled={code.trim().length < 4}
+                disabled={code.trim().length < 4 || loading}
                 style={{ marginTop: Spacing.lg }}
               />
             </Animated.View>
@@ -131,7 +139,6 @@ export default function JoinCourseScreen() {
             <Card style={{ marginTop: Spacing.xl }} elevated>
               <View style={styles.previewHeader}>
                 <Text style={[Typography.h2, { color: theme.primary }]}>{foundCourse.code}</Text>
-                <StatusBadge label={foundCourse.level} variant="info" />
               </View>
               <Text style={[Typography.h3, { color: theme.text, marginTop: Spacing.sm }]}>
                 {foundCourse.name}

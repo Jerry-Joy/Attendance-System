@@ -13,18 +13,19 @@ import { useAuth } from '@/context/AuthContext';
 
 export default function SplashPage() {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
+    if (isLoading) return; // Wait for token check to complete
     const timer = setTimeout(() => {
       if (isAuthenticated) {
         router.replace('/(student)/home');
       } else {
         router.replace('/login');
       }
-    }, 2000);
+    }, 1500);
     return () => clearTimeout(timer);
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isLoading]);
 
   return (
     <View style={styles.container}>

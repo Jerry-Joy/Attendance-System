@@ -1,10 +1,6 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
 import type { Course, PastSession, EnrolledStudent, AttendingStudent, ActiveSession, LecturerPreferences } from '../types'
-import {
-  mockCourses as initialCourses,
-  mockPastSessions as initialSessions,
-  mockEnrolledStudents as initialEnrolled,
-} from '../data/mockData'
+import { api, mapCourse, mapStudent, mapSession, getToken, type BackendSession } from '../lib/api'
 
 const PREFS_KEY = 'smartattend_prefs'
 
@@ -19,16 +15,19 @@ function loadPrefs(): LecturerPreferences {
 interface DataState {
   /* Courses */
   courses: Course[]
+  refreshCourses: () => Promise<void>
   addCourse: (course: Course) => void
   updateCourse: (id: string, updates: Partial<Course>) => void
   deleteCourse: (id: string) => void
 
   /* Past sessions */
   pastSessions: PastSession[]
+  refreshSessions: () => Promise<void>
   addPastSession: (session: PastSession) => void
 
   /* Enrolled students per course */
   enrolledStudents: Record<string, EnrolledStudent[]>
+  fetchStudents: (courseId: string) => Promise<void>
   addStudent: (courseId: string, student: EnrolledStudent) => void
   removeStudent: (courseId: string, studentId: string) => void
 
@@ -46,16 +45,67 @@ interface DataState {
 const DataContext = createContext<DataState | undefined>(undefined)
 
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [courses, setCourses] = useState<Course[]>(initialCourses)
-  const [pastSessions, setPastSessions] = useState<PastSession[]>(initialSessions)
-  const [enrolledStudents, setEnrolledStudents] = useState<Record<string, EnrolledStudent[]>>(initialEnrolled)
+  const [courses, setCourses] = useState<Course[]>([])
+  const [pastSessions, setPastSessions] = useState<PastSession[]>([])
+  const [enrolledStudents, setEnrolledStudents] = useState<Record<string, EnrolledStudent[]>>({})
   const [activeSession, setActiveSession] = useState<ActiveSession | null>(null)
   const [preferences, setPreferences] = useState<LecturerPreferences>(loadPrefs)
+
+  /* ── Fetch courses from API ─────────────────────────────── */
+  const refreshCourses = useCallback(async () => {
+    if (!getToken()) return
+    try {
+      const raw = await api.getCourses()
+      setCourses(raw.map(mapCourse))
+    } catch { /* ignore */ }
+  }, [])
+
+  /* ── Fetch all sessions across courses ─────────────────── */
+  const refreshSessions = useCallback(async () => {
+    if (!getToken()) return
+    try {
+      const rawCourses = await api.getCourses()
+      const allSessions: BackendSession[] = []
+      for (const c of rawCourses) {
+        try {
+          const sessions = await api.getCourseSessions(c.id)
+          allSessions.push(...sessions)
+        } catch { /* ignore per-course errors */ }
+      }
+      // Sort by startedAt desc
+      allSessions.sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime())
+      // Map and attach enrollment counts
+      const mapped = allSessions
+        .filter((s) => s.status === 'ENDED')
+        .map((s) => {
+          const course = rawCourses.find((c) => c.id === s.courseId)
+          const ps = mapSession(s)
+          ps.totalStudents = course?._count.enrollments ?? 0
+          ps.absentCount = ps.totalStudents - ps.presentCount
+          return ps
+        })
+      setPastSessions(mapped)
+    } catch { /* ignore */ }
+  }, [])
+
+  /* ── Fetch students for a course ────────────────────────── */
+  const fetchStudents = useCallback(async (courseId: string) => {
+    try {
+      const raw = await api.getCourseStudents(courseId)
+      setEnrolledStudents((prev) => ({ ...prev, [courseId]: raw.map(mapStudent) }))
+    } catch { /* ignore */ }
+  }, [])
+
+  /* Load data on mount (when token exists) */
+  useEffect(() => {
+    if (!getToken()) return
+    refreshCourses()
+    refreshSessions()
+  }, [refreshCourses, refreshSessions])
 
   /* ── Courses ────────────────────────────────────────────── */
   const addCourse = (course: Course) => {
     setCourses((prev) => [course, ...prev])
-    // Initialize empty enrolled list
     setEnrolledStudents((prev) => ({ ...prev, [course.id]: [] }))
   }
 
@@ -97,7 +147,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const addAttendee = useCallback((student: AttendingStudent) => {
     setActiveSession((prev) => {
       if (!prev) return prev
-      // Avoid duplicates
       if (prev.attendees.find((a) => a.id === student.id)) return prev
       return { ...prev, attendees: [...prev.attendees, student] }
     })
@@ -119,9 +168,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
   return (
     <DataContext.Provider
       value={{
-        courses, addCourse, updateCourse, deleteCourse,
-        pastSessions, addPastSession,
-        enrolledStudents, addStudent, removeStudent,
+        courses, refreshCourses, addCourse, updateCourse, deleteCourse,
+        pastSessions, refreshSessions, addPastSession,
+        enrolledStudents, fetchStudents, addStudent, removeStudent,
         activeSession, startActiveSession, addAttendee, endActiveSession,
         preferences, updatePreferences,
       }}

@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───
+
+enum Role {
+  STUDENT
+  LECTURER
+}
+
+enum SessionStatus {
+  ACTIVE
+  ENDED
+}
+
+enum VerificationMethod {
+  QR_GPS
+  QR_ONLY
+}
+
+// ─── Models ───
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  fullName     String
+  passwordHash String
+  role         Role
+  studentId    String?  @unique
+  staffId      String?  @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  courses      Course[]     @relation("LecturerCourses")
+  enrollments  Enrollment[]
+  sessions     Session[]    @relation("LecturerSessions")
+  attendances  Attendance[]
+}
+
+model Course {
+  id         String   @id @default(uuid())
+  courseCode  String
+  courseName  String
+  joinCode    String   @unique
+  venue       String?
+  dayOfWeek   String?
+  startTime   String?
+  endTime     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  lecturer    User         @relation("LecturerCourses", fields: [lecturerId], references: [id], onDelete: Cascade)
+  lecturerId  String
+  enrollments Enrollment[]
+  sessions    Session[]
+}
+
+model Enrollment {
+  id         String   @id @default(uuid())
+  enrolledAt DateTime @default(now())
+
+  student    User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId  String
+  course     Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId    String
+
+  @@unique([studentId, courseId])
+}
+
+model Session {
+  id              String        @id @default(uuid())
+  qrToken         String
+  latitude        Float?
+  longitude       Float?
+  geofenceRadius  Int           @default(50)
+  duration        Int           // minutes
+  status          SessionStatus @default(ACTIVE)
+  startedAt       DateTime      @default(now())
+  endedAt         DateTime?
+
+  // Relations
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId     String
+  lecturer    User         @relation("LecturerSessions", fields: [lecturerId], references: [id], onDelete: Cascade)
+  lecturerId  String
+  attendances Attendance[]
+}
+
+model Attendance {
+  id        String             @id @default(uuid())
+  method    VerificationMethod
+  distance  Float?             // meters from session location
+  markedAt  DateTime           @default(now())
+
+  // Relations
+  session   Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sessionId String
+  student   User    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId String
+
+  @@unique([sessionId, studentId])
+}

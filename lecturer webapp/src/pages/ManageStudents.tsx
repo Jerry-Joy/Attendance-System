@@ -1,16 +1,22 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, Copy, Share2, Ban, Check, X, Users } from 'lucide-react'
 import { useData } from '../context/DataContext'
+import { api } from '../lib/api'
 
 export default function ManageStudents() {
   const navigate = useNavigate()
   const { id } = useParams<{ id: string }>()
-  const { courses, enrolledStudents, removeStudent } = useData()
+  const { courses, enrolledStudents, removeStudent, fetchStudents } = useData()
   const course = courses.find((c) => c.id === id) || courses[0]
   const studentList = enrolledStudents[course?.id] || []
   const [codeEnabled, setCodeEnabled] = useState(true)
   const [copied, setCopied] = useState(false)
+
+  /* Fetch students for this course on mount */
+  useEffect(() => {
+    if (course?.id) fetchStudents(course.id)
+  }, [course?.id, fetchStudents])
 
   const handleCopy = () => {
     navigator.clipboard?.writeText(course?.joinCode ?? '')
@@ -18,8 +24,12 @@ export default function ManageStudents() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const handleRemove = (studentId: string) => {
-    if (course) removeStudent(course.id, studentId)
+  const handleRemove = async (studentId: string) => {
+    if (!course) return
+    try {
+      await api.removeStudent(course.id, studentId)
+      removeStudent(course.id, studentId)
+    } catch { /* ignore */ }
   }
 
   return (
