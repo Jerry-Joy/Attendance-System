@@ -73,10 +73,15 @@ export default function AttendanceConfirmedScreen() {
         latitude: params.latitude ? parseFloat(params.latitude) : undefined,
         longitude: params.longitude ? parseFloat(params.longitude) : undefined,
       }).catch((err) => {
-        if (err instanceof ApiError && err.status === 409) {
-          setServerError('Attendance was already recorded for this session.');
+        if (err instanceof ApiError) {
+          if (err.status === 409) {
+            setServerError('Attendance was already recorded for this session.');
+          } else {
+            setServerError(err.message || 'Failed to record attendance on the server. Please try again.');
+          }
+        } else {
+          setServerError('Network error — attendance may not have been saved. Please check your connection.');
         }
-        // Other errors silently ignored — local record still saved
       });
     }
   }, [params.token]);

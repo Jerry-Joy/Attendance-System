@@ -76,6 +76,7 @@ model Enrollment {
 model Session {
   id              String        @id @default(uuid())
   qrToken         String
+  previousQrToken String?
   latitude        Float?
   longitude       Float?
   geofenceRadius  Int           @default(50)

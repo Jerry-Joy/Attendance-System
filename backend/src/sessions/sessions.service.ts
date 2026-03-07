@@ -138,7 +138,10 @@ export class SessionsService {
     const newToken = generateQrToken();
     const updated = await this.prisma.session.update({
       where: { id: sessionId },
-      data: { qrToken: newToken },
+      data: {
+        previousQrToken: session.qrToken,
+        qrToken: newToken,
+      },
       select: { id: true, qrToken: true },
     });
     this.events.emitQrRefreshed(sessionId, newToken);

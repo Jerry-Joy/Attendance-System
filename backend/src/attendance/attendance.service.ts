@@ -40,8 +40,13 @@ export class AttendanceService {
       throw new BadRequestException('Session has expired');
     }
 
-    // 2. Validate QR token matches
-    if (session.qrToken !== dto.token)
+    // 2. Validate QR token matches (accept current or previous token to
+    //    handle the race condition where the QR refreshes while a student
+    //    is completing GPS verification)
+    const tokenValid =
+      session.qrToken === dto.token ||
+      (session.previousQrToken != null && session.previousQrToken === dto.token);
+    if (!tokenValid)
       throw new BadRequestException('Invalid or expired QR token');
 
     // 3. Check student is enrolled
