@@ -1,5 +1,6 @@
 import {
   Injectable,
+  BadRequestException,
   NotFoundException,
   ForbiddenException,
   ConflictException,
@@ -15,6 +16,10 @@ function generateQrToken(): string {
   const random = crypto.randomBytes(3).toString('hex'); // 6 hex chars
   return `SA-${timestamp}-${random}`;
 }
+
+const MAX_LECTURER_LOCATION_ACCURACY_M = 100;
+const MAX_LECTURER_LOCATION_AGE_MS = 2 * 60 * 1000;
+const MAX_LECTURER_LOCATION_FUTURE_SKEW_MS = 30 * 1000;
 
 @Injectable()
 export class SessionsService {
@@ -41,6 +46,39 @@ export class SessionsService {
         'An active session already exists for this course',
       );
 
+    if (dto.latitude == null || dto.longitude == null) {
+      throw new BadRequestException(
+        'Venue location is required to start a GPS-verified session.',
+      );
+    }
+
+    if (dto.lecturerAccuracy == null || !dto.lecturerLocationCapturedAt) {
+      throw new BadRequestException(
+        'Lecturer GPS accuracy and capture timestamp are required.',
+      );
+    }
+
+    if (dto.lecturerAccuracy > MAX_LECTURER_LOCATION_ACCURACY_M) {
+      throw new BadRequestException(
+        `Lecturer GPS accuracy is too low (${Math.round(dto.lecturerAccuracy)}m). Move to a clearer area and recapture location.`,
+      );
+    }
+
+    const capturedAt = new Date(dto.lecturerLocationCapturedAt);
+    if (Number.isNaN(capturedAt.getTime())) {
+      throw new BadRequestException('Invalid lecturer location capture timestamp.');
+    }
+
+    const ageMs = Date.now() - capturedAt.getTime();
+    if (ageMs < -MAX_LECTURER_LOCATION_FUTURE_SKEW_MS) {
+      throw new BadRequestException('Lecturer location timestamp is in the future. Recapture location.');
+    }
+    if (ageMs > MAX_LECTURER_LOCATION_AGE_MS) {
+      throw new BadRequestException(
+        'Lecturer location is stale. Recapture location right before starting the session.',
+      );
+    }
+
     const qrToken = generateQrToken();
 
     return this.prisma.session.create({
@@ -50,6 +88,8 @@ export class SessionsService {
         qrToken,
         latitude: dto.latitude,
         longitude: dto.longitude,
+        lecturerAccuracy: dto.lecturerAccuracy,
+        lecturerLocationCapturedAt: capturedAt,
         geofenceRadius: dto.geofenceRadius ?? 50,
         duration: dto.duration,
       },

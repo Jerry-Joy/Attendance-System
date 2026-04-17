@@ -115,6 +115,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
             duration: `${session.duration} min`,
             latitude: session.latitude ?? undefined,
             longitude: session.longitude ?? undefined,
+            lecturerAccuracy: session.lecturerAccuracy ?? undefined,
             startedAt: new Date(session.startedAt).getTime(),
             attendees: [],
             sessionId: session.id,

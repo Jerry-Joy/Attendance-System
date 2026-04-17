@@ -2,6 +2,8 @@ import {
   IsNotEmpty,
   IsNumber,
   IsString,
+  Max,
+  Min,
 } from 'class-validator';
 
 export class MarkAttendanceDto {
@@ -18,4 +20,9 @@ export class MarkAttendanceDto {
 
   @IsNumber()
   longitude: number;
+
+  @IsNumber()
+  @Min(0)
+  @Max(200)
+  accuracy: number;
 }

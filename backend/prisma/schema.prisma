@@ -79,6 +79,8 @@ model Session {
   previousQrToken String?
   latitude        Float?
   longitude       Float?
+  lecturerAccuracy Float?
+  lecturerLocationCapturedAt DateTime?
   geofenceRadius  Int           @default(50)
   duration        Int           // minutes
   status          SessionStatus @default(ACTIVE)

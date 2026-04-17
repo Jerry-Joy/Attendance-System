@@ -26,6 +26,7 @@ interface QRPayload {
   courseCode: string;
   lat: number | null;
   lng: number | null;
+  lecturerAccuracy: number | null;
   radius: number;
   exp: number;
 }
@@ -85,6 +86,7 @@ export default function ScannerScreen() {
               courseCode: payload.courseCode,
               lat: payload.lat?.toString() ?? '',
               lng: payload.lng?.toString() ?? '',
+              lecturerAccuracy: payload.lecturerAccuracy?.toString() ?? '',
               radius: payload.radius.toString(),
               exp: payload.exp.toString(),
             },

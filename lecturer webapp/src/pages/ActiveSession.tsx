@@ -55,6 +55,7 @@ export default function ActiveSession() {
     duration: string
     latitude?: number
     longitude?: number
+    lecturerAccuracy?: number
     qrToken: string
   } | null
 
@@ -74,6 +75,7 @@ export default function ActiveSession() {
         duration: state.duration,
         latitude: state.latitude,
         longitude: state.longitude,
+        lecturerAccuracy: state.lecturerAccuracy,
         startedAt: Date.now(),
         attendees: [],
         sessionId: state.sessionId,
@@ -105,15 +107,26 @@ export default function ActiveSession() {
   const payloadCourseId = state?.courseId ?? activeSession?.courseId ?? ''
   const payloadLatitude = state?.latitude ?? activeSession?.latitude ?? null
   const payloadLongitude = state?.longitude ?? activeSession?.longitude ?? null
+  const payloadLecturerAccuracy =
+    state?.lecturerAccuracy ?? activeSession?.lecturerAccuracy ?? null
   const qrPayload = useMemo(() => JSON.stringify({
     token: currentQrToken,
     courseId: payloadCourseId,
     courseCode: course?.code ?? '',
     lat: payloadLatitude,
     lng: payloadLongitude,
+    lecturerAccuracy: payloadLecturerAccuracy,
     radius: radius,
     exp: Date.now() + QR_LIFETIME * 1000,
-  }), [currentQrToken, payloadCourseId, payloadLatitude, payloadLongitude, course, radius])
+  }), [
+    currentQrToken,
+    payloadCourseId,
+    payloadLatitude,
+    payloadLongitude,
+    payloadLecturerAccuracy,
+    course,
+    radius,
+  ])
   const [showEndConfirm, setShowEndConfirm] = useState(false)
   const [qrFullscreen, setQrFullscreen] = useState(false)
 

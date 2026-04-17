@@ -35,6 +35,7 @@ export default function AttendanceConfirmedScreen() {
     distance: string;
     latitude: string;
     longitude: string;
+    accuracy: string;
   }>();
 
   const scaleAnim = useRef(new Animated.Value(0)).current;
@@ -72,6 +73,7 @@ export default function AttendanceConfirmedScreen() {
         courseId: params.courseId,
         latitude: params.latitude ? parseFloat(params.latitude) : undefined,
         longitude: params.longitude ? parseFloat(params.longitude) : undefined,
+        accuracy: params.accuracy ? parseFloat(params.accuracy) : 100,
       }).catch((err) => {
         if (err instanceof ApiError) {
           if (err.status === 409) {

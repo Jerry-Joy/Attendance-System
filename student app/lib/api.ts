@@ -265,7 +265,7 @@ export const api = {
     }),
 
   // Attendance
-  markAttendance: (data: { token: string; courseId: string; latitude?: number; longitude?: number }) =>
+  markAttendance: (data: { token: string; courseId: string; latitude?: number; longitude?: number; accuracy: number }) =>
     request<BackendAttendanceResult>('/attendance/mark', {
       method: 'POST',
       body: JSON.stringify(data),

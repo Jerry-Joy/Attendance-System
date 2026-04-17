@@ -17,6 +17,33 @@ import { useData } from '../context/DataContext'
 import { api } from '../lib/api'
 
 const DURATION_PRESETS = [15, 30, 45, 60, 90, 120]
+const TARGET_GPS_READINGS = 3
+const MIN_GPS_READINGS = 2
+
+type GeoSample = {
+  latitude: number
+  longitude: number
+  accuracy: number
+}
+
+function readGeoSample(): Promise<GeoSample> {
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const accuracy = Number.isFinite(position.coords.accuracy)
+          ? position.coords.accuracy
+          : 100
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy,
+        })
+      },
+      (error) => reject(error),
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+    )
+  })
+}
 
 export default function StartSession() {
   const navigate = useNavigate()
@@ -32,17 +59,19 @@ export default function StartSession() {
   // ── GPS state ───────────────────────────────────────────────
   const [latitude, setLatitude] = useState<number | null>(null)
   const [longitude, setLongitude] = useState<number | null>(null)
+  const [lecturerAccuracy, setLecturerAccuracy] = useState<number | null>(null)
+  const [locationCapturedAt, setLocationCapturedAt] = useState<string | null>(null)
   const [gpsError, setGpsError] = useState<string | null>(null)
   const [capturingLocation, setCapturingLocation] = useState(false)
 
   const selectedCourse = mockCourses.find((c) => c.id === selectedCourseId) || mockCourses[0]
-  const locationCaptured = latitude !== null && longitude !== null
+  const locationCaptured = latitude !== null && longitude !== null && lecturerAccuracy !== null && locationCapturedAt !== null
 
   // If there's already a live session for the selected course, show a rejoin banner instead
   const existingSession = activeSession?.courseId === selectedCourse?.id ? activeSession : null
 
   // ── Real browser GPS capture ────────────────────────────────
-  const handleCaptureLocation = () => {
+  const handleCaptureLocation = async () => {
     setGpsError(null)
 
     if (!navigator.geolocation) {
@@ -52,35 +81,67 @@ export default function StartSession() {
 
     setCapturingLocation(true)
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLatitude(position.coords.latitude)
-        setLongitude(position.coords.longitude)
-        setCapturingLocation(false)
-      },
-      (error) => {
-        setCapturingLocation(false)
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
+    const samples: GeoSample[] = []
+    let lastError: GeolocationPositionError | null = null
+
+    for (let i = 0; i < TARGET_GPS_READINGS; i += 1) {
+      try {
+        const sample = await readGeoSample()
+        samples.push(sample)
+      } catch (error) {
+        lastError = error as GeolocationPositionError
+      }
+    }
+
+    if (samples.length < MIN_GPS_READINGS) {
+      setCapturingLocation(false)
+
+      if (lastError) {
+        switch (lastError.code) {
+          case lastError.PERMISSION_DENIED:
             setGpsError('Location permission denied. Please allow location access in your browser settings and try again.')
-            break
-          case error.POSITION_UNAVAILABLE:
+            return
+          case lastError.POSITION_UNAVAILABLE:
             setGpsError('Location information is unavailable. Please check your device settings.')
-            break
-          case error.TIMEOUT:
+            return
+          case lastError.TIMEOUT:
             setGpsError('Location request timed out. Please try again.')
-            break
+            return
           default:
             setGpsError('An unknown error occurred while retrieving location.')
+            return
         }
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-    )
+      }
+
+      setGpsError('Could not get enough accurate GPS readings. Move to a clearer area and try again.')
+      return
+    }
+
+    const avgLat =
+      samples.reduce((sum, sample) => sum + sample.latitude, 0) / samples.length
+    const avgLng =
+      samples.reduce((sum, sample) => sum + sample.longitude, 0) / samples.length
+    const avgAccuracy =
+      samples.reduce((sum, sample) => sum + sample.accuracy, 0) / samples.length
+
+    if (avgAccuracy > 100) {
+      setCapturingLocation(false)
+      setGpsError(`GPS accuracy is too low (${Math.round(avgAccuracy)}m). Move to a clearer area and recapture location.`)
+      return
+    }
+
+    setLatitude(avgLat)
+    setLongitude(avgLng)
+    setLecturerAccuracy(avgAccuracy)
+    setLocationCapturedAt(new Date().toISOString())
+    setCapturingLocation(false)
   }
 
   const handleResetLocation = () => {
     setLatitude(null)
     setLongitude(null)
+    setLecturerAccuracy(null)
+    setLocationCapturedAt(null)
     setGpsError(null)
   }
 
@@ -94,6 +155,8 @@ export default function StartSession() {
         duration: durationMinutes,
         latitude: latitude!,
         longitude: longitude!,
+        lecturerAccuracy: lecturerAccuracy!,
+        lecturerLocationCapturedAt: locationCapturedAt!,
         geofenceRadius,
       })
       navigate('/active-session', {
@@ -104,6 +167,7 @@ export default function StartSession() {
           duration: `${durationMinutes} min`,
           latitude,
           longitude,
+          lecturerAccuracy,
           qrToken: session.qrToken,
         },
       })
@@ -303,6 +367,9 @@ export default function StartSession() {
                     <p className="text-sm font-mono font-bold text-slate-800 dark:text-white">{longitude!.toFixed(6)}</p>
                   </div>
                 </div>
+                <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-3">
+                  Averaged {TARGET_GPS_READINGS} readings • Accuracy {Math.round(lecturerAccuracy ?? 0)}m
+                </p>
               </div>
               <button
                 onClick={handleResetLocation}

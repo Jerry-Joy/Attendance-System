@@ -1,4 +1,5 @@
 import {
+  IsDateString,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -25,6 +26,16 @@ export class CreateSessionDto {
   @IsOptional()
   @IsNumber()
   longitude?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(200)
+  lecturerAccuracy?: number;
+
+  @IsOptional()
+  @IsDateString()
+  lecturerLocationCapturedAt?: string;
 
   @IsOptional()
   @IsInt()

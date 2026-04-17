@@ -45,6 +45,58 @@ function haversineDistance(
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+const TARGET_GPS_READINGS = 3;
+const MIN_GPS_READINGS = 2;
+
+function getDynamicGpsBuffer(
+  lecturerAccuracy: number,
+  studentAccuracy: number,
+): number {
+  const rawBuffer = Math.round(lecturerAccuracy + studentAccuracy);
+  return Math.min(Math.max(rawBuffer, 20), 100);
+}
+
+type AveragedGpsSample = {
+  latitude: number;
+  longitude: number;
+  accuracy: number;
+};
+
+async function getAveragedStudentLocation(): Promise<AveragedGpsSample> {
+  const samples: Array<{ latitude: number; longitude: number; accuracy: number }> = [];
+
+  for (let i = 0; i < TARGET_GPS_READINGS; i += 1) {
+    try {
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.High,
+      });
+
+      const accuracy =
+        typeof location.coords.accuracy === 'number' && Number.isFinite(location.coords.accuracy)
+          ? location.coords.accuracy
+          : 100;
+
+      samples.push({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        accuracy,
+      });
+    } catch {
+      // Continue collecting remaining samples; require at least MIN_GPS_READINGS.
+    }
+  }
+
+  if (samples.length < MIN_GPS_READINGS) {
+    throw new Error('Could not get enough GPS readings. Move to an open area and try again.');
+  }
+
+  return {
+    latitude: samples.reduce((sum, sample) => sum + sample.latitude, 0) / samples.length,
+    longitude: samples.reduce((sum, sample) => sum + sample.longitude, 0) / samples.length,
+    accuracy: samples.reduce((sum, sample) => sum + sample.accuracy, 0) / samples.length,
+  };
+}
+
 export default function GPSVerifyScreen() {
   const router = useRouter();
   const theme = useTheme();
@@ -54,6 +106,7 @@ export default function GPSVerifyScreen() {
     courseCode: string;
     lat: string;
     lng: string;
+    lecturerAccuracy: string;
     radius: string;
     exp: string;
   }>();
@@ -68,6 +121,9 @@ export default function GPSVerifyScreen() {
 
   const venueLat = params.lat ? parseFloat(params.lat) : null;
   const venueLng = params.lng ? parseFloat(params.lng) : null;
+  const lecturerAccuracy = params.lecturerAccuracy
+    ? parseFloat(params.lecturerAccuracy)
+    : null;
   const radius = params.radius ? parseFloat(params.radius) : 50;
 
   // Venue name passed through route params or fallback
@@ -137,12 +193,10 @@ export default function GPSVerifyScreen() {
         animateProgress(0.25);
       }
 
-      // 3. Get current position
-      let location: Location.LocationObject;
+      // 3. Capture and average multiple student GPS readings.
+      let averagedLocation: AveragedGpsSample;
       try {
-        location = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.High,
-        });
+        averagedLocation = await getAveragedStudentLocation();
       } catch {
         if (!cancelled) {
           setFailReason('Could not get your GPS location. Make sure location services are enabled.');
@@ -156,18 +210,27 @@ export default function GPSVerifyScreen() {
       setStep('checking');
       animateProgress(0.6);
 
-      const studentLat = location.coords.latitude;
-      const studentLng = location.coords.longitude;
+      const studentLat = averagedLocation.latitude;
+      const studentLng = averagedLocation.longitude;
+      const accuracyMeters = averagedLocation.accuracy;
       if (!cancelled) setStudentCoords({ lat: studentLat, lng: studentLng });
-      // GPS accuracy reported by the device (metres). Indoor GPS can easily
-      // be 30-65 m off on each device — combined drift between the lecturer's
-      // browser and the student's phone can exceed 80 m even in the same room.
-      const gpsAccuracy = location.coords.accuracy ?? 0;
 
       // 4. Session must include venue GPS — if missing, reject
       if (venueLat == null || venueLng == null) {
         if (!cancelled) {
           setFailReason('This session has no venue GPS coordinates. Ask your lecturer to restart the session with location enabled.');
+          setStep('failed');
+          animateProgress(1);
+        }
+        return;
+      }
+
+      if (
+        lecturerAccuracy == null ||
+        Number.isNaN(lecturerAccuracy)
+      ) {
+        if (!cancelled) {
+          setFailReason('This session is missing lecturer GPS accuracy. Ask your lecturer to restart and recapture location.');
           setStep('failed');
           animateProgress(1);
         }
@@ -181,19 +244,19 @@ export default function GPSVerifyScreen() {
       await delay(600);
       if (cancelled) return;
 
-      // 6. Check geofence — add GPS accuracy as a tolerance buffer so that
-      //    normal GPS drift (especially indoors) doesn't cause false failures.
-      //    Indoor GPS on two devices can drift 50-100 m apart, so we use a
-      //    generous cap to avoid blocking students who are physically present.
-      const effectiveRadius = radius + Math.min(gpsAccuracy, 80); // cap buffer at 80 m
+      // 6. Check geofence with two-sided uncertainty (lecturer + student).
+      const effectiveRadius =
+        radius + getDynamicGpsBuffer(lecturerAccuracy, accuracyMeters);
       if (dist <= effectiveRadius) {
         setStep('success');
         animateProgress(1);
         await delay(1500);
-        if (!cancelled) navigateToConfirmed(Math.round(dist), studentLat, studentLng);
+        if (!cancelled) {
+          navigateToConfirmed(Math.round(dist), studentLat, studentLng, accuracyMeters);
+        }
       } else {
         setFailReason(
-          `You are ${Math.round(dist)}m away from the venue. You need to be within ${radius}m.`,
+          `You are ${Math.round(dist)}m away from the venue. Effective limit is ${Math.round(effectiveRadius)}m (${radius}m base radius + GPS buffer).`,
         );
         setStep('failed');
         animateProgress(1);
@@ -212,7 +275,12 @@ export default function GPSVerifyScreen() {
     }).start();
   }
 
-  function navigateToConfirmed(dist: number, lat: number, lng: number) {
+  function navigateToConfirmed(
+    dist: number,
+    lat: number,
+    lng: number,
+    accuracy?: number | null,
+  ) {
     router.replace({
       pathname: '/attendance-confirmed',
       params: {
@@ -224,6 +292,7 @@ export default function GPSVerifyScreen() {
         distance: dist.toString(),
         latitude: lat.toString(),
         longitude: lng.toString(),
+        accuracy: accuracy != null ? accuracy.toString() : '',
       },
     });
   }

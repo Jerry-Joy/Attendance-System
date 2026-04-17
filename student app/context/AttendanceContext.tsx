@@ -24,7 +24,7 @@ interface AttendanceState {
   historyLoading: boolean;
   addRecord: (record: Omit<LiveAttendanceRecord, 'id'>) => void;
   hasToken: (token: string) => boolean;
-  markOnServer: (data: { token: string; courseId: string; latitude?: number; longitude?: number }) => Promise<void>;
+  markOnServer: (data: { token: string; courseId: string; latitude?: number; longitude?: number; accuracy: number }) => Promise<void>;
   fetchHistory: () => Promise<void>;
 }
 
@@ -47,7 +47,7 @@ export function AttendanceProvider({ children }: { children: ReactNode }) {
     [records],
   );
 
-  const markOnServer = useCallback(async (data: { token: string; courseId: string; latitude?: number; longitude?: number }) => {
+  const markOnServer = useCallback(async (data: { token: string; courseId: string; latitude?: number; longitude?: number; accuracy: number }) => {
     await api.markAttendance(data);
   }, []);
 

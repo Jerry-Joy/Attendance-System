@@ -68,9 +68,13 @@ export class AttendanceService {
       throw new ConflictException('Attendance already marked for this session');
 
     // 5. GPS verification — always required
-    if (session.latitude == null || session.longitude == null) {
+    if (
+      session.latitude == null ||
+      session.longitude == null ||
+      session.lecturerAccuracy == null
+    ) {
       throw new BadRequestException(
-        'Session has no venue GPS coordinates. Ask your lecturer to restart the session with location enabled.',
+        'Session location metadata is incomplete. Ask your lecturer to restart the session and recapture location.',
       );
     }
 
@@ -81,11 +85,19 @@ export class AttendanceService {
       dto.longitude,
     );
 
-    // Allow generous tolerance for indoor GPS drift (both devices combined)
-    const effectiveRadius = session.geofenceRadius + 80;
+    const lecturerAccuracy = this.normalizeAccuracy(
+      session.lecturerAccuracy,
+      'lecturer',
+    );
+    const studentAccuracy = this.normalizeAccuracy(dto.accuracy, 'student');
+    const dynamicBuffer = this.getDynamicGpsBuffer(
+      lecturerAccuracy,
+      studentAccuracy,
+    );
+    const effectiveRadius = session.geofenceRadius + dynamicBuffer;
     if (distance > effectiveRadius) {
       throw new BadRequestException(
-        `You are ${Math.round(distance)}m from the venue. You need to be within ${session.geofenceRadius}m.`,
+        `You are ${Math.round(distance)}m from the venue. Required base radius is ${session.geofenceRadius}m (effective limit ${Math.round(effectiveRadius)}m after GPS tolerance).`,
       );
     }
 
@@ -119,6 +131,26 @@ export class AttendanceService {
     this.events.emitNewAttendance(session.id, result);
 
     return result;
+  }
+
+  private normalizeAccuracy(
+    accuracy: number | null | undefined,
+    source: 'lecturer' | 'student',
+  ): number {
+    if (typeof accuracy !== 'number' || Number.isNaN(accuracy)) {
+      throw new BadRequestException(
+        `${source === 'lecturer' ? 'Lecturer' : 'Student'} GPS accuracy is missing. Please retry with a fresh location capture.`,
+      );
+    }
+    return Math.min(Math.max(accuracy, 0), 200);
+  }
+
+  private getDynamicGpsBuffer(
+    lecturerAccuracy: number,
+    studentAccuracy: number,
+  ): number {
+    const rawBuffer = Math.round(lecturerAccuracy + studentAccuracy);
+    return Math.min(Math.max(rawBuffer, 20), 100);
   }
 
   async getHistory(studentId: string) {

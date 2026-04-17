@@ -88,6 +88,8 @@ export interface BackendSession {
   qrToken: string
   latitude: number | null
   longitude: number | null
+  lecturerAccuracy: number | null
+  lecturerLocationCapturedAt: string | null
   geofenceRadius: number
   duration: number
   status: string
@@ -286,6 +288,8 @@ export const api = {
     duration: number
     latitude?: number
     longitude?: number
+    lecturerAccuracy?: number
+    lecturerLocationCapturedAt?: string
     geofenceRadius?: number
   }) =>
     request<BackendSession>('/sessions', {

@@ -94,6 +94,7 @@ export interface ActiveSession {
   duration: string
   latitude?: number
   longitude?: number
+  lecturerAccuracy?: number
   startedAt: number          // Date.now() when session started
   attendees: AttendingStudent[]
   /** Set when recovering an existing session from the DB on page load */
