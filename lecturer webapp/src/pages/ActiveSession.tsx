@@ -20,7 +20,7 @@ import {
   X,
 } from 'lucide-react'
 import { useData } from '../context/DataContext'
-import { api, getToken, mapAttendance } from '../lib/api'
+import { api, getToken, mapAttendance, WS_BASE } from '../lib/api'
 
 function formatElapsed(totalSeconds: number) {
   const hrs = Math.floor(totalSeconds / 3600)
@@ -61,7 +61,7 @@ export default function ActiveSession() {
   /* If no state and no active session, redirect to dashboard */
   const course = courses.find((c) => c.id === (activeSession?.courseId ?? state?.courseId)) || null
   const radius = activeSession?.radius ?? state?.radius ?? 50
-  const sessionId = state?.sessionId ?? ''
+  const sessionId = state?.sessionId ?? activeSession?.sessionId ?? ''
 
   /* Bootstrap the shared active session on first mount */
   useEffect(() => {
@@ -76,6 +76,8 @@ export default function ActiveSession() {
         longitude: state.longitude,
         startedAt: Date.now(),
         attendees: [],
+        sessionId: state.sessionId,
+        qrToken: state.qrToken,
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -99,16 +101,19 @@ export default function ActiveSession() {
   // ── Core timers ────────────────────────────────────────────
   const [elapsed, setElapsed] = useState(0)
   const [qrSecondsLeft, setQrSecondsLeft] = useState(QR_LIFETIME)
-  const [currentQrToken, setCurrentQrToken] = useState(state?.qrToken ?? '')
+  const [currentQrToken, setCurrentQrToken] = useState(state?.qrToken ?? activeSession?.qrToken ?? '')
+  const payloadCourseId = state?.courseId ?? activeSession?.courseId ?? ''
+  const payloadLatitude = state?.latitude ?? activeSession?.latitude ?? null
+  const payloadLongitude = state?.longitude ?? activeSession?.longitude ?? null
   const qrPayload = useMemo(() => JSON.stringify({
     token: currentQrToken,
-    courseId: state?.courseId ?? '',
+    courseId: payloadCourseId,
     courseCode: course?.code ?? '',
-    lat: state?.latitude ?? null,
-    lng: state?.longitude ?? null,
+    lat: payloadLatitude,
+    lng: payloadLongitude,
     radius: radius,
     exp: Date.now() + QR_LIFETIME * 1000,
-  }), [currentQrToken, state, course, radius])
+  }), [currentQrToken, payloadCourseId, payloadLatitude, payloadLongitude, course, radius])
   const [showEndConfirm, setShowEndConfirm] = useState(false)
   const [qrFullscreen, setQrFullscreen] = useState(false)
 
@@ -147,7 +152,7 @@ export default function ActiveSession() {
     const token = getToken()
     if (!token) return
 
-    const socket = io('http://localhost:3001', {
+    const socket = io(WS_BASE, {
       auth: { token },
       transports: ['websocket'],
     })

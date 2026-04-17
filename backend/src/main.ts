@@ -2,6 +2,20 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
+function buildCorsOrigins(): Array<string | RegExp> {
+  const defaults = ['http://localhost:5173', 'http://localhost:8082'];
+  const configured = (process.env.CORS_ORIGINS ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  const origins: Array<string | RegExp> = [...defaults, ...configured];
+  if (process.env.CORS_ALLOW_NGROK !== 'false') {
+    origins.push(/\.ngrok-free\.app$/);
+  }
+  return origins;
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -16,12 +30,7 @@ async function bootstrap() {
 
   // CORS — allow both frontends
   app.enableCors({
-    origin: [
-      'http://localhost:5173',        // Lecturer web app (Vite)
-      'http://localhost:8082',        // Student mobile app (Expo)
-      'http://192.168.100.153:3001',  // LAN access from phone
-      /\.ngrok-free\.app$/,           // Expo tunnel URLs
-    ],
+    origin: buildCorsOrigins(),
     credentials: true,
   });
 

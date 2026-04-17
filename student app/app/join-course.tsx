@@ -30,25 +30,35 @@ export default function JoinCourseScreen() {
     setLoading(true);
     setError('');
     try {
-      const raw = await api.joinCourse(trimmed);
-      setFoundCourse(mapCourse(raw));
+      const preview = await api.previewCourse(trimmed);
+      if (preview.alreadyEnrolled) {
+        Alert.alert('Already Enrolled', 'You are already enrolled in this course.');
+        return;
+      }
+      setFoundCourse(mapCourse(preview.course));
       setState('preview');
     } catch (e: any) {
-      if (e.message?.toLowerCase().includes('already enrolled')) {
-        Alert.alert('Already Enrolled', 'You are already enrolled in this course.');
-      } else {
-        Alert.alert('Course Not Found', e.message || 'No course matches this code. Please check and try again.', [
-          { text: 'OK' },
-        ]);
-      }
+      Alert.alert('Course Not Found', e.message || 'No course matches this code. Please check and try again.', [
+        { text: 'OK' },
+      ]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleJoin = () => {
-    // Already joined in handleLookup (POST /courses/join), just show success
-    setState('success');
+  const handleJoin = async () => {
+    if (!foundCourse) return;
+    setLoading(true);
+    setError('');
+    try {
+      const raw = await api.joinCourse(foundCourse.joinCode);
+      setFoundCourse(mapCourse(raw));
+      setState('success');
+    } catch (e: any) {
+      Alert.alert('Unable to Join', e.message || 'Could not join this course right now. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDone = () => {
@@ -163,14 +173,16 @@ export default function JoinCourseScreen() {
 
           <Animated.View entering={FadeInDown.duration(400).delay(400)} style={styles.previewActions}>
             <PrimaryButton
-              title="Confirm & Join"
+              title={loading ? 'Joining...' : 'Confirm & Join'}
               onPress={handleJoin}
               icon="check"
+              disabled={loading}
             />
             <SecondaryButton
               title="Not My Course"
               onPress={() => { setCode(''); setState('enter'); }}
               icon="times"
+              disabled={loading}
               style={{ marginTop: Spacing.sm }}
             />
           </Animated.View>

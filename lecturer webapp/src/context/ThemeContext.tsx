@@ -9,17 +9,17 @@ interface ThemeState {
 }
 
 const THEME_KEY = 'smartattend_theme'
+const THEME_EXPLICIT_KEY = 'smartattend_theme_explicit'
 
 const ThemeContext = createContext<ThemeState | undefined>(undefined)
 
 function getInitialTheme(): Theme {
   try {
     const stored = localStorage.getItem(THEME_KEY) as Theme | null
-    if (stored === 'dark' || stored === 'light') return stored
+    const explicit = localStorage.getItem(THEME_EXPLICIT_KEY) === 'true'
+    if (explicit && (stored === 'dark' || stored === 'light')) return stored
   } catch { /* ignore */ }
-  if (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    return 'dark'
-  }
+  // Default to light for clearer contrast unless the user explicitly chose dark.
   return 'light'
 }
 
@@ -40,7 +40,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [theme])
 
   const toggleTheme = useCallback(() => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
+    setTheme((prev) => {
+      try {
+        localStorage.setItem(THEME_EXPLICIT_KEY, 'true')
+      } catch { /* ignore */ }
+      return prev === 'dark' ? 'light' : 'dark'
+    })
   }, [])
 
   return (

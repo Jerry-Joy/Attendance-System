@@ -96,6 +96,9 @@ export interface ActiveSession {
   longitude?: number
   startedAt: number          // Date.now() when session started
   attendees: AttendingStudent[]
+  /** Set when recovering an existing session from the DB on page load */
+  sessionId?: string
+  qrToken?: string
 }
 
 export interface LecturerPreferences {

@@ -14,7 +14,8 @@ import React, {
 } from 'react';
 import { Platform, AppState } from 'react-native';
 import * as Notifications from 'expo-notifications';
-import { api, getToken } from '@/lib/api';
+import { io, Socket } from 'socket.io-client';
+import { api, getToken, API_ORIGIN } from '@/lib/api';
 import { useAuth } from './AuthContext';
 
 // ── Configure notification handler (show even when app is foregrounded) ──
@@ -47,14 +48,11 @@ interface LiveSessionState {
 
 const LiveSessionContext = createContext<LiveSessionState | undefined>(undefined);
 
-const API_BASE = 'http://192.168.100.153:3001';
-
 export function LiveSessionProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth();
   const [liveSessions, setLiveSessions] = useState<LiveSession[]>([]);
   const [loading, setLoading] = useState(false);
-  const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimer = useRef<ReturnType<typeof setTimeout>>();
+  const socketRef = useRef<Socket | null>(null);
 
   // ── Fetch active sessions from REST API ──
   const refresh = useCallback(async () => {
@@ -82,6 +80,16 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const joinCourseRooms = useCallback(async (socket: Socket) => {
+    try {
+      const courses = await api.getCourses();
+      const courseIds = courses.map((c) => c.id);
+      if (courseIds.length > 0) {
+        socket.emit('course:join', { courseIds });
+      }
+    } catch { /* ignore */ }
+  }, []);
+
   // ── WebSocket connection ──
   const connectWs = useCallback(async () => {
     if (!isAuthenticated) return;
@@ -89,102 +97,60 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
     const token = await getToken();
     if (!token) return;
 
-    // Close existing connection
-    if (wsRef.current) {
-      wsRef.current.close();
-      wsRef.current = null;
+    if (socketRef.current) {
+      socketRef.current.removeAllListeners();
+      socketRef.current.disconnect();
+      socketRef.current = null;
     }
 
-    try {
-      // Socket.IO handshake via WebSocket — use the EIO4 protocol
-      const wsUrl = `${API_BASE.replace('http', 'ws')}/socket.io/?EIO=4&transport=websocket`;
-      const ws = new WebSocket(wsUrl);
-      wsRef.current = ws;
+    const socket = io(API_ORIGIN, {
+      auth: { token },
+      transports: ['websocket'],
+      reconnection: true,
+      reconnectionDelay: 2000,
+      reconnectionDelayMax: 10000,
+    });
 
-      ws.onopen = () => {
-        // Socket.IO handshake: send auth token
-        // EIO4 open packet is handled automatically — we send a CONNECT packet with auth
-        ws.send(`40{"token":"${token}"}`);
+    socketRef.current = socket;
+
+    socket.on('connect', () => {
+      joinCourseRooms(socket);
+    });
+
+    socket.on('session:started', (eventData) => {
+      const newSession: LiveSession = {
+        sessionId: eventData.sessionId,
+        courseId: eventData.courseId || '',
+        courseCode: eventData.courseCode,
+        courseName: eventData.courseName,
+        venue: eventData.venue,
+        startedAt: new Date().toISOString(),
+        duration: eventData.duration,
+        alreadyMarked: false,
       };
 
-      ws.onmessage = (event) => {
-        const data = String(event.data);
+      setLiveSessions((prev) => {
+        if (prev.some((s) => s.sessionId === newSession.sessionId)) return prev;
+        return [newSession, ...prev];
+      });
 
-        // Socket.IO CONNECT ACK (packet type 40)
-        if (data.startsWith('40')) {
-          // Connected — join course rooms
-          joinCourseRooms(ws);
-          return;
-        }
+      sendLocalNotification(
+        eventData.courseCode,
+        eventData.courseName,
+        eventData.venue,
+      );
+    });
 
-        // Socket.IO EVENT (packet type 42)
-        if (data.startsWith('42')) {
-          try {
-            const payload = JSON.parse(data.substring(2));
-            const [eventName, eventData] = payload;
+    socket.on('session:ended', (eventData) => {
+      setLiveSessions((prev) => prev.filter((s) => s.sessionId !== eventData.sessionId));
+    });
 
-            if (eventName === 'session:started') {
-              // Add to live sessions
-              const newSession: LiveSession = {
-                sessionId: eventData.sessionId,
-                courseId: eventData.courseId || '',
-                courseCode: eventData.courseCode,
-                courseName: eventData.courseName,
-                venue: eventData.venue,
-                startedAt: new Date().toISOString(),
-                duration: eventData.duration,
-                alreadyMarked: false,
-              };
-
-              setLiveSessions((prev) => {
-                if (prev.some((s) => s.sessionId === newSession.sessionId)) return prev;
-                return [newSession, ...prev];
-              });
-
-              // Fire local notification
-              sendLocalNotification(
-                eventData.courseCode,
-                eventData.courseName,
-                eventData.venue,
-              );
-            }
-
-            if (eventName === 'session:ended') {
-              setLiveSessions((prev) =>
-                prev.filter((s) => s.sessionId !== eventData.sessionId),
-              );
-            }
-          } catch { /* ignore parse errors */ }
-        }
-
-        // Socket.IO PING (packet type 2) — respond with PONG (3)
-        if (data === '2') {
-          ws.send('3');
-        }
-      };
-
-      ws.onclose = () => {
-        wsRef.current = null;
-        // Attempt reconnect after 5 seconds
-        reconnectTimer.current = setTimeout(connectWs, 5000);
-      };
-
-      ws.onerror = () => {
-        ws.close();
-      };
-    } catch { /* connection failed, will retry */ }
-  }, [isAuthenticated, sendLocalNotification]);
-
-  const joinCourseRooms = async (ws: WebSocket) => {
-    try {
-      const courses = await api.getCourses();
-      const courseIds = courses.map((c) => c.id);
-      if (courseIds.length > 0) {
-        // Socket.IO emit: 42["course:join", {courseIds}]
-        ws.send(`42${JSON.stringify(['course:join', { courseIds }])}`);
+    socket.on('disconnect', () => {
+      if (socketRef.current === socket) {
+        socketRef.current = null;
       }
-    } catch { /* ignore */ }
-  };
+    });
+  }, [isAuthenticated, sendLocalNotification, joinCourseRooms]);
 
   // ── Connect on auth, cleanup on unmount ──
   useEffect(() => {
@@ -193,28 +159,30 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
       connectWs();
     } else {
       setLiveSessions([]);
-      if (wsRef.current) {
-        wsRef.current.close();
-        wsRef.current = null;
+      if (socketRef.current) {
+        socketRef.current.removeAllListeners();
+        socketRef.current.disconnect();
+        socketRef.current = null;
       }
     }
 
     return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-        wsRef.current = null;
+      if (socketRef.current) {
+        socketRef.current.removeAllListeners();
+        socketRef.current.disconnect();
+        socketRef.current = null;
       }
-      if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
     };
-  }, [isAuthenticated]);
+  }, [isAuthenticated, refresh, connectWs]);
 
   // ── Refresh when app comes to foreground ──
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {
       if (state === 'active' && isAuthenticated) {
         refresh();
-        // Reconnect WS if needed
-        if (!wsRef.current) connectWs();
+        if (!socketRef.current?.connected) {
+          connectWs();
+        }
       }
     });
     return () => sub.remove();

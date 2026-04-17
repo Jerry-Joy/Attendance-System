@@ -76,7 +76,7 @@ export class CoursesService {
     return enrollments.map((e) => e.course);
   }
 
-  async findOne(courseId: string) {
+  async findOneForUser(courseId: string, userId: string, role: Role) {
     const course = await this.prisma.course.findUnique({
       where: { id: courseId },
       include: {
@@ -87,6 +87,19 @@ export class CoursesService {
       },
     });
     if (!course) throw new NotFoundException('Course not found');
+
+    if (role === Role.LECTURER && course.lecturerId !== userId) {
+      throw new ForbiddenException('You do not own this course');
+    }
+
+    if (role === Role.STUDENT) {
+      const enrollment = await this.prisma.enrollment.findUnique({
+        where: { studentId_courseId: { studentId: userId, courseId } },
+      });
+      if (!enrollment)
+        throw new ForbiddenException('You are not enrolled in this course');
+    }
+
     return course;
   }
 
@@ -105,9 +118,32 @@ export class CoursesService {
     return { deleted: true };
   }
 
-  async joinCourse(studentId: string, joinCode: string) {
+  async previewCourse(studentId: string, joinCode: string) {
+    const normalizedJoinCode = this.normalizeJoinCode(joinCode);
+
     const course = await this.prisma.course.findUnique({
-      where: { joinCode },
+      where: { joinCode: normalizedJoinCode },
+      include: { _count: { select: { enrollments: true } } },
+    });
+    if (!course) throw new NotFoundException('Invalid join code');
+
+    const existing = await this.prisma.enrollment.findUnique({
+      where: {
+        studentId_courseId: { studentId, courseId: course.id },
+      },
+    });
+
+    return {
+      course,
+      alreadyEnrolled: !!existing,
+    };
+  }
+
+  async joinCourse(studentId: string, joinCode: string) {
+    const normalizedJoinCode = this.normalizeJoinCode(joinCode);
+
+    const course = await this.prisma.course.findUnique({
+      where: { joinCode: normalizedJoinCode },
     });
     if (!course) throw new NotFoundException('Invalid join code');
 
@@ -170,5 +206,9 @@ export class CoursesService {
     if (course.lecturerId !== lecturerId)
       throw new ForbiddenException('You do not own this course');
     return course;
+  }
+
+  private normalizeJoinCode(joinCode: string) {
+    return joinCode.trim().toUpperCase();
   }
 }

@@ -12,12 +12,45 @@ body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #F8FAFC;
+  background: #e9ecf7;
 }
 
 .dark body,
 html.dark body {
-  background: #0f172a;
+  background: #0F172A;
+}
+
+/* Light mode readability + clean dashboard surfaces */
+html:not(.dark) .bg-slate-50 {
+  background-color: #f4f7ff !important;
+}
+
+html:not(.dark) .border-slate-200 {
+  border-color: #d7e0f2 !important;
+}
+
+html:not(.dark) .border-slate-100 {
+  border-color: #e4eaf7 !important;
+}
+
+html:not(.dark) .text-slate-400 {
+  color: #64748b !important;
+}
+
+html:not(.dark) .text-slate-500 {
+  color: #475569 !important;
+}
+
+html:not(.dark) .text-slate-600 {
+  color: #334155 !important;
+}
+
+html:not(.dark) .text-slate-700 {
+  color: #1e293b !important;
+}
+
+html:not(.dark) .bg-white {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.03);
 }
 
 /* Custom Scrollbar */
@@ -30,12 +63,12 @@ html.dark body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #B8C4DA;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94A3B8;
+  background: #8FA2C3;
 }
 
 .dark ::-webkit-scrollbar-thumb {
@@ -48,13 +81,13 @@ html.dark body {
 
 /* Selection Color */
 ::selection {
-  background: #4F46E5;
+  background: #4F7CFF;
   color: white;
 }
 
 /* Focus Styles */
 *:focus-visible {
-  outline: 2px solid #4F46E5;
+  outline: 2px solid #4F7CFF;
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -66,7 +99,7 @@ input[type='range']::-webkit-slider-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #4F46E5;
+  background: #4F7CFF;
   border: 3px solid white;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   cursor: pointer;
@@ -81,7 +114,7 @@ input[type='range']::-moz-range-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #4F46E5;
+  background: #4F7CFF;
   border: 3px solid white;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   cursor: pointer;

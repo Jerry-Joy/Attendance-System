@@ -9,6 +9,7 @@ import {
   View,
   TextInput,
   StyleSheet,
+  StyleProp,
   ViewStyle,
   TextStyle,
   ActivityIndicator,
@@ -24,7 +25,7 @@ interface ButtonProps {
   icon?: keyof typeof FontAwesome.glyphMap;
   loading?: boolean;
   disabled?: boolean;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 }
 
 export function PrimaryButton({ title, onPress, icon, loading, disabled, style }: ButtonProps) {
@@ -103,7 +104,7 @@ export function DestructiveButton({ title, onPress, icon, style }: ButtonProps) 
 // ─── Card ───
 interface CardProps {
   children: React.ReactNode;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   elevated?: boolean;
   onPress?: () => void;
 }

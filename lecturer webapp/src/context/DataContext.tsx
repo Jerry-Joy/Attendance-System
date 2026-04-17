@@ -96,12 +96,43 @@ export function DataProvider({ children }: { children: ReactNode }) {
     } catch { /* ignore */ }
   }, [])
 
+  /**
+   * On mount, scan all lecturer courses for a still-running ACTIVE session
+   * and restore it into React state so the Live badge / Rejoin button survive a page refresh.
+   */
+  const recoverActiveSession = useCallback(async () => {
+    if (!getToken()) return
+    try {
+      const rawCourses = await api.getCourses()
+      for (const c of rawCourses) {
+        const session = await api.getActiveSessionForCourse(c.id)
+        if (session) {
+          setActiveSession({
+            courseId: c.id,
+            courseCode: c.courseCode,
+            courseName: c.courseName,
+            radius: session.geofenceRadius,
+            duration: `${session.duration} min`,
+            latitude: session.latitude ?? undefined,
+            longitude: session.longitude ?? undefined,
+            startedAt: new Date(session.startedAt).getTime(),
+            attendees: [],
+            sessionId: session.id,
+            qrToken: session.qrToken,
+          })
+          break // Only one ACTIVE session can exist at a time
+        }
+      }
+    } catch { /* ignore */ }
+  }, [])
+
   /* Load data on mount (when token exists) */
   useEffect(() => {
     if (!getToken()) return
     refreshCourses()
     refreshSessions()
-  }, [refreshCourses, refreshSessions])
+    recoverActiveSession()
+  }, [refreshCourses, refreshSessions, recoverActiveSession])
 
   /* ── Courses ────────────────────────────────────────────── */
   const addCourse = (course: Course) => {

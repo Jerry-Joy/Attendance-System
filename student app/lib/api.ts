@@ -1,6 +1,66 @@
 import * as SecureStore from 'expo-secure-store';
+import Constants from 'expo-constants';
+import * as Linking from 'expo-linking';
 
-const API_BASE = 'http://192.168.100.153:3001/api';
+type AppConfigExtra = {
+  apiBaseUrl?: string;
+  apiOrigin?: string;
+};
+
+const extra = (Constants.expoConfig?.extra ?? {}) as AppConfigExtra;
+
+function extractHost(value?: string | null): string | null {
+  if (!value) return null;
+  const host = value.split('/')[0]?.split(':')[0]?.trim();
+  if (!host) return null;
+  // Only auto-substitute when we have an IPv4 LAN host.
+  if (/^(\d{1,3}\.){3}\d{1,3}$/.test(host)) return host;
+  return null;
+}
+
+function getExpoHost(): string | null {
+  const fromExpoConfig = extractHost(
+    (Constants.expoConfig as { hostUri?: string } | null)?.hostUri,
+  );
+  if (fromExpoConfig) return fromExpoConfig;
+
+  const fromManifest2 = extractHost(
+    (Constants as unknown as {
+      manifest2?: { extra?: { expoGo?: { debuggerHost?: string } } };
+    }).manifest2?.extra?.expoGo?.debuggerHost,
+  );
+  if (fromManifest2) return fromManifest2;
+
+  const fromManifest = extractHost(
+    (Constants as unknown as { manifest?: { debuggerHost?: string } }).manifest
+      ?.debuggerHost,
+  );
+  if (fromManifest) return fromManifest;
+
+  try {
+    const url = Linking.createURL('/');
+    const fromLinking = extractHost(Linking.parse(url).hostname ?? null);
+    if (fromLinking) return fromLinking;
+  } catch {
+    // Ignore parse/runtime errors and continue with fallback.
+  }
+
+  return null;
+}
+
+function resolveLocalhost(url: string, host: string | null): string {
+  if (!host) return url;
+  return url.replace('://localhost', `://${host}`);
+}
+
+const expoHost = getExpoHost();
+const defaultApiOrigin = expoHost ? `http://${expoHost}:3001` : 'http://localhost:3001';
+const configuredApiOrigin = (extra.apiOrigin || '').trim() || defaultApiOrigin;
+const configuredApiBase =
+  (extra.apiBaseUrl || '').trim() || `${configuredApiOrigin.replace(/\/api\/?$/, '')}/api`;
+
+const API_BASE = resolveLocalhost(configuredApiBase, expoHost);
+export const API_ORIGIN = resolveLocalhost(configuredApiOrigin, expoHost);
 const TOKEN_KEY = 'smartattend_token';
 
 let cachedToken: string | null = null;
@@ -191,6 +251,12 @@ export const api = {
   getCourses: () => request<BackendCourse[]>('/courses'),
 
   getCourse: (id: string) => request<BackendCourse>(`/courses/${id}`),
+
+  previewCourse: (joinCode: string) =>
+    request<{ course: BackendCourse; alreadyEnrolled: boolean }>('/courses/preview', {
+      method: 'POST',
+      body: JSON.stringify({ joinCode }),
+    }),
 
   joinCourse: (joinCode: string) =>
     request<BackendCourse>('/courses/join', {

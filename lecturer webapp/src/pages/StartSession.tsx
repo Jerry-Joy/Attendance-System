@@ -11,6 +11,7 @@ import {
   ChevronDown,
   CheckCircle,
   BookOpen,
+  Radio,
 } from 'lucide-react'
 import { useData } from '../context/DataContext'
 import { api } from '../lib/api'
@@ -19,7 +20,7 @@ const DURATION_PRESETS = [15, 30, 45, 60, 90, 120]
 
 export default function StartSession() {
   const navigate = useNavigate()
-  const { courses: mockCourses } = useData()
+  const { courses: mockCourses, activeSession } = useData()
   const { id } = useParams<{ id: string }>()
 
   // ── Form state ──────────────────────────────────────────────
@@ -36,6 +37,9 @@ export default function StartSession() {
 
   const selectedCourse = mockCourses.find((c) => c.id === selectedCourseId) || mockCourses[0]
   const locationCaptured = latitude !== null && longitude !== null
+
+  // If there's already a live session for the selected course, show a rejoin banner instead
+  const existingSession = activeSession?.courseId === selectedCourse?.id ? activeSession : null
 
   // ── Real browser GPS capture ────────────────────────────────
   const handleCaptureLocation = () => {

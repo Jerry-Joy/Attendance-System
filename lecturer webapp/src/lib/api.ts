@@ -1,6 +1,15 @@
 import type { Lecturer, Course, EnrolledStudent, PastSession, AttendingStudent } from '../types'
 
-const API_BASE = 'http://localhost:3001/api'
+const envApiBase = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.trim()
+const envWsBase = (import.meta.env.VITE_WS_BASE_URL as string | undefined)?.trim()
+
+const API_BASE = envApiBase && envApiBase.length > 0
+  ? envApiBase
+  : 'http://localhost:3001/api'
+
+export const WS_BASE = envWsBase && envWsBase.length > 0
+  ? envWsBase
+  : API_BASE.replace(/\/api\/?$/, '')
 
 const TOKEN_KEY = 'smartattend_token'
 
@@ -302,4 +311,20 @@ export const api = {
 
   getSessionAttendance: (sessionId: string) =>
     request<BackendAttendanceRecord[]>(`/sessions/${sessionId}/attendance`),
+
+  /** Returns the first still-running ACTIVE session for a course, or null */
+  getActiveSessionForCourse: async (courseId: string): Promise<BackendSession | null> => {
+    try {
+      const sessions = await request<BackendSession[]>(`/courses/${courseId}/sessions`)
+      const now = Date.now()
+      return sessions.find((s) => {
+        if (s.status !== 'ACTIVE') return false
+        const endMs = new Date(s.startedAt).getTime() + s.duration * 60_000
+        return now <= endMs
+      }) ?? null
+    } catch {
+      return null
+    }
+  },
 }
+

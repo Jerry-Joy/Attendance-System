@@ -65,10 +65,16 @@ export default function SessionSummary() {
 
   const [downloading, setDownloading] = useState(false)
 
-  const attendanceRate = Math.round((summary.presentCount / summary.totalStudents) * 100)
-  const absentCount = summary.totalStudents - summary.presentCount
+  const attendanceRate =
+    summary.totalStudents > 0
+      ? Math.round((summary.presentCount / summary.totalStudents) * 100)
+      : 0
+  const absentCount = Math.max(summary.totalStudents - summary.presentCount, 0)
   const gpsVerifiedCount = summary.qrGpsVerified
-  const gpsPercent = summary.presentCount > 0 ? Math.round((gpsVerifiedCount / summary.presentCount) * 100) : 0
+  const gpsPercent =
+    summary.presentCount > 0
+      ? Math.min(Math.round((gpsVerifiedCount / summary.presentCount) * 100), 100)
+      : 0
 
   const rateColor =
     attendanceRate >= 75
@@ -278,22 +284,6 @@ export default function SessionSummary() {
               </div>
             </div>
 
-            {/* QR + GPS — all attendees */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                  <span className="text-sm text-slate-600 dark:text-slate-300">QR + GPS Verified</span>
-                </div>
-                <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{gpsVerifiedCount}</span>
-              </div>
-              <div className="h-3 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-700"
-                  style={{ width: `${gpsPercent}%` }}
-                />
-              </div>
-            </div>
           </div>
 
           <div className="mt-5 p-3.5 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl border border-emerald-100 dark:border-emerald-500/20 flex items-center gap-2.5">

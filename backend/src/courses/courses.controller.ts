@@ -35,8 +35,8 @@ export class CoursesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.coursesService.findOne(id);
+  findOne(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.coursesService.findOneForUser(id, user.id, user.role);
   }
 
   @Roles(Role.LECTURER)
@@ -59,6 +59,12 @@ export class CoursesController {
   @Post('join')
   joinCourse(@CurrentUser() user: any, @Body() dto: JoinCourseDto) {
     return this.coursesService.joinCourse(user.id, dto.joinCode);
+  }
+
+  @Roles(Role.STUDENT)
+  @Post('preview')
+  previewCourse(@CurrentUser() user: any, @Body() dto: JoinCourseDto) {
+    return this.coursesService.previewCourse(user.id, dto.joinCode);
   }
 
   @Roles(Role.LECTURER)

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSessionDto } from './dto/create-session.dto';
-import { SessionStatus } from '@prisma/client';
+import { Role, SessionStatus } from '@prisma/client';
 import { EventsGateway } from '../events/events.gateway';
 import * as crypto from 'crypto';
 
@@ -70,7 +70,7 @@ export class SessionsService {
     });
   }
 
-  async findOne(sessionId: string) {
+  async findOne(sessionId: string, userId: string, role: Role) {
     const session = await this.prisma.session.findUnique({
       where: { id: sessionId },
       include: {
@@ -79,6 +79,23 @@ export class SessionsService {
       },
     });
     if (!session) throw new NotFoundException('Session not found');
+
+    if (role === Role.LECTURER && session.lecturerId !== userId) {
+      throw new ForbiddenException('You do not own this session');
+    }
+
+    if (role === Role.STUDENT) {
+      const enrollment = await this.prisma.enrollment.findUnique({
+        where: {
+          studentId_courseId: {
+            studentId: userId,
+            courseId: session.courseId,
+          },
+        },
+      });
+      if (!enrollment)
+        throw new ForbiddenException('You are not enrolled in this course');
+    }
 
     // Auto-end if duration has expired
     if (session.status === SessionStatus.ACTIVE) {
@@ -264,5 +281,43 @@ export class SessionsService {
       },
     });
     return { alreadyMarked: !!existing, sessionId: session.id };
+  }
+
+  /** Called by the cron job every minute — ends sessions whose duration has elapsed */
+  async expireStale(): Promise<void> {
+    const now = new Date();
+
+    // Find all sessions still marked ACTIVE
+    const active = await this.prisma.session.findMany({
+      where: { status: SessionStatus.ACTIVE },
+      select: { id: true, courseId: true, startedAt: true, duration: true },
+    });
+
+    const stale = active.filter((s) => {
+      const endTime = new Date(s.startedAt.getTime() + s.duration * 60_000);
+      return now > endTime;
+    });
+
+    if (stale.length === 0) return;
+
+    const staleWithEndTimes = stale.map((s) => ({
+      ...s,
+      endedAt: new Date(s.startedAt.getTime() + s.duration * 60_000),
+    }));
+
+    await this.prisma.$transaction(
+      staleWithEndTimes.map((s) =>
+        this.prisma.session.updateMany({
+          where: { id: s.id, status: SessionStatus.ACTIVE },
+          data: { status: SessionStatus.ENDED, endedAt: s.endedAt },
+        }),
+      ),
+    );
+
+    // Notify connected clients for each expired session
+    for (const s of staleWithEndTimes) {
+      this.events.emitSessionEnded(s.id);
+      this.events.emitSessionEndedToCourse(s.courseId, s.id);
+    }
   }
 }

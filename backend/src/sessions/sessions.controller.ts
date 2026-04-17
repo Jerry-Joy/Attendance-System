@@ -45,8 +45,8 @@ export class SessionsController {
   }
 
   @Get('sessions/:id')
-  findOne(@Param('id') id: string) {
-    return this.sessionsService.findOne(id);
+  findOne(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.sessionsService.findOne(id, user.id, user.role);
   }
 
   @Roles(Role.LECTURER)

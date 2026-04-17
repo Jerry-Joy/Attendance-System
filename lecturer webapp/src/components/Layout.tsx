@@ -37,7 +37,7 @@ export default function Layout() {
   }
 
   return (
-    <div className="flex h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="flex h-screen bg-[#E9EEF8] dark:bg-slate-900">
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
@@ -46,12 +46,12 @@ export default function Layout() {
         />
       )}
 
-      {/* Sidebar — light theme with indigo accents */}
+      {/* Sidebar — clean light surface */}
       <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-50
           ${collapsed ? 'w-[72px]' : 'w-[260px]'}
-          bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col
+          bg-[#F7FAFF] dark:bg-slate-800 border-r border-[#D7E0F2] dark:border-slate-700 flex flex-col
           transform transition-all duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
@@ -65,7 +65,7 @@ export default function Layout() {
         </button>
 
         {/* Brand + collapse toggle */}
-        <div className={`${collapsed ? 'px-3' : 'px-5'} py-5 border-b border-slate-100 dark:border-slate-700 transition-all duration-300`}>
+        <div className={`${collapsed ? 'px-3' : 'px-5'} py-5 border-b border-[#E4EAF7] dark:border-slate-700 transition-all duration-300`}>
           <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'}`}>
             <div className={`flex items-center ${collapsed ? '' : 'gap-3'}`}>
               <div className="w-10 h-10 rounded-xl bg-brand-500 flex items-center justify-center shrink-0 shadow-lg shadow-brand-200 dark:shadow-brand-500/20">
@@ -100,8 +100,8 @@ export default function Layout() {
                 flex items-center ${collapsed ? 'justify-center' : 'gap-3'} ${collapsed ? 'px-0 py-3' : 'px-4 py-2.5'} rounded-xl text-sm font-medium
                 transition-all duration-200 group relative
                 ${isActive
-                  ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-700 dark:text-brand-400 font-semibold'
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200'
+                  ? 'bg-white dark:bg-brand-500/10 text-brand-700 dark:text-brand-400 font-semibold shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-white/80 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-200'
                 }
               `}
             >
@@ -121,7 +121,7 @@ export default function Layout() {
         </nav>
 
         {/* User card + logout */}
-        <div className={`${collapsed ? 'px-2' : 'px-3'} py-3 border-t border-slate-100 dark:border-slate-700 transition-all duration-300`}>
+        <div className={`${collapsed ? 'px-2' : 'px-3'} py-3 border-t border-[#E4EAF7] dark:border-slate-700 transition-all duration-300`}>
           {/* Dark mode toggle */}
           <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3 px-3'} py-2 mb-1`}>
             <button
@@ -183,7 +183,7 @@ export default function Layout() {
       {/* Main content area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top bar — desktop breadcrumb + user profile */}
-        <header className="hidden lg:flex items-center justify-between px-8 py-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+        <header className="hidden lg:flex items-center justify-between px-8 py-3 bg-[#F7FAFF] dark:bg-slate-800 border-b border-[#D7E0F2] dark:border-slate-700">
           <div className="flex items-center gap-2 text-sm text-slate-400 dark:text-slate-500">
             <span>Portal</span>
             <span>/</span>
@@ -215,7 +215,7 @@ export default function Layout() {
         </header>
 
         {/* Mobile top bar */}
-        <header className="lg:hidden flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm">
+        <header className="lg:hidden flex items-center justify-between px-4 py-3 bg-[#F7FAFF] dark:bg-slate-800 border-b border-[#D7E0F2] dark:border-slate-700 shadow-sm">
           <button
             onClick={() => setSidebarOpen(true)}
             className="p-2 -ml-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
