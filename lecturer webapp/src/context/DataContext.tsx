@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react'
 import type { Course, PastSession, EnrolledStudent, AttendingStudent, ActiveSession, LecturerPreferences } from '../types'
 import { api, mapCourse, mapStudent, mapSession, getToken, type BackendSession } from '../lib/api'
+import { useAuth } from './AuthContext'
 
 const PREFS_KEY = 'smartattend_prefs'
 
@@ -45,6 +46,7 @@ interface DataState {
 const DataContext = createContext<DataState | undefined>(undefined)
 
 export function DataProvider({ children }: { children: ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth()
   const [courses, setCourses] = useState<Course[]>([])
   const [pastSessions, setPastSessions] = useState<PastSession[]>([])
   const [enrolledStudents, setEnrolledStudents] = useState<Record<string, EnrolledStudent[]>>({})
@@ -127,13 +129,22 @@ export function DataProvider({ children }: { children: ReactNode }) {
     } catch { /* ignore */ }
   }, [])
 
-  /* Load data on mount (when token exists) */
+  /* Load data whenever auth transitions to authenticated */
   useEffect(() => {
-    if (!getToken()) return
+    if (isLoading || !isAuthenticated || !getToken()) return
     refreshCourses()
     refreshSessions()
     recoverActiveSession()
-  }, [refreshCourses, refreshSessions, recoverActiveSession])
+  }, [isAuthenticated, isLoading, refreshCourses, refreshSessions, recoverActiveSession])
+
+  /* Clear per-user in-memory data on logout */
+  useEffect(() => {
+    if (isLoading || isAuthenticated) return
+    setCourses([])
+    setPastSessions([])
+    setEnrolledStudents({})
+    setActiveSession(null)
+  }, [isAuthenticated, isLoading])
 
   /* ── Courses ────────────────────────────────────────────── */
   const addCourse = (course: Course) => {
