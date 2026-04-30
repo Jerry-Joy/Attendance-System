@@ -44,6 +44,7 @@ interface LiveSessionState {
   liveSessions: LiveSession[];
   loading: boolean;
   refresh: () => Promise<void>;
+  rejoinCourseRooms: () => Promise<void>;
 }
 
 const LiveSessionContext = createContext<LiveSessionState | undefined>(undefined);
@@ -198,8 +199,15 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
     })();
   }, []);
 
+  // ── Rejoin course rooms (call after joining a new course) ──
+  const rejoinCourseRooms = useCallback(async () => {
+    if (socketRef.current?.connected) {
+      await joinCourseRooms(socketRef.current);
+    }
+  }, [joinCourseRooms]);
+
   return (
-    <LiveSessionContext.Provider value={{ liveSessions, loading, refresh }}>
+    <LiveSessionContext.Provider value={{ liveSessions, loading, refresh, rejoinCourseRooms }}>
       {children}
     </LiveSessionContext.Provider>
   );

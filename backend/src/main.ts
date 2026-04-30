@@ -3,7 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 function buildCorsOrigins(): Array<string | RegExp> {
-  const defaults = ['http://localhost:5173', 'http://localhost:8082'];
+  const defaults = ['http://localhost:5173', 'http://localhost:8082', 'http://localhost:3000'];
   const configured = (process.env.CORS_ORIGINS ?? '')
     .split(',')
     .map((origin) => origin.trim())

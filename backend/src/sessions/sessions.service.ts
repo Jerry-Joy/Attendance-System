@@ -17,7 +17,7 @@ function generateQrToken(): string {
   return `SA-${timestamp}-${random}`;
 }
 
-const MAX_LECTURER_LOCATION_ACCURACY_M = 100;
+const MAX_LECTURER_LOCATION_ACCURACY_M = 200; // Increased to 200m to support laptop/desktop WiFi-based location
 const MAX_LECTURER_LOCATION_AGE_MS = 2 * 60 * 1000;
 const MAX_LECTURER_LOCATION_FUTURE_SKEW_MS = 30 * 1000;
 

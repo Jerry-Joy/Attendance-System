@@ -16,6 +16,7 @@ import { ConfigService } from '@nestjs/config';
     origin: [
       'http://localhost:5173',
       'http://localhost:8082',
+      'http://localhost:3000',
       /\.ngrok-free\.app$/,
     ],
     credentials: true,

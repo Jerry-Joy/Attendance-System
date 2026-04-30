@@ -12,12 +12,14 @@ import { PrimaryButton, SecondaryButton, InputField, Card } from '@/components/u
 import { Typography, Spacing, BorderRadius } from '@/constants/Layout';
 import { api, MappedCourse, mapCourse } from '@/lib/api';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLiveSessions } from '@/context/LiveSessionContext';
 
 type JoinState = 'enter' | 'preview' | 'success';
 
 export default function JoinCourseScreen() {
   const theme = useTheme();
   const router = useRouter();
+  const { rejoinCourseRooms, refresh } = useLiveSessions();
   const [code, setCode] = useState('');
   const [state, setState] = useState<JoinState>('enter');
   const [foundCourse, setFoundCourse] = useState<MappedCourse | null>(null);
@@ -54,6 +56,12 @@ export default function JoinCourseScreen() {
       const raw = await api.joinCourse(foundCourse.joinCode);
       setFoundCourse(mapCourse(raw));
       setState('success');
+      
+      // Rejoin WebSocket course rooms to receive notifications for the new course
+      await rejoinCourseRooms();
+      
+      // Refresh live sessions to include the new course
+      await refresh();
     } catch (e: any) {
       Alert.alert('Unable to Join', e.message || 'Could not join this course right now. Please try again.');
     } finally {
