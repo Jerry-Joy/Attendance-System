@@ -37,7 +37,7 @@ export default function Ledger() {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-slate-100 dark:bg-slate-900/50 text-slate-600 dark:text-slate-400 text-[10px] uppercase font-mono tracking-widest border-b border-slate-200 dark:border-slate-800">
+              <tr className="bg-slate-100 dark:bg-[#15181E]/50 text-slate-600 dark:text-slate-400 text-[10px] uppercase font-mono tracking-widest border-b border-slate-200 dark:border-slate-800">
                 <th className="px-6 py-3 font-semibold">Tx Hash</th>
                 <th className="px-6 py-3 font-semibold">Block</th>
                 <th className="px-6 py-3 font-semibold">Timestamp</th>

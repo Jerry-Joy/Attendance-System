@@ -20,7 +20,7 @@ export default function Sidebar() {
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 rounded-lg flex items-center justify-center relative">
             <img src="/gctu-crest.png" alt="GCTU" className="w-10 h-10 object-contain" />
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-slate-50 dark:border-[#15181E]"></div>
+            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-slate-50 dark:border-slate-900"></div>
           </div>
           <div>
             <span className="text-sm font-bold text-slate-900 dark:text-white tracking-tight block">GCTU</span>

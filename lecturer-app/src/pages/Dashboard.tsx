@@ -193,7 +193,7 @@ export default function Dashboard() {
             {courses.map((course, idx) => {
               const isLive = activeSession?.courseId === course.id;
               return (
-                <div key={course.id} className="p-3 border border-slate-200 dark:border-slate-800 rounded bg-slate-50 dark:bg-[#0B0D11]/50 hover:bg-slate-100 dark:hover:bg-[#0B0D11] transition-colors relative group">
+                <div key={course.id} className="p-3 border border-slate-200 dark:border-slate-800 rounded bg-slate-50 dark:bg-[#0B0D11]/50 hover:bg-slate-100 dark:hover:bg-slate-950 transition-colors relative group">
                   <div className="flex justify-between items-start mb-2">
                     <span className="text-[10px] font-mono font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 rounded">{course.code}</span>
                     {isLive ? (

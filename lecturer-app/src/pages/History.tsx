@@ -148,7 +148,7 @@ export default function History() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-slate-100 dark:bg-slate-900/50 text-slate-600 dark:text-slate-400 text-[10px] uppercase font-mono tracking-widest border-b border-slate-200 dark:border-slate-800">
+                <tr className="bg-slate-100 dark:bg-[#15181E]/50 text-slate-600 dark:text-slate-400 text-[10px] uppercase font-mono tracking-widest border-b border-slate-200 dark:border-slate-800">
                   <th className="px-5 py-3 font-semibold text-left">Course</th>
                   <th className="px-5 py-3 font-semibold text-left">Date</th>
                   <th className="px-5 py-3 font-semibold text-left">Duration</th>

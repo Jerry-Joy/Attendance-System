@@ -54,12 +54,22 @@
   --color-primary-fixed: #dae2fd;
   --color-secondary-container: #645efb;
 
-  /* GCTU Brand Colors — Blue & Gold */
-  --color-gctu-gold: #C5960C;
-  --color-gctu-gold-light: #D4A84B;
-  --color-gctu-gold-dark: #9A7500;
-  --color-gctu-blue: #003366;
-  --color-gctu-blue-light: #1565C0;
+  /* GCTU Brand Colors — Official Palette */
+  --color-gctu-primary: #1E3A8A;
+  --color-gctu-secondary: #3B82F6;
+  --color-gctu-accent: #F59E0B;
+  --color-gold: #F2A900;
+  --color-blue: #0060C7;
+
+  /* Override Tailwind Blue Scale to apply the GCTU Theme across the app */
+  --color-blue-400: var(--color-gctu-secondary);
+  --color-blue-500: var(--color-gctu-secondary);
+  --color-blue-600: var(--color-gctu-primary);
+  --color-blue-700: var(--color-blue);
+
+  /* Override Tailwind Amber Scale to apply the GCTU Gold Theme across the app */
+  --color-amber-400: var(--color-gold);
+  --color-amber-500: var(--color-gctu-accent);
 
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
@@ -74,7 +84,9 @@
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
-.material-symbols-outlined[data-weight="fill"], .material-symbols-outlined.fill {
+
+.material-symbols-outlined[data-weight="fill"],
+.material-symbols-outlined.fill {
   font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
@@ -83,13 +95,16 @@
   width: 8px;
   height: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--color-surface);
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--color-outline-variant);
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-outline);
 }
