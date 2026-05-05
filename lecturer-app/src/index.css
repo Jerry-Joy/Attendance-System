@@ -54,6 +54,13 @@
   --color-primary-fixed: #dae2fd;
   --color-secondary-container: #645efb;
 
+  /* GCTU Brand Colors — Blue & Gold */
+  --color-gctu-gold: #C5960C;
+  --color-gctu-gold-light: #D4A84B;
+  --color-gctu-gold-dark: #9A7500;
+  --color-gctu-blue: #003366;
+  --color-gctu-blue-light: #1565C0;
+
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }

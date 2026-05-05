@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "smart-attendance",
-    "slug": "smart-attendance",
+    "name": "GCTU Attendance",
+    "slug": "gctu-attendance",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -16,8 +16,8 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSCameraUsageDescription": "Smart Attendance needs camera access to scan attendance QR codes.",
-        "NSLocationWhenInUseUsageDescription": "Smart Attendance needs your location to verify you are at the lecture venue."
+        "NSCameraUsageDescription": "GCTU Smart Attendance needs camera access to scan attendance QR codes.",
+        "NSLocationWhenInUseUsageDescription": "GCTU Smart Attendance needs your location to verify you are at the lecture venue."
       }
     },
     "android": {
@@ -38,14 +38,14 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Smart Attendance needs your location to verify you are at the lecture venue.",
-          "locationWhenInUsePermission": "Smart Attendance needs your location to verify you are at the lecture venue."
+          "locationAlwaysAndWhenInUsePermission": "GCTU Smart Attendance needs your location to verify you are at the lecture venue.",
+          "locationWhenInUsePermission": "GCTU Smart Attendance needs your location to verify you are at the lecture venue."
         }
       ],
       [
         "expo-camera",
         {
-          "cameraPermission": "Smart Attendance needs camera access to scan attendance QR codes."
+          "cameraPermission": "GCTU Smart Attendance needs camera access to scan attendance QR codes."
         }
       ],
       "expo-secure-store",

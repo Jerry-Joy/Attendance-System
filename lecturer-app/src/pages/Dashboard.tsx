@@ -18,6 +18,7 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
+          <p className="text-[9px] text-[#C5960C] font-mono tracking-[0.15em] uppercase mb-0.5">Ghana Communication Technology University</p>
           <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight uppercase">Dashboard</h1>
           <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase mt-1">Status & Schedule</p>
         </div>

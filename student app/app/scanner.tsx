@@ -57,7 +57,7 @@ export default function ScannerScreen() {
 
           // Validate token format (starts with SA-)
           if (!payload.token.startsWith('SA-')) {
-            throw new Error('This QR code is not from Smart Attendance');
+            throw new Error('This QR code is not from GCTU Smart Attendance');
           }
 
           // Check expiry

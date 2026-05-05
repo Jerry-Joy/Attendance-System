@@ -161,7 +161,10 @@ export default function Settings() {
             </button>
           </div>
 
-          <p className="text-center text-[10px] text-slate-600 font-mono uppercase">CORE-SCAN v1.0.0</p>
+          <div className="text-center space-y-1">
+            <p className="text-[10px] text-slate-600 dark:text-slate-400 font-mono uppercase">GCTU Smart Attendance v1.0.0</p>
+            <p className="text-[9px] text-slate-500 font-mono uppercase tracking-wider">Ghana Communication Technology University</p>
+          </div>
         </div>
       </div>
     </div>

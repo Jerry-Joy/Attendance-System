@@ -56,15 +56,14 @@ export default function Register() {
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="flex flex-col items-center text-center">
-          <div className="mb-6 flex justify-center">
-            <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-              </svg>
-            </div>
+          <div className="mb-5 flex justify-center">
+            <img src="/gctu-crest.png" alt="GCTU Crest" className="w-20 h-20 object-contain drop-shadow-lg" />
           </div>
+          <p className="text-[9px] text-[#C5960C] font-mono tracking-[0.2em] uppercase mb-1.5">
+            Ghana Communication Technology University
+          </p>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-1">
-            Smart Attendance System
+            GCTU Smart Attendance
           </h1>
           <h2 className="text-lg font-medium text-blue-600 dark:text-blue-400 mb-2">
             Lecturer Registration
@@ -135,7 +134,7 @@ export default function Register() {
                     value={department}
                     onChange={(e) => setDepartment(e.target.value)}
                     className="appearance-none block w-full px-3 py-2 bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded text-slate-800 dark:text-slate-200 text-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors font-mono tracking-widest"
-                    placeholder="Computer Science"
+                    placeholder="Information Technology"
                   />
                 </div>
               </div>
@@ -153,7 +152,7 @@ export default function Register() {
                     value={staffId}
                     onChange={(e) => setStaffId(e.target.value)}
                     className="appearance-none block w-full px-3 py-2 bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded text-slate-800 dark:text-slate-200 text-sm placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors font-mono tracking-widest"
-                    placeholder="CS-101"
+                    placeholder="GCTU-2024-XXX"
                   />
                 </div>
               </div>

@@ -16,7 +16,7 @@ export default function Courses() {
   });
   const handleSetView = (v: 'list' | 'grid') => { setView(v); try { localStorage.setItem('corescan_view', v); } catch { } };
 
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [openMenu, setOpenMenu] = useState<{ id: string; rect: DOMRect } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Course | null>(null);
   const [editTarget, setEditTarget] = useState<Course | null>(null);
   const [editCode, setEditCode] = useState('');
@@ -142,14 +142,14 @@ export default function Courses() {
             const trend = getTrendDelta(course.code);
             const isLive = activeSession?.courseId === course.id;
             return (
-              <div key={course.id} className={`bg-white dark:bg-[#15181E] rounded-lg border overflow-hidden group flex flex-col hover:border-slate-300 dark:border-slate-700 transition-colors relative ${isLive ? 'border-emerald-500/50 ring-1 ring-emerald-500/20' : 'border-slate-200 dark:border-slate-800'}`}>
+              <div key={course.id} className={`bg-white dark:bg-[#15181E] rounded-lg border group flex flex-col hover:border-slate-300 dark:border-slate-700 transition-colors relative ${isLive ? 'border-emerald-500/50 ring-1 ring-emerald-500/20' : 'border-slate-200 dark:border-slate-800'}`}>
                 {isLive && (
                   <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/30 rounded text-[9px] font-bold text-emerald-400 uppercase tracking-wider z-10">
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_6px_rgba(16,185,129,0.5)]"></div>
                     Live
                   </div>
                 )}
-                <div className="h-20 bg-gradient-to-r from-blue-50 via-white to-slate-100 dark:from-blue-900/40 dark:via-slate-900/70 dark:to-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 flex flex-col justify-end relative">
+                <div className="h-20 bg-gradient-to-r from-blue-50 via-white to-slate-100 dark:from-blue-900/40 dark:via-slate-900/70 dark:to-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 flex flex-col justify-end relative rounded-t-lg">
                   <div className="absolute top-4 left-4 bg-white/70 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 px-2 py-0.5 rounded text-blue-700 dark:text-blue-400 text-[10px] font-bold font-mono uppercase tracking-wider">
                     {course.code}
                   </div>
@@ -208,27 +208,10 @@ export default function Courses() {
                     <button onClick={() => navigate(`/courses/${course.id}/students`)} className="px-3 py-2 border border-slate-200 dark:border-slate-800 rounded text-slate-500 hover:text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 transition-colors">
                       <span className="material-symbols-outlined text-[14px]">groups</span>
                     </button>
-                    <div className="relative">
-                      <button onClick={() => setOpenMenu(openMenu === course.id ? null : course.id)} className="px-3 py-2 border border-slate-200 dark:border-slate-800 rounded text-slate-500 hover:text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 transition-colors">
+                    <div>
+                      <button onClick={(e) => setOpenMenu(openMenu?.id === course.id ? null : { id: course.id, rect: e.currentTarget.getBoundingClientRect() })} className="px-3 py-2 border border-slate-200 dark:border-slate-800 rounded text-slate-500 hover:text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 transition-colors">
                         <span className="material-symbols-outlined text-[14px]">more_horiz</span>
                       </button>
-                      {openMenu === course.id && (
-                        <div className="absolute right-0 top-full mt-1 w-44 bg-white dark:bg-[#15181E] rounded-lg border border-slate-300 dark:border-slate-700 shadow-2xl z-50 py-1">
-                          <button onClick={() => { setOpenMenu(null); navigate(`/courses/${course.id}/students`); }} className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 transition-colors">
-                            <span className="material-symbols-outlined text-[14px] text-slate-500">person_add</span>
-                            Manage Students
-                          </button>
-                          <button onClick={() => openEditModal(course)} className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 transition-colors">
-                            <span className="material-symbols-outlined text-[14px] text-slate-500">edit</span>
-                            Edit Course
-                          </button>
-                          <div className="my-1 border-t border-slate-200 dark:border-slate-800" />
-                          <button onClick={() => { setDeleteTarget(course); setOpenMenu(null); }} className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-red-400 hover:bg-red-500/10 transition-colors">
-                            <span className="material-symbols-outlined text-[14px]">delete</span>
-                            Delete Course
-                          </button>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -303,27 +286,10 @@ export default function Courses() {
                         Start
                       </button>
                     )}
-                    <div className="relative">
-                      <button onClick={() => setOpenMenu(openMenu === course.id ? null : course.id)} className="p-1.5 border border-slate-200 dark:border-slate-800 rounded text-slate-500 hover:text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 transition-colors">
+                    <div>
+                      <button onClick={(e) => setOpenMenu(openMenu?.id === course.id ? null : { id: course.id, rect: e.currentTarget.getBoundingClientRect() })} className="p-1.5 border border-slate-200 dark:border-slate-800 rounded text-slate-500 hover:text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 transition-colors">
                         <span className="material-symbols-outlined text-[14px]">more_horiz</span>
                       </button>
-                      {openMenu === course.id && (
-                        <div className="absolute right-0 top-full mt-1 w-44 bg-white dark:bg-[#15181E] rounded-lg border border-slate-300 dark:border-slate-700 shadow-2xl z-50 py-1">
-                          <button onClick={() => { setOpenMenu(null); navigate(`/courses/${course.id}/students`); }} className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 transition-colors">
-                            <span className="material-symbols-outlined text-[14px] text-slate-500">person_add</span>
-                            Manage Students
-                          </button>
-                          <button onClick={() => openEditModal(course)} className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 transition-colors">
-                            <span className="material-symbols-outlined text-[14px] text-slate-500">edit</span>
-                            Edit Course
-                          </button>
-                          <div className="my-1 border-t border-slate-200 dark:border-slate-800" />
-                          <button onClick={() => { setDeleteTarget(course); setOpenMenu(null); }} className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-red-400 hover:bg-red-500/10 transition-colors">
-                            <span className="material-symbols-outlined text-[14px]">delete</span>
-                            Delete Course
-                          </button>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -387,6 +353,44 @@ export default function Courses() {
             </div>
           </div>
         </div>
+      )}
+      {/* Global Dropdown Menu */}
+      {openMenu && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpenMenu(null)} />
+          {(() => {
+            const course = courses.find(c => c.id === openMenu.id);
+            if (!course) return null;
+            const menuWidth = 176;
+            const menuHeight = 116;
+            let top = openMenu.rect.bottom + 4;
+            let left = openMenu.rect.right - menuWidth;
+            if (top + menuHeight > window.innerHeight) {
+              top = openMenu.rect.top - menuHeight - 4;
+            }
+            if (left < 10) left = 10;
+            return (
+              <div 
+                className="fixed bg-white dark:bg-[#15181E] rounded-lg border border-slate-300 dark:border-slate-700 shadow-2xl z-50 py-1"
+                style={{ top, left, width: menuWidth }}
+              >
+                <button onClick={() => { setOpenMenu(null); navigate(`/courses/${course.id}/students`); }} className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 transition-colors">
+                  <span className="material-symbols-outlined text-[14px] text-slate-500">person_add</span>
+                  Manage Students
+                </button>
+                <button onClick={() => openEditModal(course)} className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 transition-colors">
+                  <span className="material-symbols-outlined text-[14px] text-slate-500">edit</span>
+                  Edit Course
+                </button>
+                <div className="my-1 border-t border-slate-200 dark:border-slate-800" />
+                <button onClick={() => { setDeleteTarget(course); setOpenMenu(null); }} className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-red-400 hover:bg-red-500/10 transition-colors">
+                  <span className="material-symbols-outlined text-[14px]">delete</span>
+                  Delete Course
+                </button>
+              </div>
+            );
+          })()}
+        </>
       )}
     </div>
   );

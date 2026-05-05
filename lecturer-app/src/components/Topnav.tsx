@@ -14,7 +14,7 @@ export default function Topnav() {
     <header className="fixed top-0 right-0 w-[calc(100%-16rem)] h-14 z-40 bg-white dark:bg-[#0B0D11] border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 transition-all duration-150">
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2">
-          <span className="text-[10px] text-slate-500 font-mono uppercase">System Status:</span>
+          <span className="text-[10px] text-slate-500 font-mono uppercase">GCTU Network:</span>
           <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-500 rounded text-[10px] border border-emerald-500/20 uppercase">Online</span>
         </div>
         <div className="flex items-center gap-2">

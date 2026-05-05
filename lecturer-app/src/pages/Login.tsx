@@ -38,21 +38,20 @@ export default function Login() {
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="flex flex-col items-center text-center">
-          <div className="mb-6 flex justify-center">
-            <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
+          <div className="mb-5 flex justify-center">
+            <img src="/gctu-crest.png" alt="GCTU Crest" className="w-20 h-20 object-contain drop-shadow-lg" />
           </div>
+          <p className="text-[9px] text-[#C5960C] font-mono tracking-[0.2em] uppercase mb-1.5">
+            Ghana Communication Technology University
+          </p>
           <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight uppercase mb-1">
-            Smart Attendance System
+            GCTU Smart Attendance
           </h1>
           <h2 className="text-sm font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-2">
-            Welcome Back
+            Lecturer Portal
           </h2>
           <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">
-            Sign in to manage courses
+            Sign in to manage courses &amp; sessions
           </p>
         </div>
       </div>

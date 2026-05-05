@@ -3,7 +3,7 @@
  * Blue gradient background with logo and tagline.
  */
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
 import Animated, { FadeIn } from 'react-native-reanimated';
@@ -31,10 +31,12 @@ export default function SplashPage() {
     <View style={styles.container}>
       <Animated.View entering={FadeIn.duration(800)} style={styles.content}>
         <View style={styles.iconCircle}>
-          <FontAwesome name="check-circle" size={48} color="#fff" />
+          <Image source={require('@/assets/images/gctu-crest.png')} style={styles.crestImage} resizeMode="contain" />
         </View>
+        <Text style={styles.brand}>GCTU</Text>
         <Text style={styles.title}>Smart Attendance</Text>
-        <Text style={styles.tagline}>QR Code + GPS Geofencing</Text>
+        <Text style={styles.university}>Ghana Communication Technology University</Text>
+        <Text style={styles.tagline}>QR Code + GPS Geofencing + Blockchain</Text>
       </Animated.View>
       <ActivityIndicator color="rgba(255,255,255,0.7)" style={styles.loader} />
     </View>
@@ -44,7 +46,7 @@ export default function SplashPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Palette.blue500,
+    backgroundColor: Palette.gctuBlue,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -52,22 +54,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.md,
+  },
+  crestImage: {
+    width: 80,
+    height: 80,
+  },
+  brand: {
+    fontSize: 36,
+    fontWeight: '800',
+    color: '#fff',
+    letterSpacing: 6,
+    marginBottom: 2,
   },
   title: {
-    ...Typography.h1,
-    color: '#fff',
+    ...Typography.h2,
+    color: 'rgba(255,255,255,0.9)',
     marginBottom: Spacing.sm,
+  },
+  university: {
+    fontSize: 10,
+    color: Palette.gctuGold,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    marginBottom: Spacing.xs,
   },
   tagline: {
     ...Typography.bodySmall,
-    color: 'rgba(255,255,255,0.8)',
+    color: 'rgba(255,255,255,0.6)',
   },
   loader: {
     position: 'absolute',

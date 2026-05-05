@@ -17,9 +17,15 @@ export default function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 z-50 bg-slate-50 dark:bg-[#15181E] border-r border-slate-200 dark:border-slate-800 flex flex-col transition-colors duration-150">
       <div className="p-6 border-b border-slate-200 dark:border-slate-800">
-        <div className="flex items-center gap-2 mb-1 text-emerald-400 font-bold tracking-tight">
-          <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-          <span>Smart Attendance System</span>
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center relative">
+            <img src="/gctu-crest.png" alt="GCTU" className="w-10 h-10 object-contain" />
+            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-slate-50 dark:border-[#15181E]"></div>
+          </div>
+          <div>
+            <span className="text-sm font-bold text-slate-900 dark:text-white tracking-tight block">GCTU</span>
+            <span className="text-[9px] text-[#C5960C] font-mono uppercase tracking-widest">Smart Attendance</span>
+          </div>
         </div>
       </div>
 

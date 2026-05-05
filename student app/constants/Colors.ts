@@ -44,6 +44,12 @@ export const Palette = {
   darkSurface1: '#1E1E1E',
   darkSurface2: '#2C2C2C',
   darkSurface3: '#3C3C3C',
+
+  // GCTU Brand — Gold
+  gctuGold: '#C5960C',
+  gctuGoldLight: '#D4A84B',
+  gctuGoldDark: '#9A7500',
+  gctuBlue: '#003366',
 } as const;
 
 export const Colors = {

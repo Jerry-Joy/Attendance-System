@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
 import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
@@ -111,10 +112,13 @@ export default function SignUpScreen() {
         {/* Header */}
         <Animated.View entering={FadeInDown.duration(500).delay(100)}>
           <View style={styles.logoSection}>
-            <View style={[styles.logoCircle, { backgroundColor: theme.primaryLight }]}>
-              <FontAwesome name="user-plus" size={32} color={theme.primary} />
+            <View style={[styles.logoCircle, { backgroundColor: '#003366' }]}>
+              <Image source={require('@/assets/images/gctu-crest.png')} style={{ width: 52, height: 52 }} resizeMode="contain" />
             </View>
-            <Text style={[Typography.h1, { color: theme.text, marginTop: Spacing.md }]}>
+            <Text style={{ fontSize: 9, color: '#C5960C', letterSpacing: 2, textTransform: 'uppercase', marginTop: Spacing.md }}>
+              Ghana Communication Technology University
+            </Text>
+            <Text style={[Typography.h1, { color: theme.text, marginTop: Spacing.xs }]}>
               Create Account
             </Text>
             <Text style={[Typography.bodySmall, { color: theme.textSecondary, marginTop: Spacing.xs }]}>
@@ -212,7 +216,7 @@ export default function SignUpScreen() {
             <InputField
               value={studentId}
               onChangeText={setStudentId}
-              placeholder="Student ID"
+              placeholder="Student ID (e.g. 421XXXXXXX)"
               icon="id-card"
               autoCapitalize="none"
               returnKeyType="done"

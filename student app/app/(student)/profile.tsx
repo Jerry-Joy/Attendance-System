@@ -170,9 +170,17 @@ export default function StudentProfileScreen() {
           />
         </View>
 
-        <Text style={[Typography.caption, { color: theme.textTertiary, textAlign: 'center', marginTop: Spacing.lg }]}>
-          SmartAttend v1.0.0 • QR + GPS Geofencing
-        </Text>
+        <View style={{ alignItems: 'center', marginTop: Spacing.lg }}>
+          <Text style={[Typography.caption, { color: theme.textTertiary, textAlign: 'center' }]}>
+            GCTU Smart Attendance v1.0.0
+          </Text>
+          <Text style={[Typography.caption, { color: theme.textTertiary, textAlign: 'center', marginTop: 2, fontSize: 10 }]}>
+            QR + GPS Geofencing + Blockchain
+          </Text>
+          <Text style={{ fontSize: 9, color: '#C5960C', textAlign: 'center', marginTop: 4, letterSpacing: 1, textTransform: 'uppercase' }}>
+            Ghana Communication Technology University
+          </Text>
+        </View>
 
         <View style={{ height: Spacing.xxl }} />
       </ScrollView>

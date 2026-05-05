@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
@@ -61,6 +62,12 @@ export default function StudentHomeScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
+        {/* GCTU Badge */}
+        <View style={styles.gctuBadge}>
+          <Image source={require('@/assets/images/gctu-crest.png')} style={{ width: 16, height: 16 }} resizeMode="contain" />
+          <Text style={styles.gctuBadgeText}>GCTU Smart Attendance</Text>
+        </View>
+
         {/* Header */}
         <View style={styles.headerRow}>
           <View style={{ flex: 1 }}>
@@ -273,5 +280,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: Spacing.xs,
     paddingLeft: 40 + Spacing.sm,
+  },
+  gctuBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: Spacing.sm,
+    paddingVertical: 4,
+  },
+  gctuBadgeText: {
+    fontSize: 10,
+    color: '#C5960C',
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
+    fontWeight: '600',
   },
 });
