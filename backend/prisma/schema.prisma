@@ -40,6 +40,7 @@ model User {
   enrollments  Enrollment[]
   sessions     Session[]    @relation("LecturerSessions")
   attendances  Attendance[]
+  absences     Absence[]
 }
 
 model Course {
@@ -93,6 +94,7 @@ model Session {
   lecturer    User         @relation("LecturerSessions", fields: [lecturerId], references: [id], onDelete: Cascade)
   lecturerId  String
   attendances Attendance[]
+  absences    Absence[]
 }
 
 model Attendance {
@@ -100,6 +102,19 @@ model Attendance {
   method    VerificationMethod
   distance  Float?             // meters from session location
   markedAt  DateTime           @default(now())
+
+  // Relations
+  session   Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sessionId String
+  student   User    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId String
+
+  @@unique([sessionId, studentId])
+}
+
+model Absence {
+  id        String   @id @default(uuid())
+  markedAt  DateTime @default(now())
 
   // Relations
   session   Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)

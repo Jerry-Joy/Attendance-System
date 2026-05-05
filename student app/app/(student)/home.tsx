@@ -18,7 +18,7 @@ import { useRouter } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import { Spacing, Typography, BorderRadius, Shadows } from '@/constants/Layout';
-import { PrimaryButton, Card, Avatar, GPSStatusIndicator } from '@/components/ui';
+import { PrimaryButton, Card, Avatar } from '@/components/ui';
 import { useAuth } from '@/context/AuthContext';
 import { useLiveSessions } from '@/context/LiveSessionContext';
 import { api, mapCourse, MappedCourse } from '@/lib/api';
@@ -86,17 +86,6 @@ export default function StudentHomeScreen() {
             <Text style={[Typography.caption, { color: theme.textSecondary }]}>Courses</Text>
           </Card>
         </View>
-
-        {/* GPS Status */}
-        <Card style={{ marginTop: Spacing.md }}>
-          <View style={styles.gpsRow}>
-            <GPSStatusIndicator status="found" />
-            <View style={[styles.gpsDot, { backgroundColor: theme.success }]} />
-          </View>
-          <Text style={[Typography.caption, { color: theme.textSecondary, marginTop: 4 }]}>
-            Location services ready for GPS verification
-          </Text>
-        </Card>
 
         {/* Scan Button */}
         <PrimaryButton
@@ -231,16 +220,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingVertical: Spacing.md,
-  },
-  gpsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  gpsDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
   },
   sectionHeaderRow: {
     flexDirection: 'row',

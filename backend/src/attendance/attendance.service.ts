@@ -37,6 +37,7 @@ export class AttendanceService {
         where: { id: session.id },
         data: { status: SessionStatus.ENDED, endedAt: endTime },
       });
+      await this.createAbsencesForSession(session.id, session.courseId, endTime);
       throw new BadRequestException('Session has expired');
     }
 
@@ -154,24 +155,43 @@ export class AttendanceService {
   }
 
   async getHistory(studentId: string) {
-    const records = await this.prisma.attendance.findMany({
-      where: { studentId },
-      include: {
-        session: {
-          include: {
-            course: {
-              select: { courseCode: true, courseName: true },
-            },
-            lecturer: {
-              select: { fullName: true },
+    await this.ensureAbsencesForStudent(studentId);
+    const [attendances, absences] = await Promise.all([
+      this.prisma.attendance.findMany({
+        where: { studentId },
+        include: {
+          session: {
+            include: {
+              course: {
+                select: { courseCode: true, courseName: true },
+              },
+              lecturer: {
+                select: { fullName: true },
+              },
             },
           },
         },
-      },
-      orderBy: { markedAt: 'desc' },
-    });
+        orderBy: { markedAt: 'desc' },
+      }),
+      this.prisma.absence.findMany({
+        where: { studentId },
+        include: {
+          session: {
+            include: {
+              course: {
+                select: { courseCode: true, courseName: true },
+              },
+              lecturer: {
+                select: { fullName: true },
+              },
+            },
+          },
+        },
+        orderBy: { markedAt: 'desc' },
+      }),
+    ]);
 
-    return records.map((r) => ({
+    const attendanceRecords = attendances.map((r) => ({
       id: r.id,
       courseCode: r.session.course.courseCode,
       courseName: r.session.course.courseName,
@@ -180,7 +200,24 @@ export class AttendanceService {
       markedAt: r.markedAt,
       method: r.method,
       distance: r.distance,
+      status: 'present',
     }));
+
+    const absenceRecords = absences.map((r) => ({
+      id: r.id,
+      courseCode: r.session.course.courseCode,
+      courseName: r.session.course.courseName,
+      lecturer: r.session.lecturer.fullName,
+      date: r.session.startedAt,
+      markedAt: r.markedAt,
+      method: null,
+      distance: null,
+      status: 'absent',
+    }));
+
+    return [...attendanceRecords, ...absenceRecords].sort(
+      (a, b) => new Date(b.markedAt).getTime() - new Date(a.markedAt).getTime(),
+    );
   }
 
   async getSessionAttendance(sessionId: string, lecturerId: string) {
@@ -199,6 +236,119 @@ export class AttendanceService {
         },
       },
       orderBy: { markedAt: 'asc' },
+    });
+  }
+
+  private async createAbsencesForSession(
+    sessionId: string,
+    courseId: string,
+    endedAt: Date,
+  ) {
+    const [enrollments, attendances] = await Promise.all([
+      this.prisma.enrollment.findMany({
+        where: { courseId },
+        select: { studentId: true },
+      }),
+      this.prisma.attendance.findMany({
+        where: { sessionId },
+        select: { studentId: true },
+      }),
+    ]);
+
+    const presentIds = new Set(attendances.map((a) => a.studentId));
+    const missing = enrollments.filter((e) => !presentIds.has(e.studentId));
+    if (missing.length === 0) return;
+
+    await this.prisma.absence.createMany({
+      data: missing.map((m) => ({
+        sessionId,
+        studentId: m.studentId,
+        markedAt: endedAt,
+      })),
+      skipDuplicates: true,
+    });
+  }
+
+  private async ensureAbsencesForStudent(studentId: string) {
+    const enrollments = await this.prisma.enrollment.findMany({
+      where: { studentId },
+      select: { courseId: true },
+    });
+    const courseIds = enrollments.map((e) => e.courseId);
+    if (courseIds.length === 0) return;
+
+    const now = new Date();
+    const sessions = await this.prisma.session.findMany({
+      where: {
+        courseId: { in: courseIds },
+        status: { in: [SessionStatus.ENDED, SessionStatus.ACTIVE] },
+      },
+      select: {
+        id: true,
+        startedAt: true,
+        endedAt: true,
+        duration: true,
+        status: true,
+      },
+    });
+    if (sessions.length === 0) return;
+
+    const getEndedAt = (session: { startedAt: Date; endedAt: Date | null; duration: number }) =>
+      session.endedAt ?? new Date(session.startedAt.getTime() + session.duration * 60_000);
+
+    const expiredActive = sessions.filter(
+      (s) =>
+        s.status === SessionStatus.ACTIVE &&
+        getEndedAt(s).getTime() <= now.getTime(),
+    );
+
+    if (expiredActive.length > 0) {
+      await this.prisma.$transaction(
+        expiredActive.map((s) =>
+          this.prisma.session.updateMany({
+            where: { id: s.id, status: SessionStatus.ACTIVE },
+            data: { status: SessionStatus.ENDED, endedAt: getEndedAt(s) },
+          }),
+        ),
+      );
+
+      for (const s of expiredActive) {
+        s.status = SessionStatus.ENDED;
+        s.endedAt = getEndedAt(s);
+      }
+    }
+
+    const endedSessions = sessions.filter(
+      (s) => s.status === SessionStatus.ENDED,
+    );
+    if (endedSessions.length === 0) return;
+
+    const sessionIds = endedSessions.map((s) => s.id);
+    const [attendances, absences] = await Promise.all([
+      this.prisma.attendance.findMany({
+        where: { studentId, sessionId: { in: sessionIds } },
+        select: { sessionId: true },
+      }),
+      this.prisma.absence.findMany({
+        where: { studentId, sessionId: { in: sessionIds } },
+        select: { sessionId: true },
+      }),
+    ]);
+
+    const presentSet = new Set(attendances.map((a) => a.sessionId));
+    const absentSet = new Set(absences.map((a) => a.sessionId));
+    const missing = endedSessions.filter(
+      (s) => !presentSet.has(s.id) && !absentSet.has(s.id),
+    );
+    if (missing.length === 0) return;
+
+    await this.prisma.absence.createMany({
+      data: missing.map((s) => ({
+        sessionId: s.id,
+        studentId,
+        markedAt: getEndedAt(s),
+      })),
+      skipDuplicates: true,
     });
   }
 }

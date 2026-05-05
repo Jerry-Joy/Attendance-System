@@ -143,7 +143,7 @@ export class SessionsService {
         session.startedAt.getTime() + session.duration * 60_000,
       );
       if (new Date() > endTime) {
-        return this.prisma.session.update({
+        const ended = await this.prisma.session.update({
           where: { id: sessionId },
           data: { status: SessionStatus.ENDED, endedAt: endTime },
           include: {
@@ -153,6 +153,8 @@ export class SessionsService {
             _count: { select: { attendances: true } },
           },
         });
+        await this.createAbsencesForSession(ended.id, ended.courseId, endTime);
+        return ended;
       }
     }
 
@@ -177,6 +179,7 @@ export class SessionsService {
         _count: { select: { attendances: true } },
       },
     });
+    await this.createAbsencesForSession(ended.id, ended.courseId, ended.endedAt ?? new Date());
     this.events.emitSessionEnded(sessionId);
     this.events.emitSessionEndedToCourse(ended.courseId, sessionId);
     return ended;
@@ -354,10 +357,44 @@ export class SessionsService {
       ),
     );
 
+    await Promise.all(
+      staleWithEndTimes.map((s) => this.createAbsencesForSession(s.id, s.courseId, s.endedAt)),
+    );
+
     // Notify connected clients for each expired session
     for (const s of staleWithEndTimes) {
       this.events.emitSessionEnded(s.id);
       this.events.emitSessionEndedToCourse(s.courseId, s.id);
     }
+  }
+
+  private async createAbsencesForSession(
+    sessionId: string,
+    courseId: string,
+    endedAt: Date,
+  ) {
+    const [enrollments, attendances] = await Promise.all([
+      this.prisma.enrollment.findMany({
+        where: { courseId },
+        select: { studentId: true },
+      }),
+      this.prisma.attendance.findMany({
+        where: { sessionId },
+        select: { studentId: true },
+      }),
+    ]);
+
+    const presentIds = new Set(attendances.map((a) => a.studentId));
+    const missing = enrollments.filter((e) => !presentIds.has(e.studentId));
+    if (missing.length === 0) return;
+
+    await this.prisma.absence.createMany({
+      data: missing.map((m) => ({
+        sessionId,
+        studentId: m.studentId,
+        markedAt: endedAt,
+      })),
+      skipDuplicates: true,
+    });
   }
 }

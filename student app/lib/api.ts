@@ -142,8 +142,9 @@ export interface BackendHistoryRecord {
   lecturer: string;
   date: string;       // ISO string of session startedAt
   markedAt: string;    // ISO string
-  method: string;      // QR_GPS
+  method: string | null;      // QR_GPS (present only)
   distance: number | null;
+  status: 'present' | 'absent';
 }
 
 export interface BackendAttendanceResult {
@@ -210,8 +211,8 @@ export interface MappedHistoryRecord {
   courseName: string;
   date: string;
   time: string;
-  status: 'present';
-  method: 'QR+GPS';
+  status: 'present' | 'absent';
+  method: 'QR+GPS' | null;
   lecturer: string;
 }
 
@@ -223,8 +224,8 @@ export function mapHistoryRecord(r: BackendHistoryRecord): MappedHistoryRecord {
     courseName: r.courseName,
     date: d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }),
     time: d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
-    status: 'present',
-    method: 'QR+GPS',
+    status: r.status === 'absent' ? 'absent' : 'present',
+    method: r.method === 'QR_GPS' ? 'QR+GPS' : null,
     lecturer: r.lecturer,
   };
 }

@@ -1,7 +1,8 @@
 /**
  * Student History Screen — Attendance history from real API with filtering
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useFocusEffect } from 'expo-router';
 import {
   View,
   Text,
@@ -19,20 +20,27 @@ import { Card, StatusBadge } from '@/components/ui';
 import { useAttendance } from '@/context/AttendanceContext';
 import { MappedHistoryRecord } from '@/lib/api';
 
-type FilterOption = 'all' | 'present';
+type FilterOption = 'all' | 'present' | 'absent';
 
 export default function StudentHistoryScreen() {
   const theme = useTheme();
   const [filter, setFilter] = useState<FilterOption>('all');
   const { history, historyLoading, fetchHistory } = useAttendance();
 
-  useEffect(() => {
-    fetchHistory();
-  }, [fetchHistory]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchHistory();
+    }, [fetchHistory]),
+  );
 
   const allRecords = history;
+  const presentCount = allRecords.filter((r) => r.status === 'present').length;
+  const absentCount = allRecords.filter((r) => r.status === 'absent').length;
 
-  const filtered = filter === 'all' ? allRecords : allRecords.filter((r) => r.status === 'present');
+  const filtered =
+    filter === 'all'
+      ? allRecords
+      : allRecords.filter((r) => r.status === filter);
 
   const renderItem = ({ item }: { item: MappedHistoryRecord }) => (
     <Card style={{ marginBottom: Spacing.sm }}>
@@ -87,7 +95,8 @@ export default function StudentHistoryScreen() {
       <View style={styles.filterRow}>
         {([
           { key: 'all', label: 'All', count: allRecords.length },
-          { key: 'present', label: 'Present', count: allRecords.length },
+          { key: 'present', label: 'Present', count: presentCount },
+          { key: 'absent', label: 'Absent', count: absentCount },
         ] as const).map((f) => (
           <TouchableOpacity
             key={f.key}

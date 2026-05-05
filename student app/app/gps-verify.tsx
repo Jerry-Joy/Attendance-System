@@ -3,7 +3,7 @@
  * Receives QR payload data via route params from scanner.tsx.
  * Gets the student's GPS coords → calculates Haversine distance → compares to geofence radius.
  */
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -111,13 +111,15 @@ export default function GPSVerifyScreen() {
     exp: string;
   }>();
 
-  const [step, setStep] = useState<VerifyStep>('locating');
+  const [step, setStep] = useState<VerifyStep>('permission');
   const [distance, setDistance] = useState<number | null>(null);
   const [failReason, setFailReason] = useState('');
   const [studentCoords, setStudentCoords] = useState<{ lat: number; lng: number } | null>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
   const pinBounce = useRef(new Animated.Value(0)).current;
+  const cancelledRef = useRef(false);
+  const verificationRef = useRef(false);
 
   const venueLat = params.lat ? parseFloat(params.lat) : null;
   const venueLng = params.lng ? parseFloat(params.lng) : null;
@@ -173,99 +175,124 @@ export default function GPSVerifyScreen() {
   }, [step]);
 
   // ── Real GPS verification ──
-  useEffect(() => {
-    let cancelled = false;
+  const startVerification = useCallback(async () => {
+    if (verificationRef.current || cancelledRef.current) return;
+    verificationRef.current = true;
 
-    async function verify() {
-      // 1. Request permission
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        if (!cancelled) {
-          setFailReason('Location permission was denied. Please allow GPS access and try again.');
-          setStep('failed');
-        }
-        return;
-      }
+    // 1. Start locating
+    if (!cancelledRef.current) {
+      setStep('locating');
+      animateProgress(0.25);
+    }
 
-      // 2. Start locating
-      if (!cancelled) {
-        setStep('locating');
-        animateProgress(0.25);
-      }
-
-      // 3. Capture and average multiple student GPS readings.
-      let averagedLocation: AveragedGpsSample;
-      try {
-        averagedLocation = await getAveragedStudentLocation();
-      } catch {
-        if (!cancelled) {
-          setFailReason('Could not get your GPS location. Make sure location services are enabled.');
-          setStep('failed');
-        }
-        return;
-      }
-
-      if (cancelled) return;
-
-      setStep('checking');
-      animateProgress(0.6);
-
-      const studentLat = averagedLocation.latitude;
-      const studentLng = averagedLocation.longitude;
-      const accuracyMeters = averagedLocation.accuracy;
-      if (!cancelled) setStudentCoords({ lat: studentLat, lng: studentLng });
-
-      // 4. Session must include venue GPS — if missing, reject
-      if (venueLat == null || venueLng == null) {
-        if (!cancelled) {
-          setFailReason('This session has no venue GPS coordinates. Ask your lecturer to restart the session with location enabled.');
-          setStep('failed');
-          animateProgress(1);
-        }
-        return;
-      }
-
-      if (
-        lecturerAccuracy == null ||
-        Number.isNaN(lecturerAccuracy)
-      ) {
-        if (!cancelled) {
-          setFailReason('This session is missing lecturer GPS accuracy. Ask your lecturer to restart and recapture location.');
-          setStep('failed');
-          animateProgress(1);
-        }
-        return;
-      }
-
-      // 5. Calculate distance
-      const dist = haversineDistance(studentLat, studentLng, venueLat, venueLng);
-      if (!cancelled) setDistance(Math.round(dist));
-
-      await delay(600);
-      if (cancelled) return;
-
-      // 6. Check geofence with two-sided uncertainty (lecturer + student).
-      const effectiveRadius =
-        radius + getDynamicGpsBuffer(lecturerAccuracy, accuracyMeters);
-      if (dist <= effectiveRadius) {
-        setStep('success');
-        animateProgress(1);
-        await delay(1500);
-        if (!cancelled) {
-          navigateToConfirmed(Math.round(dist), studentLat, studentLng, accuracyMeters);
-        }
-      } else {
-        setFailReason(
-          `You are ${Math.round(dist)}m away from the venue. Effective limit is ${Math.round(effectiveRadius)}m (${radius}m base radius + GPS buffer).`,
-        );
+    // 2. Capture and average multiple student GPS readings.
+    let averagedLocation: AveragedGpsSample;
+    try {
+      averagedLocation = await getAveragedStudentLocation();
+    } catch {
+      if (!cancelledRef.current) {
+        setFailReason('Could not get your GPS location. Make sure location services are enabled.');
         setStep('failed');
         animateProgress(1);
       }
+      verificationRef.current = false;
+      return;
     }
 
-    verify();
-    return () => { cancelled = true; };
-  }, []);
+    if (cancelledRef.current) return;
+
+    setStep('checking');
+    animateProgress(0.6);
+
+    const studentLat = averagedLocation.latitude;
+    const studentLng = averagedLocation.longitude;
+    const accuracyMeters = averagedLocation.accuracy;
+    if (!cancelledRef.current) setStudentCoords({ lat: studentLat, lng: studentLng });
+
+    // 3. Session must include venue GPS — if missing, reject
+    if (venueLat == null || venueLng == null) {
+      if (!cancelledRef.current) {
+        setFailReason('This session has no venue GPS coordinates. Ask your lecturer to restart the session with location enabled.');
+        setStep('failed');
+        animateProgress(1);
+      }
+      verificationRef.current = false;
+      return;
+    }
+
+    if (
+      lecturerAccuracy == null ||
+      Number.isNaN(lecturerAccuracy)
+    ) {
+      if (!cancelledRef.current) {
+        setFailReason('This session is missing lecturer GPS accuracy. Ask your lecturer to restart and recapture location.');
+        setStep('failed');
+        animateProgress(1);
+      }
+      verificationRef.current = false;
+      return;
+    }
+
+    // 4. Calculate distance
+    const dist = haversineDistance(studentLat, studentLng, venueLat, venueLng);
+    if (!cancelledRef.current) setDistance(Math.round(dist));
+
+    await delay(600);
+    if (cancelledRef.current) return;
+
+    // 5. Check geofence with two-sided uncertainty (lecturer + student).
+    const effectiveRadius =
+      radius + getDynamicGpsBuffer(lecturerAccuracy, accuracyMeters);
+    if (dist <= effectiveRadius) {
+      setStep('success');
+      animateProgress(1);
+      await delay(1500);
+      if (!cancelledRef.current) {
+        navigateToConfirmed(Math.round(dist), studentLat, studentLng, accuracyMeters);
+      }
+    } else {
+      setFailReason(
+        `You are ${Math.round(dist)}m away from the venue. Effective limit is ${Math.round(effectiveRadius)}m (${radius}m base radius + GPS buffer).`,
+      );
+      setStep('failed');
+      animateProgress(1);
+      verificationRef.current = false;
+    }
+  }, [lecturerAccuracy, radius, venueLat, venueLng]);
+
+  const checkPermissions = useCallback(async () => {
+    if (cancelledRef.current) return;
+    const { status } = await Location.getForegroundPermissionsAsync();
+    if (cancelledRef.current) return;
+    if (status !== 'granted') {
+      setStep('permission');
+      animateProgress(0);
+      verificationRef.current = false;
+      return;
+    }
+    await startVerification();
+  }, [startVerification]);
+
+  const handleRequestPermission = useCallback(async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      setFailReason('Location permission was denied. Please allow GPS access and try again.');
+      setStep('failed');
+      animateProgress(1);
+      verificationRef.current = false;
+      return;
+    }
+    verificationRef.current = false;
+    await startVerification();
+  }, [startVerification]);
+
+  useEffect(() => {
+    cancelledRef.current = false;
+    checkPermissions();
+    return () => {
+      cancelledRef.current = true;
+    };
+  }, [checkPermissions]);
 
   function animateProgress(to: number) {
     Animated.timing(progressAnim, {
@@ -302,7 +329,7 @@ export default function GPSVerifyScreen() {
     permission: {
       icon: 'lock',
       title: 'Permission Required',
-      subtitle: 'Requesting location access...',
+      subtitle: 'Tap below to allow location access for GPS verification.',
       color: theme.warning,
       gpsStatus: 'searching',
     },
@@ -428,6 +455,22 @@ export default function GPSVerifyScreen() {
           <GPSStatusIndicator status={current.gpsStatus} />
         </View>
       </Card>
+
+      {/* Permission request */}
+      {step === 'permission' && (
+        <View style={styles.retryArea}>
+          <PrimaryButton
+            title="Allow Location Access"
+            icon="unlock"
+            onPress={handleRequestPermission}
+          />
+          <Text
+            style={[Typography.caption, { color: theme.textSecondary, textAlign: 'center', marginTop: Spacing.sm, paddingHorizontal: Spacing.lg }]}
+          >
+            We only use your location to verify you are at the lecture venue.
+          </Text>
+        </View>
+      )}
 
       {/* Retry button on failure */}
       {step === 'failed' && (
