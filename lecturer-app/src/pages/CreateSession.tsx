@@ -33,6 +33,9 @@ export default function CreateSession() {
   const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
   const [gpsError, setGpsError] = useState<string | null>(null);
 
+  // System status state
+  const [systemStatus, setSystemStatus] = useState<'checking' | 'ok' | 'error'>('checking');
+
   // If there's already an active session, redirect
   useEffect(() => {
     if (activeSession) {
@@ -116,6 +119,13 @@ export default function CreateSession() {
     captureGps();
   }, [captureGps]);
 
+  // Check backend health on mount
+  useEffect(() => {
+    api.checkHealth().then((res) => {
+      setSystemStatus(res.status === 'ok' ? 'ok' : 'error');
+    });
+  }, []);
+
   const selectedCourseData = courses.find(c => c.id === selectedCourse);
 
   const handleStart = async (e: React.FormEvent) => {
@@ -197,10 +207,12 @@ export default function CreateSession() {
               <h3 className="text-[10px] uppercase font-bold tracking-widest text-slate-500 mb-2">System Check</h3>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                  <div className={`w-2 h-2 rounded-full transition-colors ${systemStatus === 'ok' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : systemStatus === 'checking' ? 'bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.5)] animate-pulse' : 'bg-red-500'}`}></div>
                   <span className="text-[10px] font-mono text-slate-600 dark:text-slate-400 uppercase">System Status</span>
                 </div>
-                <span className="text-[10px] font-mono text-slate-500">OK</span>
+                <span className="text-[10px] font-mono text-slate-500">
+                  {systemStatus === 'ok' ? 'OK' : systemStatus === 'checking' ? 'Checking...' : 'Offline'}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -298,13 +310,13 @@ export default function CreateSession() {
                 <div>
                   <label className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-3 block">Attendance Checks</label>
                   <div className="flex flex-col gap-2">
-                    <label className="flex flex-col gap-1 p-3 rounded border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0B0D11]/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors relative">
+                    <div className="flex flex-col gap-1 p-3 rounded border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0B0D11]/50">
                       <div className="flex justify-between items-center">
                         <span className="text-[10px] font-bold text-slate-900 dark:text-white tracking-widest uppercase">Location Required</span>
-                        <input type="checkbox" defaultChecked className="w-3 h-3 bg-white dark:bg-[#15181E] border-slate-300 dark:border-slate-700 rounded text-blue-500 focus:ring-blue-500" />
+                        <span className="text-[10px] font-mono text-emerald-400 uppercase font-bold">Always On</span>
                       </div>
-                      <p className="text-[10px] font-mono text-slate-500 uppercase">Block check-ins outside the area</p>
-                    </label>
+                      <p className="text-[10px] font-mono text-slate-500 uppercase">Students must be within the geofence to check in</p>
+                    </div>
                     <label className="flex flex-col gap-1 p-3 rounded border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0B0D11]/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors relative">
                       <div className="flex justify-between items-center">
                         <span className="text-[10px] font-bold text-slate-900 dark:text-white tracking-widest uppercase">Save to Blockchain</span>

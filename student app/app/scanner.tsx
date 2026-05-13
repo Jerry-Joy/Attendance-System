@@ -28,7 +28,6 @@ interface QRPayload {
   lng: number | null;
   lecturerAccuracy: number | null;
   radius: number;
-  exp: number;
 }
 
 export default function ScannerScreen() {
@@ -51,19 +50,13 @@ export default function ScannerScreen() {
           const payload: QRPayload = JSON.parse(result.data);
 
           // Validate required fields
-          if (!payload.token || !payload.courseCode || !payload.exp) {
+          if (!payload.token || !payload.courseCode) {
             throw new Error('Invalid QR code — missing required fields');
           }
 
           // Validate token format (starts with SA-)
           if (!payload.token.startsWith('SA-')) {
             throw new Error('This QR code is not from GCTU Smart Attendance');
-          }
-
-          // Check expiry
-          if (Date.now() > payload.exp) {
-            setError('This QR code has expired. Ask your lecturer to refresh it.');
-            return;
           }
 
           // Check if already attended this session
@@ -88,7 +81,6 @@ export default function ScannerScreen() {
               lng: payload.lng?.toString() ?? '',
               lecturerAccuracy: payload.lecturerAccuracy?.toString() ?? '',
               radius: payload.radius.toString(),
-              exp: payload.exp.toString(),
             },
           });
         } catch (e: any) {

@@ -336,4 +336,9 @@ export const api = {
       return null;
     }
   },
+
+  checkHealth: () =>
+    fetch(API_BASE.replace(/\/api\/?$/, '/api/health'))
+      .then((r) => r.json() as Promise<{ status: string; db: string; uptime: number }>)
+      .catch(() => ({ status: 'error', db: 'error', uptime: 0 })),
 };

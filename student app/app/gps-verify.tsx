@@ -45,9 +45,6 @@ function haversineDistance(
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-const TARGET_GPS_READINGS = 3;
-const MIN_GPS_READINGS = 2;
-
 function getDynamicGpsBuffer(
   lecturerAccuracy: number,
   studentAccuracy: number,
@@ -62,38 +59,19 @@ type AveragedGpsSample = {
   accuracy: number;
 };
 
-async function getAveragedStudentLocation(): Promise<AveragedGpsSample> {
-  const samples: Array<{ latitude: number; longitude: number; accuracy: number }> = [];
-
-  for (let i = 0; i < TARGET_GPS_READINGS; i += 1) {
-    try {
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.High,
-      });
-
-      const accuracy =
-        typeof location.coords.accuracy === 'number' && Number.isFinite(location.coords.accuracy)
-          ? location.coords.accuracy
-          : 100;
-
-      samples.push({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        accuracy,
-      });
-    } catch {
-      // Continue collecting remaining samples; require at least MIN_GPS_READINGS.
-    }
-  }
-
-  if (samples.length < MIN_GPS_READINGS) {
-    throw new Error('Could not get enough GPS readings. Move to an open area and try again.');
-  }
-
+async function getStudentLocation(): Promise<AveragedGpsSample> {
+  // Single reading to minimise time between QR scan and backend submission,
+  // preventing the token from rotating before the mark request lands.
+  const location = await Location.getCurrentPositionAsync({
+    accuracy: Location.Accuracy.Balanced,
+  });
   return {
-    latitude: samples.reduce((sum, sample) => sum + sample.latitude, 0) / samples.length,
-    longitude: samples.reduce((sum, sample) => sum + sample.longitude, 0) / samples.length,
-    accuracy: samples.reduce((sum, sample) => sum + sample.accuracy, 0) / samples.length,
+    latitude: location.coords.latitude,
+    longitude: location.coords.longitude,
+    accuracy:
+      typeof location.coords.accuracy === 'number' && Number.isFinite(location.coords.accuracy)
+        ? location.coords.accuracy
+        : 100,
   };
 }
 
@@ -108,7 +86,6 @@ export default function GPSVerifyScreen() {
     lng: string;
     lecturerAccuracy: string;
     radius: string;
-    exp: string;
   }>();
 
   const [step, setStep] = useState<VerifyStep>('permission');
@@ -185,10 +162,10 @@ export default function GPSVerifyScreen() {
       animateProgress(0.25);
     }
 
-    // 2. Capture and average multiple student GPS readings.
+    // 2. Capture student GPS reading.
     let averagedLocation: AveragedGpsSample;
     try {
-      averagedLocation = await getAveragedStudentLocation();
+      averagedLocation = await getStudentLocation();
     } catch {
       if (!cancelledRef.current) {
         setFailReason('Could not get your GPS location. Make sure location services are enabled.');
@@ -487,7 +464,6 @@ export default function GPSVerifyScreen() {
                 lat: params.lat,
                 lng: params.lng,
                 radius: params.radius,
-                exp: params.exp,
               },
             })}
           />

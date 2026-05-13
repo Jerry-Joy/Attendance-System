@@ -41,12 +41,22 @@ export class AttendanceService {
       throw new BadRequestException('Session has expired');
     }
 
-    // 2. Validate QR token matches (accept current or previous token to
-    //    handle the race condition where the QR refreshes while a student
-    //    is completing GPS verification)
-    const tokenValid =
-      session.qrToken === dto.token ||
-      (session.previousQrToken != null && session.previousQrToken === dto.token);
+    // 2. Validate QR token — accept current token, previous token (one rotation back),
+    //    or any token whose embedded timestamp is within the last 90 seconds.
+    //    This covers the race condition where GPS collection causes the token to
+    //    rotate once or twice before the mark request reaches the server.
+    const tokenMatchesCurrent = session.qrToken === dto.token;
+    const tokenMatchesPrevious =
+      session.previousQrToken != null && session.previousQrToken === dto.token;
+
+    let tokenRecent = false;
+    const tokenTimestampMatch = dto.token.match(/^SA-(\d+)-[0-9a-f]{6}$/);
+    if (tokenTimestampMatch) {
+      const tokenIssuedAt = parseInt(tokenTimestampMatch[1], 10) * 1000;
+      tokenRecent = Date.now() - tokenIssuedAt <= 90_000;
+    }
+
+    const tokenValid = tokenMatchesCurrent || tokenMatchesPrevious || tokenRecent;
     if (!tokenValid)
       throw new BadRequestException('Invalid or expired QR token');
 

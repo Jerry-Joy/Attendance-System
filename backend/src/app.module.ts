@@ -7,6 +7,8 @@ import { CoursesModule } from './courses/courses.module';
 import { SessionsModule } from './sessions/sessions.module';
 import { AttendanceModule } from './attendance/attendance.module';
 import { EventsModule } from './events/events.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -19,7 +21,7 @@ import { EventsModule } from './events/events.module';
     AttendanceModule,
     EventsModule,
   ],
-  controllers: [],
-  providers: [],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule { }

@@ -21,12 +21,19 @@
       }
     },
     "android": {
+      "package": "com.yourorg.gctuattendance",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -53,7 +60,11 @@
     ],
     "extra": {
       "apiBaseUrl": "",
-      "apiOrigin": ""
+      "apiOrigin": "",
+      "router": {},
+      "eas": {
+        "projectId": "c85bd7b9-2b21-4278-9c1b-3659fe2d066d"
+      }
     },
     "experiments": {
       "typedRoutes": true

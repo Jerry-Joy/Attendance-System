@@ -25,6 +25,7 @@ export default function AttendanceConfirmedScreen() {
   const theme = useTheme();
   const { addRecord, markOnServer } = useAttendance();
   const [serverError, setServerError] = useState<string | null>(null);
+  const [serverErrorTitle, setServerErrorTitle] = useState<string>('Already Recorded');
 
   const params = useLocalSearchParams<{
     token: string;
@@ -77,11 +78,20 @@ export default function AttendanceConfirmedScreen() {
       }).catch((err) => {
         if (err instanceof ApiError) {
           if (err.status === 409) {
+            setServerErrorTitle('Already Recorded');
             setServerError('Attendance was already recorded for this session.');
+          } else if (err.status === 400 && err.message?.toLowerCase().includes('expired')) {
+            setServerErrorTitle('QR Code Expired');
+            setServerError('The QR code expired before your attendance could be saved. Please scan the new QR code shown by your lecturer.');
+          } else if (err.status === 400 && err.message?.toLowerCase().includes('invalid')) {
+            setServerErrorTitle('QR Code Invalid');
+            setServerError('The QR code was no longer valid when your attendance was submitted. Please scan again.');
           } else {
+            setServerErrorTitle('Error');
             setServerError(err.message || 'Failed to record attendance on the server. Please try again.');
           }
         } else {
+          setServerErrorTitle('Network Error');
           setServerError('Network error — attendance may not have been saved. Please check your connection.');
         }
       });
@@ -128,7 +138,7 @@ export default function AttendanceConfirmedScreen() {
 
         {/* Title */}
         <Text style={[Typography.h1, { color: theme.text, textAlign: 'center', marginTop: Spacing.lg }]}>
-          {serverError ? 'Already Recorded' : 'Attendance Confirmed!'}
+          {serverError ? serverErrorTitle : 'Attendance Confirmed!'}
         </Text>
         <Text style={[Typography.body, { color: serverError ? theme.warning : theme.textSecondary, textAlign: 'center', marginTop: Spacing.sm }]}>
           {serverError || 'Your attendance has been recorded successfully'}

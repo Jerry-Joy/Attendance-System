@@ -202,7 +202,6 @@ export default function ActiveSession() {
     lng: activeSession.longitude,
     lecturerAccuracy: activeSession.lecturerAccuracy,
     radius: activeSession.radius,
-    exp: Date.now() + 30_000,
   });
 
   return (
