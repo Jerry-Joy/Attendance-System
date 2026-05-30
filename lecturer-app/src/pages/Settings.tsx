@@ -4,8 +4,8 @@ import { useData } from "../context/DataContext";
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
-    <button onClick={() => onChange(!checked)} className={`relative w-10 h-5 rounded-full border transition-all duration-200 cursor-pointer ${checked ? 'bg-blue-500/20 border-blue-500/50' : 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700'}`}>
-      <div className={`absolute top-0.5 w-4 h-4 rounded-full shadow-sm transition-transform duration-200 ${checked ? 'translate-x-5 bg-blue-500 shadow-[0_0_6px_rgba(59,130,246,0.8)]' : 'translate-x-0.5 bg-slate-500'}`} />
+    <button onClick={() => onChange(!checked)} className={`relative w-10 h-5 rounded-full border transition-all duration-200 cursor-pointer ${checked ? 'border-amber-400/50' : 'bg-slate-100 border-slate-300'}`} style={checked ? { backgroundColor: "rgba(245,180,28,0.2)" } : {}}>
+      <div className={`absolute top-0.5 w-4 h-4 rounded-full shadow-sm transition-transform duration-200 ${checked ? 'translate-x-5' : 'translate-x-0.5 bg-slate-500'}`} style={checked ? { backgroundColor: "#F5B41C" } : {}} />
     </button>
   );
 }
@@ -37,7 +37,7 @@ export default function Settings() {
           <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-6">
             <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200 dark:border-slate-800 pb-2 mb-4">Operator Profile</h3>
             <div className="flex items-center gap-4 mb-5">
-              <div className="w-14 h-14 rounded-xl bg-blue-500 flex items-center justify-center text-white font-bold text-lg">
+              <div className="w-14 h-14 rounded-xl flex items-center justify-center font-bold text-lg" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>
                 {lecturer?.avatarInitials ?? '??'}
               </div>
               <div>

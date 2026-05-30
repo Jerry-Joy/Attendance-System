@@ -4,7 +4,7 @@ import Topnav from "./Topnav";
 
 export default function Layout() {
   return (
-    <div className="flex h-screen bg-slate-100 dark:bg-[#0B0D11] text-slate-900 dark:text-slate-200 font-sans overflow-hidden transition-colors duration-150">
+    <div className="flex h-screen text-slate-900 font-sans overflow-hidden transition-colors duration-150" style={{ backgroundColor: "#F8FAFC" }}>
       <Sidebar />
       <div className="flex-1 flex flex-col ml-64 min-h-screen">
         <Topnav />

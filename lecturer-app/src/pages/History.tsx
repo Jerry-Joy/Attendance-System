@@ -71,8 +71,8 @@ export default function History() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight uppercase flex items-center gap-2">
-            <span className="material-symbols-outlined text-[20px] text-blue-400">history</span>
+          <h1 className="text-xl font-bold text-primary dark:text-white tracking-tight uppercase flex items-center gap-2">
+            <span className="material-symbols-outlined text-[20px] mb-1 block text-secondary">history</span>
             Session History
           </h1>
           <p className="text-[10px] text-slate-600 dark:text-slate-400 font-mono tracking-widest uppercase mt-1">Archived Records & Analytics</p>
@@ -82,17 +82,17 @@ export default function History() {
       {/* Stats Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          { label: 'Total Sessions', value: totalSessions, icon: 'calendar_today', accent: 'blue' },
-          { label: 'Total Check-ins', value: totalPresent, icon: 'how_to_reg', accent: 'emerald' },
-          { label: 'Avg. Attendance', value: `${avgAttendance}%`, icon: 'groups', accent: 'amber' },
+          { label: 'Total Sessions', value: totalSessions, icon: 'calendar_today', cardClass: 'bg-primary border-primary hover:border-primary text-white', iconContainer: 'bg-white/10', iconClass: 'text-secondary', valueClass: 'text-white', labelClass: 'text-white/80' },
+          { label: 'Total Check-ins', value: totalPresent, icon: 'how_to_reg', cardClass: 'bg-white dark:bg-[#15181E] border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700', iconContainer: 'bg-emerald-500/10 dark:bg-emerald-500/20', iconClass: 'text-emerald-600 dark:text-emerald-400', valueClass: 'text-slate-900 dark:text-white', labelClass: 'text-slate-600 dark:text-slate-400' },
+          { label: 'Avg. Attendance', value: `${avgAttendance}%`, icon: 'groups', cardClass: 'bg-white dark:bg-[#15181E] border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700', iconContainer: 'bg-secondary/10', iconClass: 'text-secondary dark:text-secondary-fixed', valueClass: 'text-slate-900 dark:text-white', labelClass: 'text-slate-600 dark:text-slate-400' },
         ].map((stat, i) => (
-          <div key={i} className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-4 flex items-center gap-3 hover:border-slate-300 dark:border-slate-700 transition-colors">
-            <div className={`w-10 h-10 rounded-lg bg-${stat.accent}-500/10 flex items-center justify-center`}>
-              <span className={`material-symbols-outlined text-[18px] text-${stat.accent}-400`}>{stat.icon}</span>
+          <div key={i} className={`${stat.cardClass} rounded-lg border p-4 flex items-center gap-3 transition-colors`}>
+            <div className={`w-10 h-10 rounded-lg ${stat.iconContainer} flex items-center justify-center`}>
+              <span className={`material-symbols-outlined text-[18px] ${stat.iconClass}`}>{stat.icon}</span>
             </div>
             <div>
-              <p className="text-xl font-bold text-slate-900 dark:text-white tabular-nums">{stat.value}</p>
-              <p className="text-[10px] text-slate-600 dark:text-slate-400 font-mono uppercase">{stat.label}</p>
+              <p className={`text-xl font-bold tabular-nums ${stat.valueClass}`}>{stat.value}</p>
+              <p className={`text-[10px] font-mono uppercase ${stat.labelClass}`}>{stat.label}</p>
             </div>
           </div>
         ))}
@@ -103,11 +103,11 @@ export default function History() {
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-slate-600 dark:text-slate-400">search</span>
-            <input type="text" value={searchQuery} onChange={e => handleSearchChange(e.target.value)} placeholder="Search by course, date, venue..." className="w-full pl-9 pr-4 py-2.5 bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded text-xs text-slate-900 dark:text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500 font-mono transition-colors" />
+            <input type="text" value={searchQuery} onChange={e => handleSearchChange(e.target.value)} placeholder="Search by course, date, venue..." className="w-full pl-9 pr-4 py-2.5 bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded text-xs text-slate-900 dark:text-white placeholder:text-slate-600 focus:outline-none focus:border-primary font-mono transition-colors" />
           </div>
           <div className="relative">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-slate-600 dark:text-slate-400">filter_alt</span>
-            <select value={courseFilter} onChange={e => handleCourseFilterChange(e.target.value)} className="appearance-none pl-9 pr-8 py-2.5 bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 font-mono transition-colors cursor-pointer">
+            <select value={courseFilter} onChange={e => handleCourseFilterChange(e.target.value)} className="appearance-none pl-9 pr-8 py-2.5 bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded text-xs text-slate-900 dark:text-white focus:outline-none focus:border-primary font-mono transition-colors cursor-pointer">
               <option value="all">All Courses</option>
               {courseOptions.map(opt => (
                 <option key={opt.code} value={opt.code}>{opt.code} — {opt.name}</option>
@@ -120,12 +120,12 @@ export default function History() {
           <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-200 dark:border-slate-800">
             <span className="text-[10px] text-slate-600 dark:text-slate-400 font-mono uppercase">Filters:</span>
             {courseFilter !== 'all' && (
-              <button onClick={() => handleCourseFilterChange('all')} className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-500/10 text-blue-400 rounded text-[10px] font-bold uppercase border border-blue-500/20 hover:bg-blue-500/20 transition-colors">
+              <button onClick={() => handleCourseFilterChange('all')} className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary text-white rounded text-[10px] font-bold uppercase border border-primary hover:bg-primary/90 transition-colors">
                 {courseFilter} <span className="ml-0.5">×</span>
               </button>
             )}
             {searchQuery && (
-              <button onClick={() => handleSearchChange('')} className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded text-[10px] font-bold hover:bg-slate-700 transition-colors">
+              <button onClick={() => handleSearchChange('')} className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary text-white rounded text-[10px] font-bold uppercase border border-primary hover:bg-primary/90 transition-colors">
                 "{searchQuery}" <span className="ml-0.5">×</span>
               </button>
             )}
@@ -148,7 +148,7 @@ export default function History() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-slate-100 dark:bg-[#15181E]/50 text-slate-600 dark:text-slate-400 text-[10px] uppercase font-mono tracking-widest border-b border-slate-200 dark:border-slate-800">
+                <tr className="bg-primary text-white text-[10px] uppercase font-mono tracking-widest">
                   <th className="px-5 py-3 font-semibold text-left">Course</th>
                   <th className="px-5 py-3 font-semibold text-left">Date</th>
                   <th className="px-5 py-3 font-semibold text-left">Duration</th>
@@ -162,7 +162,7 @@ export default function History() {
                   const rate = Math.round((session.presentCount / session.totalStudents) * 100);
                   const rateColor = rate >= 80 ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : rate >= 60 ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20';
                   return (
-                    <tr key={session.id} className="hover:bg-slate-100 dark:bg-slate-800/20 dark:hover:bg-slate-800/40 transition-colors group">
+                    <tr key={session.id} className="hover:bg-primary/5 dark:hover:bg-primary/20 transition-colors group">
                       <td className="px-5 py-4">
                         <p className="font-bold text-slate-900 dark:text-white text-xs uppercase">{session.courseCode}</p>
                         <p className="text-[10px] text-slate-600 dark:text-slate-400 font-mono mt-0.5">{session.courseName}</p>
@@ -186,7 +186,7 @@ export default function History() {
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex items-center justify-end gap-2">
-                          <button onClick={() => navigate('/session/summary', { state: { session } })} className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 transition-colors uppercase">
+                          <button onClick={() => navigate('/session/summary', { state: { session } })} className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-bold text-white bg-primary border border-primary hover:bg-primary/90 transition-colors uppercase">
                             <span className="material-symbols-outlined text-[12px]">visibility</span>
                             View
                           </button>
@@ -219,7 +219,7 @@ export default function History() {
                 <span className="material-symbols-outlined text-[16px]">chevron_left</span>
               </button>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                <button key={page} onClick={() => setCurrentPage(page)} className={`w-8 h-8 rounded text-[10px] font-bold transition-all ${page === safeCurrentPage ? 'bg-blue-500 text-white' : 'text-slate-500 hover:bg-slate-100 dark:bg-slate-800 hover:text-slate-900 dark:text-white dark:hover:bg-slate-700/70 border border-transparent hover:border-slate-300 dark:border-slate-700'}`}>
+                <button key={page} onClick={() => setCurrentPage(page)} className={`w-8 h-8 rounded text-[10px] font-bold transition-all ${page === safeCurrentPage ? 'bg-secondary text-primary' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 border border-transparent hover:border-slate-300 dark:hover:bg-slate-800 dark:hover:text-white dark:hover:border-slate-700'}`}>
                   {page}
                 </button>
               ))}

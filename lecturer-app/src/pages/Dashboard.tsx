@@ -19,20 +19,9 @@ export default function Dashboard() {
       <div className="flex justify-between items-center">
         <div>
           <p className="text-[9px] text-[#C5960C] font-mono tracking-[0.15em] uppercase mb-0.5">Ghana Communication Technology University</p>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight uppercase">Dashboard</h1>
+          <h1 className="text-xl font-bold tracking-tight uppercase" style={{ color: "#081637", fontFamily: "var(--font-display)" }}>Dashboard</h1>
           <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase mt-1">Status & Schedule</p>
         </div>
-        {activeSession ? (
-          <button onClick={() => navigate('/session/active')} className="bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 font-bold text-[10px] uppercase tracking-wider px-4 py-2 rounded flex items-center gap-2 transition-colors cursor-pointer border border-emerald-500/30">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-            Rejoin Live Session
-          </button>
-        ) : (
-          <Link to="/session/create" className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-[10px] uppercase tracking-wider px-4 py-2 rounded flex items-center gap-2 transition-colors shadow-[0_0_10px_rgba(37,99,235,0.2)] cursor-pointer border border-blue-500/50">
-            <span className="material-symbols-outlined text-[16px]">play_arrow</span>
-            Start Session
-          </Link>
-        )}
       </div>
 
       {/* KPI Cards — Operational */}
@@ -69,7 +58,7 @@ export default function Dashboard() {
 
         {/* Active Courses */}
         <div className="bg-white dark:bg-[#15181E] border border-slate-200 dark:border-slate-800 rounded-lg p-5 flex flex-col gap-3 relative overflow-hidden group hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
-          <div className="absolute -right-4 -top-4 w-16 h-16 bg-blue-500/5 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
+          <div className="absolute -right-4 -top-4 w-16 h-16 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out" style={{ backgroundColor: "rgba(8, 22, 55, 0.05)" }}></div>
           <div className="text-[10px] text-slate-500 font-mono uppercase flex justify-between items-center relative z-10">
             <span>Active Courses</span>
             <span className="material-symbols-outlined text-[14px]">school</span>
@@ -82,20 +71,20 @@ export default function Dashboard() {
 
         {/* Total Students */}
         <div className="bg-white dark:bg-[#15181E] border border-slate-200 dark:border-slate-800 rounded-lg p-5 flex flex-col gap-3 relative overflow-hidden group hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
-          <div className="absolute -right-4 -top-4 w-16 h-16 bg-amber-500/5 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
+          <div className="absolute -right-4 -top-4 w-16 h-16 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out" style={{ backgroundColor: "rgba(245, 180, 28, 0.05)" }}></div>
           <div className="text-[10px] text-slate-500 font-mono uppercase flex justify-between items-center relative z-10">
             <span>Total Students</span>
             <span className="material-symbols-outlined text-[14px]">groups</span>
           </div>
           <div className="flex items-end justify-between relative z-10">
             <h2 className="text-3xl font-bold text-slate-900 dark:text-white tabular-nums">{totalStudents}</h2>
-            <div className="flex items-center text-amber-400 text-[10px] font-mono gap-1 mb-1">Enrolled</div>
+            <div className="flex items-center text-[10px] font-mono gap-1 mb-1 px-1.5 py-0.5 rounded font-bold" style={{ backgroundColor: "rgba(245, 180, 28, 0.15)", color: "#081637" }}>Enrolled</div>
           </div>
         </div>
 
         {/* Next Class */}
-        <div className="bg-white dark:bg-[#15181E] border border-slate-200 dark:border-slate-800 rounded-lg p-5 flex flex-col gap-3 relative overflow-hidden group hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
-          <div className="absolute -right-4 -top-4 w-16 h-16 bg-indigo-500/5 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
+        <div className="bg-white dark:bg-[#15181E] border-y border-r border-slate-200 dark:border-slate-800 rounded-lg p-5 flex flex-col gap-3 relative overflow-hidden group hover:border-slate-300 dark:hover:border-slate-700 transition-colors" style={{ borderLeft: "4px solid #F5B41C" }}>
+          <div className="absolute -right-4 -top-4 w-16 h-16 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out" style={{ backgroundColor: "rgba(245, 180, 28, 0.05)" }}></div>
           <div className="text-[10px] text-slate-500 font-mono uppercase flex justify-between items-center relative z-10">
             <span>Next Class</span>
             <span className="material-symbols-outlined text-[14px]">event</span>
@@ -105,7 +94,7 @@ export default function Dashboard() {
               <h2 className="text-lg font-bold text-slate-900 dark:text-white">{nextClass?.code || '—'}</h2>
               <p className="text-[10px] text-slate-500 font-mono mt-0.5 truncate max-w-[120px]">{nextClass?.venueName || 'TBA'}</p>
             </div>
-            <div className="text-indigo-400 text-[10px] font-mono mb-1 bg-indigo-400/10 px-1.5 py-0.5 rounded border border-indigo-400/20">
+            <div className="text-[10px] font-mono font-bold mb-1 px-1.5 py-0.5 rounded" style={{ backgroundColor: "rgba(8, 22, 55, 0.08)", color: "#081637", border: "1px solid rgba(8, 22, 55, 0.15)" }}>
               {nextClass?.schedule?.split(' ').slice(0, 2).join(' ') || 'TBA'}
             </div>
           </div>
@@ -117,8 +106,8 @@ export default function Dashboard() {
         {/* Recent Activity Feed */}
         <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-5 lg:col-span-2 flex flex-col">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Recent Activity</h2>
-            <Link to="/history" className="text-[10px] text-blue-500 hover:text-blue-400 uppercase font-mono">View All</Link>
+            <h2 className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#081637" }}>Recent Activity</h2>
+            <Link to="/history" className="text-[10px] uppercase font-mono hover:opacity-70 transition-opacity" style={{ color: "#F5B41C" }}>View All</Link>
           </div>
 
           {recentSessions.length === 0 ? (
@@ -143,13 +132,12 @@ export default function Dashboard() {
                   >
                     {/* Timeline line */}
                     {idx < recentSessions.length - 1 && (
-                      <div className="absolute left-[29px] top-[42px] w-px h-[calc(100%-24px)] bg-slate-800"></div>
+                      <div className="absolute left-[29px] top-[42px] w-px h-[calc(100%-24px)]" style={{ backgroundColor: "rgba(8, 22, 55, 0.1)" }}></div>
                     )}
 
                     {/* Timeline dot */}
-                    <div className={`w-[14px] h-[14px] rounded-full border-2 shrink-0 relative z-10 ${idx === 0 ? `border-${rateColor}-500 bg-${rateColor}-500/20` : 'border-slate-700 bg-white dark:bg-[#15181E]'
-                      }`}>
-                      {idx === 0 && <div className={`absolute inset-[3px] rounded-full bg-${rateColor}-500`}></div>}
+                    <div className={`w-[14px] h-[14px] rounded-full border-2 shrink-0 relative z-10 ${idx === 0 ? `border-emerald-500 bg-emerald-500/20` : 'bg-white'}`} style={idx !== 0 ? { borderColor: "rgba(8, 22, 55, 0.2)" } : {}}>
+                      {idx === 0 && <div className={`absolute inset-[3px] rounded-full bg-emerald-500`}></div>}
                     </div>
 
                     {/* Content */}
@@ -186,8 +174,8 @@ export default function Dashboard() {
         {/* Active Schedule */}
         <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-5 flex flex-col">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Active Schedule</h2>
-            <Link to="/courses" className="text-[10px] text-blue-500 hover:text-blue-400 uppercase font-mono">View All</Link>
+            <h2 className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#081637" }}>Active Schedule</h2>
+            <Link to="/courses" className="text-[10px] uppercase font-mono hover:opacity-70 transition-opacity" style={{ color: "#F5B41C" }}>View All</Link>
           </div>
           <div className="flex flex-col gap-3 overflow-y-auto">
             {courses.map((course, idx) => {
@@ -195,7 +183,7 @@ export default function Dashboard() {
               return (
                 <div key={course.id} className="p-3 border border-slate-200 dark:border-slate-800 rounded bg-slate-50 dark:bg-[#0B0D11]/50 hover:bg-slate-100 dark:hover:bg-slate-950 transition-colors relative group">
                   <div className="flex justify-between items-start mb-2">
-                    <span className="text-[10px] font-mono font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 rounded">{course.code}</span>
+                    <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded" style={{ color: "#081637", backgroundColor: "rgba(8,22,55,0.08)", border: "1px solid rgba(8,22,55,0.15)" }}>{course.code}</span>
                     {isLive ? (
                       <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border text-emerald-400 bg-emerald-500/10 border-emerald-500/20 flex items-center gap-1">
                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
@@ -217,7 +205,8 @@ export default function Dashboard() {
                       Rejoin Session
                     </button>
                   ) : idx === 0 ? (
-                    <button onClick={() => navigate(`/session/create?course=${course.id}`)} className="mt-3 w-full flex justify-center uppercase tracking-wider bg-blue-600/10 text-blue-400 hover:bg-blue-600/20 border border-blue-500/30 font-bold text-[10px] py-1.5 rounded transition-colors cursor-pointer">
+                    <button onClick={() => navigate(`/session/create?course=${course.id}`)} className="mt-3 w-full flex justify-center items-center gap-1 uppercase tracking-wider font-bold text-[10px] py-1.5 rounded transition-opacity hover:opacity-90 cursor-pointer" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>
+                      <span className="material-symbols-outlined text-[12px]">play_arrow</span>
                       Set Up Session
                     </button>
                   ) : null}

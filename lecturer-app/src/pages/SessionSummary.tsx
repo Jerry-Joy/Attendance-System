@@ -259,7 +259,7 @@ export default function SessionSummary() {
             <span className="material-symbols-outlined text-[16px]">history</span>
             Session History
           </button>
-          <button onClick={() => navigate('/')} className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-600 border border-blue-500/50 text-white rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-blue-500 transition-colors shadow-[0_0_10px_rgba(37,99,235,0.2)]">
+          <button onClick={() => navigate('/')} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-opacity hover:opacity-90" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>
             <span className="material-symbols-outlined text-[16px]">dashboard</span>
             Dashboard
           </button>

@@ -93,14 +93,14 @@ export default function Courses() {
         <div className="flex items-center gap-3">
           {/* View toggle */}
           <div className="flex gap-0.5 p-0.5 bg-slate-100 dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-700">
-            <button onClick={() => handleSetView('list')} className={`p-1.5 rounded transition-all ${view === 'list' ? 'bg-blue-500/20 text-blue-400' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'}`} title="List">
+            <button onClick={() => handleSetView('list')} className={`p-1.5 rounded transition-all ${view === 'list' ? 'text-[#081637]' : 'text-slate-500 hover:text-slate-700'}`} style={view === 'list' ? { backgroundColor: "rgba(245,180,28,0.2)" } : {}} title="List">
               <span className="material-symbols-outlined text-[16px]">view_list</span>
             </button>
-            <button onClick={() => handleSetView('grid')} className={`p-1.5 rounded transition-all ${view === 'grid' ? 'bg-blue-500/20 text-blue-400' : 'text-slate-500 hover:text-slate-700 dark:text-slate-300'}`} title="Grid">
+            <button onClick={() => handleSetView('grid')} className={`p-1.5 rounded transition-all ${view === 'grid' ? 'text-[#081637]' : 'text-slate-500 hover:text-slate-700'}`} style={view === 'grid' ? { backgroundColor: "rgba(245,180,28,0.2)" } : {}} title="Grid">
               <span className="material-symbols-outlined text-[16px]">grid_view</span>
             </button>
           </div>
-          <button onClick={() => navigate('/courses/create')} className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-[10px] uppercase tracking-wider px-4 py-2 rounded flex items-center gap-2 transition-colors shadow-[0_0_10px_rgba(37,99,235,0.2)] cursor-pointer border border-blue-500/50">
+          <button onClick={() => navigate('/courses/create')} className="font-bold text-[10px] uppercase tracking-wider px-4 py-2 rounded flex items-center gap-2 transition-opacity hover:opacity-90 cursor-pointer" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>
             <span className="material-symbols-outlined text-[16px]">add</span>
             New Course
           </button>
@@ -110,13 +110,13 @@ export default function Courses() {
       {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          { label: 'Active Courses', value: courses.length, icon: 'school', accent: 'blue' },
-          { label: 'Total Students', value: totalStudents, icon: 'groups', accent: 'amber' },
-          { label: 'Total Sessions', value: totalSessions, icon: 'history', accent: 'emerald' },
-          { label: 'Blockchain Records', value: '1.2k', icon: 'link', accent: 'indigo' },
+          { label: 'Active Courses', value: courses.length, icon: 'school', color: '#081637' },
+          { label: 'Total Students', value: totalStudents, icon: 'groups', color: '#F5B41C' },
+          { label: 'Total Sessions', value: totalSessions, icon: 'history', color: '#0D2A66' },
+          { label: 'Blockchain Records', value: '1.2k', icon: 'link', color: '#F5B41C' },
         ].map((stat, i) => (
           <div key={i} className="bg-white dark:bg-[#15181E] border border-slate-200 dark:border-slate-800 rounded-lg p-5 flex flex-col gap-3 relative overflow-hidden group hover:border-slate-300 dark:border-slate-700 transition-colors">
-            <div className={`absolute -right-4 -top-4 w-16 h-16 bg-${stat.accent}-500/5 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out`}></div>
+            <div className={`absolute -right-4 -top-4 w-16 h-16 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out`} style={{ backgroundColor: stat.color, opacity: 0.05 }}></div>
             <div className="text-[10px] text-slate-500 font-mono uppercase flex justify-between items-center relative z-10">
               <span>{stat.label}</span>
               <span className="material-symbols-outlined text-[14px]">{stat.icon}</span>
@@ -149,8 +149,8 @@ export default function Courses() {
                     Live
                   </div>
                 )}
-                <div className="h-20 bg-gradient-to-r from-blue-50 via-white to-slate-100 dark:from-blue-900/40 dark:via-slate-900/70 dark:to-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 flex flex-col justify-end relative rounded-t-lg">
-                  <div className="absolute top-4 left-4 bg-white/70 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 px-2 py-0.5 rounded text-blue-700 dark:text-blue-400 text-[10px] font-bold font-mono uppercase tracking-wider">
+                <div className="h-20 border-b border-slate-200 p-4 flex flex-col justify-end relative rounded-t-lg" style={{ backgroundColor: "#081637" }}>
+                  <div className="absolute top-4 left-4 px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>
                     {course.code}
                   </div>
                 </div>
@@ -166,7 +166,7 @@ export default function Courses() {
                       <span className="text-xs font-bold text-slate-900 dark:text-white tabular-nums">{progress}%</span>
                     </div>
                     <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full transition-all duration-700 ${progress >= 85 ? 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.3)]' : progress >= 70 ? 'bg-blue-500' : 'bg-amber-500'}`} style={{ width: `${progress}%` }} />
+                      <div className={`h-full rounded-full transition-all duration-700`} style={{ width: `${progress}%`, backgroundColor: progress >= 70 ? "#081637" : "#F5B41C" }} />
                     </div>
                     {trend !== null && (
                       <div className={`mt-1.5 flex items-center gap-1 text-[9px] font-mono uppercase ${trend > 0 ? 'text-emerald-400' : trend < 0 ? 'text-red-400' : 'text-slate-500'}`}>
@@ -177,7 +177,7 @@ export default function Courses() {
                   </div>
 
                   <div className="flex flex-col gap-2 text-[10px] uppercase font-mono text-slate-600 dark:text-slate-400 mb-4">
-                    <div className="flex items-center gap-2 text-blue-400">
+                    <div className="flex items-center gap-2" style={{ color: "#0D2A66" }}>
                       <span className="material-symbols-outlined text-[14px]">key</span>
                       <span className="font-bold">{course.joinCode}</span>
                     </div>
@@ -187,9 +187,9 @@ export default function Courses() {
                         <span>{course.venueName}</span>
                       </div>
                     )}
-                    <div className="flex items-center gap-2 text-emerald-400">
+                    <div className="flex items-center gap-2" style={{ color: "#081637" }}>
                       <span className="material-symbols-outlined text-[14px]">groups</span>
-                      <span>{course.studentCount} Enrolled</span>
+                      <span className="font-bold">{course.studentCount} Enrolled</span>
                     </div>
                   </div>
 
@@ -200,7 +200,7 @@ export default function Courses() {
                         Rejoin
                       </button>
                     ) : (
-                      <button onClick={() => navigate(`/session/create?course=${course.id}`)} className="flex-1 flex justify-center items-center gap-1.5 uppercase tracking-wider bg-blue-600/10 text-blue-400 hover:bg-blue-600/20 border border-blue-500/30 font-bold text-[10px] py-2 rounded transition-colors cursor-pointer">
+                      <button onClick={() => navigate(`/session/create?course=${course.id}`)} className="flex-1 flex justify-center items-center gap-1.5 uppercase tracking-wider font-bold text-[10px] py-2 rounded transition-opacity hover:opacity-90 cursor-pointer" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>
                         <span className="material-symbols-outlined text-[14px]">play_arrow</span>
                         Start Session
                       </button>
@@ -238,7 +238,7 @@ export default function Courses() {
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-bold text-slate-900 dark:text-white">{course.code}: {course.name}</h3>
                     <div className="flex items-center gap-4 mt-1 text-[10px] text-slate-500 font-mono uppercase">
-                      <div className="flex items-center gap-1 text-blue-400">
+                      <div className="flex items-center gap-1" style={{ color: "#0D2A66" }}>
                         <span className="material-symbols-outlined text-[12px]">key</span>
                         <span className="font-bold">{course.joinCode}</span>
                       </div>
@@ -254,14 +254,14 @@ export default function Courses() {
                       </div>
                     </div>
                   </div>
-                  <span className="px-2 py-0.5 text-[10px] font-bold text-blue-400 bg-blue-500/10 rounded border border-blue-500/20 uppercase font-mono shrink-0">{course.level}</span>
+                  <span className="px-2 py-0.5 text-[10px] font-bold px-1.5 py-0.5 rounded uppercase font-mono shrink-0" style={{ color: "#081637", backgroundColor: "rgba(8,22,55,0.08)", border: "1px solid rgba(8,22,55,0.15)" }}>{course.level}</span>
                   <div className="shrink-0 w-36">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Rate</span>
                       <span className="text-xs font-bold text-slate-900 dark:text-white tabular-nums">{progress}%</span>
                     </div>
                     <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full transition-all duration-700 ${progress >= 85 ? 'bg-emerald-500' : progress >= 70 ? 'bg-blue-500' : 'bg-amber-500'}`} style={{ width: `${progress}%` }} />
+                      <div className={`h-full rounded-full transition-all duration-700`} style={{ width: `${progress}%`, backgroundColor: progress >= 70 ? "#081637" : "#F5B41C" }} />
                     </div>
                     {trend !== null && (
                       <span className={`text-[9px] font-mono uppercase mt-1 inline-flex items-center gap-0.5 ${trend > 0 ? 'text-emerald-400' : trend < 0 ? 'text-red-400' : 'text-slate-500'}`}>
@@ -281,7 +281,7 @@ export default function Courses() {
                         Rejoin
                       </button>
                     ) : (
-                      <button onClick={() => navigate(`/session/create?course=${course.id}`)} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 rounded text-[10px] font-bold uppercase transition-colors hover:bg-slate-700 hover:text-blue-400 hover:border-blue-500/30">
+                      <button onClick={() => navigate(`/session/create?course=${course.id}`)} className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold uppercase transition-opacity hover:opacity-90" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>
                         <span className="material-symbols-outlined text-[14px]">play_arrow</span>
                         Start
                       </button>
@@ -307,7 +307,7 @@ export default function Courses() {
           </div>
           <h2 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-2">No Courses</h2>
           <p className="text-[10px] text-slate-500 max-w-sm mx-auto font-mono uppercase leading-relaxed mb-4">Create your first course to start tracking attendance.</p>
-          <button onClick={() => navigate('/courses/create')} className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-[10px] uppercase tracking-wider px-5 py-2 rounded transition-colors border border-blue-500/50">Create First Course</button>
+          <button onClick={() => navigate('/courses/create')} className="font-bold text-[10px] uppercase tracking-wider px-5 py-2 rounded transition-opacity hover:opacity-90" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>Create First Course</button>
         </div>
       )}
 
@@ -319,19 +319,19 @@ export default function Courses() {
             <div className="space-y-4">
               <div>
                 <label className="block text-[10px] font-mono uppercase text-slate-500 mb-1.5">Course Code</label>
-                <input value={editCode} onChange={e => setEditCode(e.target.value)} className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 font-mono transition-colors" />
+                <input value={editCode} onChange={e => setEditCode(e.target.value)} className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none font-mono transition-colors" style={{ outlineColor: "#081637" }} />
               </div>
               <div>
                 <label className="block text-[10px] font-mono uppercase text-slate-500 mb-1.5">Course Name</label>
-                <input value={editName} onChange={e => setEditName(e.target.value)} className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 font-mono transition-colors" />
+                <input value={editName} onChange={e => setEditName(e.target.value)} className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none font-mono transition-colors" style={{ outlineColor: "#081637" }} />
               </div>
               <div>
                 <label className="block text-[10px] font-mono uppercase text-slate-500 mb-1.5">Venue</label>
-                <input value={editVenue} onChange={e => setEditVenue(e.target.value)} className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 font-mono transition-colors" />
+                <input value={editVenue} onChange={e => setEditVenue(e.target.value)} className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none font-mono transition-colors" style={{ outlineColor: "#081637" }} />
               </div>
               <div className="flex gap-3 pt-4">
                 <button onClick={() => setEditTarget(null)} className="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 rounded hover:bg-slate-100 dark:bg-slate-800 transition-colors">Cancel</button>
-                <button onClick={handleSaveEdit} className="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-900 dark:text-white bg-blue-600 rounded border border-blue-500/50 hover:bg-blue-500 transition-colors">Save Changes</button>
+                <button onClick={handleSaveEdit} className="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded transition-opacity hover:opacity-90" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>Save Changes</button>
               </div>
             </div>
           </div>

@@ -26,7 +26,7 @@ export default function Setup() {
           </div>
 
           <div className="pt-4">
-            <Link to="/login" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold text-[10px] uppercase tracking-wider px-4 py-3 rounded flex items-center justify-center gap-2 transition-colors shadow-[0_0_10px_rgba(37,99,235,0.2)] cursor-pointer border border-blue-500/50">
+            <Link to="/login" className="w-full font-bold text-[10px] uppercase tracking-wider px-4 py-3 rounded flex items-center justify-center gap-2 transition-opacity hover:opacity-90 cursor-pointer" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>
               <span className="material-symbols-outlined text-[16px]">power_settings_new</span>
               Continue
             </Link>

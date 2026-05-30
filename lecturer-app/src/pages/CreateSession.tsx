@@ -175,12 +175,12 @@ export default function CreateSession() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B0D11] flex flex-col pt-20 px-4 sm:px-8 relative overflow-hidden font-sans">
       {/* Topnav */}
-      <header className="fixed top-0 left-0 right-0 h-14 bg-white dark:bg-[#15181E] border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between z-40">
+      <header className="fixed top-0 left-0 right-0 h-14 border-b border-white/10 px-6 flex items-center justify-between z-40" style={{ backgroundColor: "#081637" }}>
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate(-1)} className="w-8 h-8 rounded bg-slate-50 dark:bg-[#0B0D11] border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:text-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700/70 transition-colors cursor-pointer">
+          <button onClick={() => navigate(-1)} className="w-8 h-8 rounded border border-white/20 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer" style={{ backgroundColor: "rgba(255,255,255,0.05)" }}>
             <span className="material-symbols-outlined text-[18px]">close</span>
           </button>
-          <h1 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest">Start Session</h1>
+          <h1 className="text-xs font-bold text-white uppercase tracking-widest" style={{ fontFamily: "var(--font-display)" }}>Start Session</h1>
         </div>
       </header>
 
@@ -193,42 +193,42 @@ export default function CreateSession() {
       <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col mt-4 relative z-10 pb-12">
         <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col lg:flex-row shadow-2xl">
           {/* Left Info Panel */}
-          <div className="w-full lg:w-1/3 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-800 flex flex-col">
-            <div className="p-6 sm:p-8 border-b border-slate-200 dark:border-slate-800">
-              <div className="w-12 h-12 bg-blue-500/10 border border-blue-500/20 rounded-lg flex items-center justify-center mb-6">
-                <span className="material-symbols-outlined text-[24px] text-blue-500">memory</span>
+          <div className="w-full lg:w-1/3 flex flex-col" style={{ backgroundColor: "#081637" }}>
+            <div className="p-6 sm:p-8 border-b border-white/10 flex flex-col items-center text-center">
+              <div className="w-24 h-24 flex items-center justify-center mb-6">
+                <img src="/gctu-crest.png" alt="GCTU Crest" className="w-full h-full object-contain drop-shadow-md" />
               </div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-2">Session Setup</h2>
-              <p className="text-[10px] text-slate-500 font-mono leading-relaxed">
+              <h2 className="text-lg font-bold uppercase tracking-wider mb-2 text-white">Session Setup</h2>
+              <p className="text-[10px] text-white/60 font-mono leading-relaxed">
                 Choose the course and set the location rules. A dynamic QR code will be used when you start.
               </p>
             </div>
-            <div className="p-6 sm:p-8 bg-slate-50 dark:bg-[#0B0D11]/30 flex-1 flex flex-col gap-4">
-              <h3 className="text-[10px] uppercase font-bold tracking-widest text-slate-500 mb-2">System Check</h3>
+            <div className="p-6 sm:p-8 flex-1 flex flex-col gap-4" style={{ backgroundColor: "rgba(0,0,0,0.15)" }}>
+              <h3 className="text-[10px] uppercase font-bold tracking-widest text-white/40 mb-2">System Check</h3>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full transition-colors ${systemStatus === 'ok' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : systemStatus === 'checking' ? 'bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.5)] animate-pulse' : 'bg-red-500'}`}></div>
-                  <span className="text-[10px] font-mono text-slate-600 dark:text-slate-400 uppercase">System Status</span>
+                  <div className={`w-2 h-2 rounded-full transition-colors ${systemStatus === 'ok' ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]' : systemStatus === 'checking' ? 'bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.5)] animate-pulse' : 'bg-red-500'}`}></div>
+                  <span className="text-[10px] font-mono text-white/70 uppercase">System Status</span>
                 </div>
-                <span className="text-[10px] font-mono text-slate-500">
+                <span className="text-[10px] font-mono font-bold" style={{ color: "#F5B41C" }}>
                   {systemStatus === 'ok' ? 'OK' : systemStatus === 'checking' ? 'Checking...' : 'Offline'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full transition-colors ${gpsStatus === 'locked' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : gpsStatus === 'acquiring' ? 'bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.5)] animate-pulse' : gpsStatus === 'error' ? 'bg-red-500' : 'bg-slate-600'}`}></div>
-                  <span className="text-[10px] font-mono text-slate-600 dark:text-slate-400 uppercase">GPS Accuracy</span>
+                  <div className={`w-2 h-2 rounded-full transition-colors ${gpsStatus === 'locked' ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]' : gpsStatus === 'acquiring' ? 'bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.5)] animate-pulse' : gpsStatus === 'error' ? 'bg-red-500' : 'bg-slate-600'}`}></div>
+                  <span className="text-[10px] font-mono text-white/70 uppercase">GPS Accuracy</span>
                 </div>
-                <span className="text-[10px] font-mono text-slate-500 tabular-nums">
+                <span className="text-[10px] font-mono font-bold tabular-nums" style={{ color: "#F5B41C" }}>
                   {gpsStatus === 'locked' && gpsAccuracy !== null ? `±${gpsAccuracy}m` : gpsStatus === 'acquiring' ? 'Acquiring...' : gpsStatus === 'error' ? 'Error' : 'Idle'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-                  <span className="text-[10px] font-mono text-slate-600 dark:text-slate-400 uppercase">Blockchain</span>
+                  <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"></div>
+                  <span className="text-[10px] font-mono text-white/70 uppercase">Blockchain</span>
                 </div>
-                <span className="text-[10px] font-mono text-slate-500">READY</span>
+                <span className="text-[10px] font-mono font-bold" style={{ color: "#F5B41C" }}>READY</span>
               </div>
               {gpsStatus === 'error' && gpsError && (
                 <div className="mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded text-[10px] text-red-400 font-mono">
@@ -236,7 +236,7 @@ export default function CreateSession() {
                 </div>
               )}
               {(gpsStatus === 'locked' || gpsStatus === 'error') && (
-                <button type="button" onClick={captureGps} className="mt-2 text-[10px] font-mono text-blue-400 uppercase hover:text-blue-300 transition-colors flex items-center gap-1">
+                <button type="button" onClick={captureGps} className="mt-2 text-[10px] font-mono uppercase transition-colors flex items-center gap-1 hover:opacity-70" style={{ color: "#F5B41C" }}>
                   <span className="material-symbols-outlined text-[14px]">refresh</span>
                   {gpsStatus === 'locked' ? 'Refresh GPS' : 'Retry GPS Capture'}
                 </button>
@@ -259,11 +259,11 @@ export default function CreateSession() {
                   <label className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-3 block">Choose Course</label>
                   <div className="flex flex-col gap-2">
                     {courses.map(course => (
-                      <label key={course.id} className={`relative p-3 rounded border cursor-pointer transition-all flex items-center justify-between ${selectedCourse === course.id ? 'border-blue-500 bg-blue-500/5' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0B0D11]/50 hover:bg-slate-100 dark:hover:bg-slate-800/50'}`}>
+                      <label key={course.id} className={`relative p-3 rounded border cursor-pointer transition-all flex items-center justify-between ${selectedCourse === course.id ? 'bg-amber-50' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0B0D11]/50 hover:bg-slate-100 dark:hover:bg-slate-800/50'}`} style={selectedCourse === course.id ? { borderColor: "#F5B41C" } : {}}>
                         <input type="radio" name="course" value={course.id} checked={selectedCourse === course.id} onChange={() => setSelectedCourse(course.id)} className="sr-only" />
                         <div className="flex items-center gap-3">
-                          <div className={`w-3 h-3 rounded-full border flex items-center justify-center ${selectedCourse === course.id ? 'border-blue-500' : 'border-slate-600'}`}>
-                            {selectedCourse === course.id && <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>}
+                          <div className={`w-3 h-3 rounded-full border flex items-center justify-center ${selectedCourse === course.id ? 'border-amber-400' : 'border-slate-600'}`}>
+                            {selectedCourse === course.id && <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "#F5B41C" }}></div>}
                           </div>
                           <div>
                             <span className="text-xs font-bold text-slate-900 dark:text-white uppercase block">{course.name}</span>
@@ -278,7 +278,7 @@ export default function CreateSession() {
 
                 <div>
                   <label className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-3 block">Session Length</label>
-                  <select value={duration} onChange={(e) => setDuration(e.target.value)} className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 font-mono transition-colors appearance-none cursor-pointer">
+                  <select value={duration} onChange={(e) => setDuration(e.target.value)} className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none font-mono transition-colors appearance-none cursor-pointer" style={{ outlineColor: "#081637" }}>
                     <option value="5">5 Minutes</option>
                     <option value="10">10 Minutes</option>
                     <option value="15">15 Minutes</option>
@@ -302,8 +302,8 @@ export default function CreateSession() {
                 <div>
                   <label className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-3 block">Allowed Radius (meters)</label>
                   <div className="flex items-center gap-4">
-                    <input type="range" min="10" max="200" step="10" value={radius} onChange={(e) => setRadius(e.target.value)} className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500" />
-                    <span className="text-xs font-mono text-blue-400 font-bold bg-blue-500/10 px-2 py-1 rounded border border-blue-500/20">{radius}m</span>
+                    <input type="range" min="10" max="200" step="10" value={radius} onChange={(e) => setRadius(e.target.value)} className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer" style={{ accentColor: "#F5B41C" }} />
+                    <span className="text-xs font-mono font-bold px-2 py-1 rounded" style={{ color: "#081637", backgroundColor: "rgba(245, 180, 28, 0.2)" }}>{radius}m</span>
                   </div>
                 </div>
 
@@ -320,7 +320,7 @@ export default function CreateSession() {
                     <label className="flex flex-col gap-1 p-3 rounded border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0B0D11]/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors relative">
                       <div className="flex justify-between items-center">
                         <span className="text-[10px] font-bold text-slate-900 dark:text-white tracking-widest uppercase">Save to Blockchain</span>
-                        <input type="checkbox" defaultChecked className="w-3 h-3 bg-white dark:bg-[#15181E] border-slate-300 dark:border-slate-700 rounded text-blue-500 focus:ring-blue-500" />
+                        <input type="checkbox" defaultChecked className="w-3 h-3 bg-white dark:bg-[#15181E] border-slate-300 dark:border-slate-700 rounded focus:ring-0" style={{ accentColor: "#081637" }} />
                       </div>
                       <p className="text-[10px] font-mono text-slate-500 uppercase">Save verified attendance to blockchain</p>
                     </label>
@@ -333,7 +333,7 @@ export default function CreateSession() {
               <button type="button" onClick={() => navigate(-1)} className="px-5 py-2.5 rounded border border-slate-300 dark:border-slate-700 text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700/70 hover:text-slate-900 dark:text-white transition-colors cursor-pointer">
                 Cancel
               </button>
-              <button type="submit" disabled={gpsStatus !== 'locked' || submitting} className={`px-6 py-2.5 bg-blue-600 border border-blue-500/50 shadow-[0_0_15px_rgba(37,99,235,0.2)] text-white rounded font-bold text-[10px] uppercase tracking-wider flex items-center gap-2 transition-colors ${gpsStatus !== 'locked' || submitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-500 cursor-pointer'}`}>
+              <button type="submit" disabled={gpsStatus !== 'locked' || submitting} className={`px-6 py-2.5 rounded font-bold text-[10px] uppercase tracking-wider flex items-center gap-2 transition-opacity ${gpsStatus !== 'locked' || submitting ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90 cursor-pointer'}`} style={{ backgroundColor: "#F5B41C", color: "#081637" }}>
                 {submitting ? (
                   <span className="flex items-center gap-2">
                     <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>

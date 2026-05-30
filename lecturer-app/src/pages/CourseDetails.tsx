@@ -30,7 +30,7 @@ export default function CourseDetails() {
   if (!course) {
     return (
       <div className="flex flex-col gap-6">
-        <button onClick={() => navigate(-1)} className="text-[10px] text-slate-500 hover:text-blue-400 uppercase font-mono tracking-widest flex items-center gap-1 w-fit cursor-pointer transition-colors">
+        <button onClick={() => navigate(-1)} className="text-[10px] text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 uppercase font-mono tracking-widest flex items-center gap-1 w-fit cursor-pointer transition-colors">
           <span className="material-symbols-outlined text-[14px]">arrow_back</span>
           Go Back
         </button>
@@ -46,14 +46,14 @@ export default function CourseDetails() {
     <div className="flex flex-col gap-6">
       {/* Header section with back button */}
       <div className="flex flex-col gap-4">
-        <button onClick={() => navigate(-1)} className="text-[10px] text-slate-500 hover:text-blue-400 uppercase font-mono tracking-widest flex items-center gap-1 w-fit cursor-pointer transition-colors">
+        <button onClick={() => navigate(-1)} className="text-[10px] text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 uppercase font-mono tracking-widest flex items-center gap-1 w-fit cursor-pointer transition-colors">
           <span className="material-symbols-outlined text-[14px]">arrow_back</span>
           Go Back
         </button>
         <div className="flex justify-between items-end">
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <span className="bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] uppercase font-bold px-2 py-0.5 rounded font-mono">{course.code}</span>
+              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded font-mono border" style={{ backgroundColor: "rgba(8, 22, 55, 0.1)", borderColor: "rgba(8, 22, 55, 0.2)", color: "#081637" }}>{course.code}</span>
               <span className="text-[10px] text-slate-500 font-mono uppercase">{course.level}</span>
             </div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight uppercase">{course.name}</h1>
@@ -65,7 +65,8 @@ export default function CourseDetails() {
             </button>
             <button
               onClick={() => navigate(`/session/create?course=${course.id}`)}
-              className="bg-blue-600 hover:bg-blue-500 text-white border border-blue-500/50 font-bold text-[10px] uppercase tracking-wider px-4 py-2 rounded flex items-center gap-2 transition-colors shadow-[0_0_10px_rgba(37,99,235,0.2)] cursor-pointer"
+              className="font-bold text-[10px] uppercase tracking-wider px-4 py-2 rounded flex items-center gap-2 transition-opacity hover:opacity-90 cursor-pointer"
+              style={{ backgroundColor: "#F5B41C", color: "#081637" }}
             >
               <span className="material-symbols-outlined text-[16px]">play_arrow</span>
               Start Session
@@ -110,11 +111,11 @@ export default function CourseDetails() {
           </div>
 
           <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800">
-            <div className="bg-blue-500/10 border border-blue-500/20 px-3 py-2 rounded flex justify-between items-center text-blue-400">
+            <div className="px-3 py-2 rounded flex justify-between items-center border" style={{ backgroundColor: "rgba(245, 180, 28, 0.1)", borderColor: "rgba(245, 180, 28, 0.2)", color: "#0D2A66" }}>
               <span className="text-[10px] font-bold uppercase tracking-wider">Join Code</span>
               <div className="flex items-center gap-2">
                 <span className="font-mono text-sm font-bold tracking-widest text-slate-900 dark:text-white">{course.joinCode}</span>
-                <button className="hover:text-blue-300 cursor-pointer transition-colors" onClick={() => navigator.clipboard?.writeText(course.joinCode)}>
+                <button className="hover:opacity-70 cursor-pointer transition-opacity" onClick={() => navigator.clipboard?.writeText(course.joinCode)}>
                   <span className="material-symbols-outlined text-[16px]">content_copy</span>
                 </button>
               </div>
@@ -163,7 +164,7 @@ export default function CourseDetails() {
         <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-5 flex flex-col">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Student List</h3>
-            <button onClick={() => navigate(`/courses/${course.id}/students`)} className="text-[10px] text-blue-500 uppercase font-bold hover:text-blue-400 cursor-pointer transition-colors">Manage</button>
+            <button onClick={() => navigate(`/courses/${course.id}/students`)} className="text-[10px] uppercase font-bold hover:opacity-70 cursor-pointer transition-opacity" style={{ color: "#0D2A66" }}>Manage</button>
           </div>
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
@@ -212,12 +213,12 @@ export default function CourseDetails() {
                         <span className="text-[10px] text-slate-500 font-mono">/ {session.totalStudents}</span>
                       </div>
                       <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1">
-                        <div className="bg-blue-500 h-1 rounded-full" style={{ width: `${(session.presentCount / session.totalStudents) * 100}%` }}></div>
+                        <div className="h-1 rounded-full" style={{ width: `${(session.presentCount / session.totalStudents) * 100}%`, backgroundColor: "#081637" }}></div>
                       </div>
                     </div>
                   </td>
                   <td className="px-5 py-3 text-right">
-                    <button onClick={() => navigate('/session/summary', { state: { session } })} className="text-[10px] font-bold uppercase tracking-wider text-slate-500 group-hover:text-blue-400 transition-colors cursor-pointer">View Summary</button>
+                    <button onClick={() => navigate('/session/summary', { state: { session } })} className="text-[10px] font-bold uppercase tracking-wider text-slate-500 hover:opacity-70 transition-opacity cursor-pointer" style={{ color: "#0D2A66" }}>View Summary</button>
                   </td>
                 </tr>
               ))}

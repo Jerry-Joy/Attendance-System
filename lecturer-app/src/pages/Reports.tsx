@@ -130,13 +130,13 @@ export default function Reports() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight uppercase flex items-center gap-2">
-            <span className="material-symbols-outlined text-[20px] text-blue-400">insights</span>
+          <h1 className="text-xl font-bold text-primary dark:text-white tracking-tight uppercase flex items-center gap-2">
+            <span className="material-symbols-outlined text-[20px] text-secondary">insights</span>
             Reports & Analytics
           </h1>
           <p className="text-[10px] text-slate-600 dark:text-slate-400 font-mono tracking-widest uppercase mt-1">Performance Metrics & Integrity Audit</p>
         </div>
-        <button onClick={handleExportAll} className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-[10px] uppercase tracking-wider px-4 py-2 rounded flex items-center gap-2 transition-colors shadow-[0_0_10px_rgba(37,99,235,0.2)] cursor-pointer border border-blue-500/50 self-start sm:self-auto">
+        <button onClick={handleExportAll} className="font-bold text-[10px] uppercase tracking-wider px-4 py-2 rounded flex items-center gap-2 transition-opacity hover:opacity-90 cursor-pointer self-start sm:self-auto bg-secondary text-primary">
           <span className="material-symbols-outlined text-[14px]">download</span>
           Export CSV
         </button>
@@ -148,7 +148,7 @@ export default function Reports() {
           {/* Course filter */}
           <div className="relative">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-slate-600 dark:text-slate-400">filter_alt</span>
-            <select value={courseFilter} onChange={e => setCourseFilter(e.target.value)} className="appearance-none pl-9 pr-8 py-2.5 bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 font-mono transition-colors cursor-pointer">
+            <select value={courseFilter} onChange={e => setCourseFilter(e.target.value)} className="appearance-none pl-9 pr-8 py-2.5 bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded text-xs text-slate-900 dark:text-white focus:outline-none focus:border-primary font-mono transition-colors cursor-pointer">
               <option value="all">All Courses</option>
               {courseOptions.map(opt => (
                 <option key={opt.code} value={opt.code}>{opt.code} — {opt.name}</option>
@@ -159,7 +159,7 @@ export default function Reports() {
           {/* Period toggle */}
           <div className="flex gap-0.5 p-0.5 bg-slate-50 dark:bg-[#0B0D11] rounded border border-slate-200 dark:border-slate-800">
             {([['week', 'This Week'], ['month', 'This Month'], ['all', 'All Time']] as [PeriodFilter, string][]).map(([key, label]) => (
-              <button key={key} onClick={() => setPeriodFilter(key)} className={`px-3 py-1.5 rounded text-[10px] font-bold uppercase transition-all cursor-pointer ${periodFilter === key ? 'bg-blue-500/20 text-blue-400' : 'text-slate-600 hover:text-slate-700 dark:text-slate-300'}`}>
+              <button key={key} onClick={() => setPeriodFilter(key)} className={`px-3 py-1.5 rounded text-[10px] font-bold uppercase transition-all cursor-pointer ${periodFilter === key ? 'bg-secondary text-primary' : 'text-slate-600 hover:text-slate-700'}`}>
                 {label}
               </button>
             ))}
@@ -169,12 +169,12 @@ export default function Reports() {
           {(courseFilter !== 'all' || periodFilter !== 'all') && (
             <div className="flex items-center gap-2 ml-0 sm:ml-auto">
               {courseFilter !== 'all' && (
-                <button onClick={() => setCourseFilter('all')} className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-500/10 text-blue-400 rounded text-[10px] font-bold uppercase border border-blue-500/20 hover:bg-blue-500/20 transition-colors cursor-pointer">
+                <button onClick={() => setCourseFilter('all')} className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary text-white rounded text-[10px] font-bold uppercase border border-primary hover:bg-primary/90 transition-colors cursor-pointer">
                   {courseFilter} <span className="ml-0.5">×</span>
                 </button>
               )}
               {periodFilter !== 'all' && (
-                <button onClick={() => setPeriodFilter('all')} className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded text-[10px] font-bold hover:bg-slate-700 transition-colors cursor-pointer">
+                <button onClick={() => setPeriodFilter('all')} className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary text-white rounded text-[10px] font-bold uppercase border border-primary hover:bg-primary/90 transition-colors cursor-pointer">
                   {periodFilter === 'week' ? 'This Week' : 'This Month'} <span className="ml-0.5">×</span>
                 </button>
               )}
@@ -186,19 +186,19 @@ export default function Reports() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          { label: 'Avg. Attendance', value: `${avgAttendance}%`, icon: 'trending_up', accent: 'emerald', sub: `across ${totalSessions} sessions` },
-          { label: 'Total Sessions', value: totalSessions, icon: 'calendar_today', accent: 'blue', sub: periodFilter === 'all' ? 'all time' : periodFilter === 'week' ? 'this week' : 'this month' },
-          { label: 'GPS Verified', value: `${avgGps}%`, icon: 'location_on', accent: 'amber', sub: avgGps >= 95 ? 'excellent integrity' : avgGps >= 85 ? 'good integrity' : 'needs review' },
+          { label: 'Avg. Attendance', value: `${avgAttendance}%`, icon: 'trending_up', cardClass: 'bg-primary border-primary text-white', iconContainer: 'bg-white/10 border-white/20', iconClass: 'text-secondary', valueClass: 'text-white', labelClass: 'text-white/80', subClass: 'text-white/60', hoverEffect: 'bg-white/5', sub: `across ${totalSessions} sessions` },
+          { label: 'Total Sessions', value: totalSessions, icon: 'calendar_today', cardClass: 'bg-white dark:bg-[#15181E] border-slate-200 dark:border-slate-800', iconContainer: 'bg-primary/10 border-primary/20', iconClass: 'text-primary', valueClass: 'text-slate-900 dark:text-white', labelClass: 'text-slate-600 dark:text-slate-400', subClass: 'text-slate-600', hoverEffect: 'bg-primary/5', sub: periodFilter === 'all' ? 'all time' : periodFilter === 'week' ? 'this week' : 'this month' },
+          { label: 'GPS Verified', value: `${avgGps}%`, icon: 'location_on', cardClass: 'bg-white dark:bg-[#15181E] border-slate-200 dark:border-slate-800', iconContainer: 'bg-emerald-500/10 border-emerald-500/20', iconClass: 'text-emerald-500', valueClass: 'text-slate-900 dark:text-white', labelClass: 'text-slate-600 dark:text-slate-400', subClass: 'text-slate-600', hoverEffect: 'bg-emerald-500/5', sub: avgGps >= 95 ? 'excellent integrity' : avgGps >= 85 ? 'good integrity' : 'needs review' },
         ].map((stat, i) => (
-          <div key={i} className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 px-5 py-4 flex items-center justify-between hover:border-slate-300 dark:border-slate-700 transition-colors group relative overflow-hidden">
-            <div className={`absolute -right-4 -top-4 w-16 h-16 bg-${stat.accent}-500/5 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out`}></div>
+          <div key={i} className={`${stat.cardClass} rounded-lg border px-5 py-4 flex items-center justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-colors group relative overflow-hidden`}>
+            <div className={`absolute -right-4 -top-4 w-16 h-16 ${stat.hoverEffect} rounded-full group-hover:scale-150 transition-transform duration-500 ease-out`}></div>
             <div className="relative z-10">
-              <p className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
-              <p className="text-3xl font-extrabold text-slate-900 dark:text-white tabular-nums">{stat.value}</p>
-              <p className="text-[10px] text-slate-600 font-mono mt-0.5 uppercase">{stat.sub}</p>
+              <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${stat.labelClass}`}>{stat.label}</p>
+              <p className={`text-3xl font-extrabold tabular-nums ${stat.valueClass}`}>{stat.value}</p>
+              <p className={`text-[10px] font-mono mt-0.5 uppercase ${stat.subClass}`}>{stat.sub}</p>
             </div>
-            <div className={`w-11 h-11 rounded-xl bg-${stat.accent}-500/10 flex items-center justify-center relative z-10 border border-${stat.accent}-500/20`}>
-              <span className={`material-symbols-outlined text-[20px] text-${stat.accent}-400`}>{stat.icon}</span>
+            <div className={`w-11 h-11 rounded-xl flex items-center justify-center relative z-10 border ${stat.iconContainer}`}>
+              <span className={`material-symbols-outlined text-[20px] ${stat.iconClass}`}>{stat.icon}</span>
             </div>
           </div>
         ))}
@@ -219,8 +219,8 @@ export default function Reports() {
                 <AreaChart data={chartData} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorRateReport" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#081637" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#081637" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
@@ -235,7 +235,7 @@ export default function Reports() {
                       return [value, name];
                     }}
                   />
-                  <Area type="monotone" dataKey="rate" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorRateReport)" />
+                  <Area type="monotone" dataKey="rate" stroke="#081637" strokeWidth={2} fillOpacity={1} fill="url(#colorRateReport)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -261,13 +261,13 @@ export default function Reports() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] font-mono text-slate-600 dark:text-slate-400 uppercase flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[12px] text-blue-400">verified</span>
+                  <span className="material-symbols-outlined text-[12px] text-primary">verified</span>
                   All Verified
                 </span>
-                <span className="text-xs font-bold text-blue-400">100%</span>
+                <span className="text-xs font-bold text-primary">100%</span>
               </div>
               <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full bg-blue-500 rounded-full transition-all duration-700" style={{ width: '100%' }} />
+                <div className="h-full bg-primary rounded-full transition-all duration-700" style={{ width: '100%' }} />
               </div>
             </div>
             <div>
@@ -299,9 +299,9 @@ export default function Reports() {
 
       {/* Course Performance Table */}
       <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          <h3 className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">Course Performance</h3>
-          <span className="text-[10px] text-slate-600 font-mono">{coursePerformance.length} courses</span>
+        <div className="bg-primary px-5 py-4 flex items-center justify-between">
+          <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">Course Performance</h3>
+          <span className="text-[10px] text-white/80 font-mono">{coursePerformance.length} courses</span>
         </div>
 
         {coursePerformance.length === 0 ? (
@@ -318,10 +318,10 @@ export default function Reports() {
                 <button
                   key={report.code}
                   onClick={() => report.courseId && navigate(`/courses/${report.courseId}`)}
-                  className="w-full px-5 py-4 flex items-center gap-4 hover:bg-slate-100 dark:bg-slate-800/20 dark:hover:bg-slate-800/40 transition-all group cursor-pointer text-left"
+                  className="w-full px-5 py-4 flex items-center gap-4 hover:bg-primary/5 dark:bg-slate-800/20 dark:hover:bg-primary/20 transition-all group cursor-pointer text-left"
                 >
-                  <div className="w-11 h-11 rounded-xl bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20">
-                    <span className="material-symbols-outlined text-[18px] text-blue-400">school</span>
+                  <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
+                    <span className="material-symbols-outlined text-[18px] text-primary">school</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -403,7 +403,7 @@ export default function Reports() {
             {flaggedStudents.map((student, i) => {
               const severity = student.rate < 60 ? 'red' : 'amber';
               return (
-                <div key={`${student.indexNumber}-${student.course}-${i}`} className="px-5 py-3.5 flex items-center gap-4 hover:bg-slate-100 dark:bg-slate-800/20 dark:hover:bg-slate-800/40 transition-colors">
+                <div key={`${student.indexNumber}-${student.course}-${i}`} className="px-5 py-3.5 flex items-center gap-4 hover:bg-primary/5 dark:bg-slate-800/20 dark:hover:bg-primary/20 transition-colors">
                   <div className={`w-9 h-9 rounded-full bg-${severity}-500/10 border border-${severity}-500/20 flex items-center justify-center text-${severity}-400 font-bold text-[10px] shrink-0`}>
                     {student.avatarInitials}
                   </div>
@@ -411,7 +411,7 @@ export default function Reports() {
                     <p className="text-xs font-bold text-slate-900 dark:text-white">{student.name}</p>
                     <p className="text-[10px] text-slate-600 dark:text-slate-400 font-mono mt-0.5">{student.indexNumber}</p>
                   </div>
-                  <span className="text-[10px] font-mono font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-1.5 py-0.5 rounded shrink-0">
+                  <span className="text-[10px] font-mono font-bold text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded shrink-0">
                     {student.course}
                   </span>
                   <div className="text-right shrink-0">
