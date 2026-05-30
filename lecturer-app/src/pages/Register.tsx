@@ -60,7 +60,7 @@ export default function Register() {
         </div>
 
         <div className="relative z-10 flex flex-col items-center text-center animate-fade-in">
-          <div className="w-28 h-28 bg-white rounded-3xl flex items-center justify-center p-4 shadow-2xl mb-8 transform hover:scale-105 transition-transform duration-500">
+          <div className="w-48 h-48 bg-white rounded-3xl flex items-center justify-center p-6 shadow-2xl mb-8 transform hover:scale-105 transition-transform duration-500">
             <img src="/gctu-crest.png" alt="GCTU Crest" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-3xl xl:text-4xl font-bold text-white tracking-tight uppercase leading-tight" style={{ fontFamily: "var(--font-display)" }}>
