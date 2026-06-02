@@ -88,154 +88,189 @@ export default function SessionSummary() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0D11] flex flex-col pt-20 px-4 sm:px-8 relative overflow-hidden font-sans">
-      {/* Topnav */}
-      <header className="fixed top-0 left-0 right-0 h-14 bg-white dark:bg-[#15181E] border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between z-40">
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+      {/* Header - Dark Navy */}
+      <header className="h-[72px] px-8 flex items-center justify-between rounded-2xl mx-4 mt-4 animate-fade-in" style={{ backgroundColor: "#1a2332" }}>
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/history')} className="w-8 h-8 rounded bg-slate-50 dark:bg-[#0B0D11] border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:text-white hover:bg-slate-100 dark:bg-slate-800 transition-colors cursor-pointer">
-            <span className="material-symbols-outlined text-[18px]">close</span>
+          <button onClick={() => navigate('/history')} className="w-8 h-8 rounded-lg flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all hover:scale-110">
+            <span className="material-symbols-outlined text-[20px]">close</span>
           </button>
-          <h1 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest">Session Summary</h1>
+          <h1 className="text-[13px] font-bold text-white uppercase tracking-[0.1em]">Session Summary</h1>
         </div>
-        <div className="flex items-center gap-2 px-2.5 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded">
-          <span className="material-symbols-outlined text-[14px] text-emerald-400">check_circle</span>
-          <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Completed</span>
+        <div className="flex items-center gap-2 px-4 py-1.5 rounded-md border-2 hover:scale-105 transition-transform" style={{ borderColor: "#F5B41C", backgroundColor: "transparent" }}>
+          <span className="material-symbols-outlined text-[14px]" style={{ color: "#F5B41C" }}>check_circle</span>
+          <span className="text-[11px] font-extrabold uppercase tracking-[0.08em]" style={{ color: "#F5B41C" }}>Completed</span>
         </div>
       </header>
 
-      <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col mt-4 relative z-10 pb-12">
-        {/* Header */}
-        <div className="mb-6">
-          <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">{summary.courseCode} · {summary.courseName} · {summary.date}</p>
-        </div>
-
-        {/* Hero: Ring + Stats */}
-        <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-6 lg:p-8 mb-6">
-          <div className="flex flex-col lg:flex-row items-center gap-8">
-            {/* SVG Ring */}
-            <div className="relative flex-shrink-0">
-              <svg width="160" height="160" className="-rotate-90">
-                <circle cx="80" cy="80" r={ringRadius} fill="none" className="stroke-slate-800" strokeWidth="12" />
-                <circle cx="80" cy="80" r={ringRadius} fill="none" className={rateStroke} strokeWidth="12" strokeLinecap="round" strokeDasharray={ringCircumference} strokeDashoffset={ringOffset} style={{ transition: 'stroke-dashoffset 1s ease-out' }} />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className={`text-4xl font-bold ${rateColor}`}>{attendanceRate}%</span>
-                <span className="text-[9px] text-slate-500 font-mono uppercase tracking-widest">Attendance</span>
-              </div>
-            </div>
-
-            {/* Stat Cards */}
-            <div className="flex-1 grid grid-cols-2 lg:grid-cols-4 gap-4 w-full">
-              {[
-                { icon: 'groups', label: 'Total', value: summary.totalStudents, color: 'text-blue-400', bg: 'bg-blue-500/10' },
-                { icon: 'check_circle', label: 'Present', value: summary.presentCount, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
-                { icon: 'cancel', label: 'Absent', value: absentCount, color: 'text-red-400', bg: 'bg-red-500/10' },
-                { icon: 'trending_up', label: 'Rate', value: `${attendanceRate}%`, color: rateColor, bg: attendanceRate >= 75 ? 'bg-emerald-500/10' : attendanceRate >= 50 ? 'bg-amber-500/10' : 'bg-red-500/10' },
-              ].map((stat, i) => (
-                <div key={i} className="bg-slate-50 dark:bg-[#0B0D11]/50 rounded-xl p-5 text-center border border-slate-200 dark:border-slate-800">
-                  <div className={`w-11 h-11 mx-auto mb-3 rounded-xl ${stat.bg} flex items-center justify-center`}>
-                    <span className={`material-symbols-outlined text-[20px] ${stat.color}`}>{stat.icon}</span>
-                  </div>
-                  <p className={`text-3xl font-bold ${stat.color}`}>{stat.value}</p>
-                  <p className="text-[9px] text-slate-500 font-mono uppercase tracking-widest mt-1">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Details + Verification */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Session Details */}
-          <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-5">
-            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[14px]">description</span>
-              Session Details
-            </h3>
-            <div className="flex flex-col gap-3">
-              {[
-                { label: 'Start Time', value: summary.startTime },
-                { label: 'End Time', value: summary.endTime },
-                { label: 'Duration', value: summary.duration },
-                { label: 'Venue', value: summary.venueName },
-                { label: 'Geofence', value: `${summary.geofenceRadius}m radius` },
-              ].map((item, i) => (
-                <div key={i} className="flex items-center justify-between py-2.5 border-b border-slate-200 dark:border-slate-800/50 last:border-0">
-                  <span className="text-[10px] text-slate-500 font-mono uppercase">{item.label}</span>
-                  <span className="text-xs font-bold text-slate-900 dark:text-white">{item.value}</span>
-                </div>
-              ))}
-            </div>
+      <div className="flex-1 px-8 py-6">
+        <div className="max-w-[1400px] mx-auto">
+          {/* Course Info */}
+          <div className="mb-6 mt-2 animate-slide-up" style={{ animationDelay: '0.1s' }}>
+            <p className="text-[11px] text-slate-500 uppercase tracking-wide font-medium">
+              {summary.courseCode} · {summary.courseName} · {summary.date}
+            </p>
           </div>
 
-          {/* Verification Breakdown */}
-          <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-5">
-            <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[14px]">verified_user</span>
-              Verification Breakdown
-            </h3>
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_4px_rgba(16,185,129,0.5)]" />
-                  <span className="text-[10px] text-slate-600 dark:text-slate-400 font-mono uppercase">QR + GPS Verified</span>
+          {/* Stats Grid - 5 individual cards */}
+          <div className="grid grid-cols-5 gap-4 mb-6">
+            {/* Circular Progress Card */}
+            <div className="bg-white rounded-2xl p-6 border border-slate-200 flex flex-col items-center justify-center animate-slide-up hover:shadow-lg hover:-translate-y-1 transition-all duration-300" style={{ animationDelay: '0.2s' }}>
+              <div className="relative w-[90px] h-[90px] mb-4">
+                <svg className="-rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="#f5f5f5" strokeWidth="12" />
+                  <circle 
+                    cx="50" 
+                    cy="50" 
+                    r="42" 
+                    fill="none" 
+                    stroke="#F5B41C" 
+                    strokeWidth="12" 
+                    strokeLinecap="round"
+                    strokeDasharray={`${2 * Math.PI * 42}`}
+                    strokeDashoffset={`${2 * Math.PI * 42 * (1 - attendanceRate / 100)}`}
+                    style={{ transition: 'stroke-dashoffset 1.5s ease-out' }}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-[28px] font-extrabold" style={{ color: "#F5B41C" }}>{attendanceRate}%</span>
                 </div>
-                <span className="text-xs font-bold text-emerald-400">{gpsVerifiedCount}</span>
               </div>
-              <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-500 rounded-full transition-all duration-700 shadow-[0_0_6px_rgba(16,185,129,0.3)]" style={{ width: `${gpsPercent}%` }} />
-              </div>
+              <p className="text-[9px] text-slate-400 uppercase tracking-[0.1em] font-bold">Attendance</p>
             </div>
-            <div className="p-3 bg-emerald-500/10 rounded border border-emerald-500/20 flex items-center gap-2.5">
-              <span className="material-symbols-outlined text-[14px] text-emerald-400 flex-shrink-0">check_circle</span>
-              <span className="text-[10px] text-emerald-400 font-mono uppercase">All present students verified with QR + GPS</span>
+
+            {/* Total Card */}
+            <div className="bg-white rounded-2xl p-6 border border-slate-200 flex flex-col items-center justify-center animate-slide-up hover:shadow-lg hover:-translate-y-1 transition-all duration-300" style={{ animationDelay: '0.3s' }}>
+              <div className="w-[48px] h-[48px] rounded-full bg-slate-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined text-[26px] text-slate-700">groups</span>
+              </div>
+              <p className="text-[42px] font-extrabold text-slate-900 mb-1 leading-none">{summary.totalStudents}</p>
+              <p className="text-[9px] text-slate-400 uppercase tracking-[0.1em] font-bold mt-2">Total</p>
+            </div>
+
+            {/* Present Card */}
+            <div className="bg-white rounded-2xl p-6 border border-slate-200 flex flex-col items-center justify-center animate-slide-up hover:shadow-lg hover:-translate-y-1 transition-all duration-300" style={{ animationDelay: '0.4s' }}>
+              <div className="w-[48px] h-[48px] rounded-full bg-slate-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined text-[26px] text-slate-700">help_outline</span>
+              </div>
+              <p className="text-[42px] font-extrabold text-slate-900 mb-1 leading-none">{summary.presentCount}</p>
+              <p className="text-[9px] text-slate-400 uppercase tracking-[0.1em] font-bold mt-2">Present</p>
+            </div>
+
+            {/* Absent Card */}
+            <div className="bg-white rounded-2xl p-6 border border-slate-200 flex flex-col items-center justify-center animate-slide-up hover:shadow-lg hover:-translate-y-1 transition-all duration-300" style={{ animationDelay: '0.5s' }}>
+              <div className="w-[48px] h-[48px] rounded-full bg-slate-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined text-[26px] text-slate-700">radio_button_unchecked</span>
+              </div>
+              <p className="text-[42px] font-extrabold text-slate-900 mb-1 leading-none">{absentCount}</p>
+              <p className="text-[9px] text-slate-400 uppercase tracking-[0.1em] font-bold mt-2">Absent</p>
+            </div>
+
+            {/* Rate Card */}
+            <div className="bg-white rounded-2xl p-6 border border-slate-200 flex flex-col items-center justify-center animate-slide-up hover:shadow-lg hover:-translate-y-1 transition-all duration-300" style={{ animationDelay: '0.6s' }}>
+              <div className="w-[48px] h-[48px] rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform" style={{ backgroundColor: "#FFF9E6" }}>
+                <span className="material-symbols-outlined text-[26px]" style={{ color: "#F5B41C" }}>show_chart</span>
+              </div>
+              <p className="text-[42px] font-extrabold mb-1 leading-none" style={{ color: "#F5B41C" }}>{attendanceRate}%</p>
+              <p className="text-[9px] text-slate-400 uppercase tracking-[0.1em] font-bold mt-2">Rate</p>
             </div>
           </div>
-        </div>
 
-        {/* Attendance Log */}
-        {attendees.length > 0 && (
-          <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden mb-6">
-            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-[#0B0D11]/30">
-              <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                <span className="material-symbols-outlined text-[14px]">list_alt</span>
-                Student Attendance Log ({attendees.length})
+          {/* Two Column Layout - Session Details + Verification */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            {/* Session Details */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 animate-slide-up hover:shadow-lg transition-all duration-300" style={{ animationDelay: '0.7s' }}>
+              <h3 className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wide mb-6 flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px] text-slate-600">description</span>
+                Session Details
               </h3>
+              <div className="space-y-0">
+                {[
+                  { label: 'START TIME', value: summary.startTime },
+                  { label: 'END TIME', value: summary.endTime },
+                  { label: 'DURATION', value: summary.duration },
+                  { label: 'VENUE', value: summary.venueName },
+                  { label: 'GEOFENCE', value: `${summary.geofenceRadius}m radius` },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center justify-between py-4 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wide">{item.label}</span>
+                    <span className="text-[13px] font-bold text-slate-900">{item.value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+
+            {/* Verification Breakdown */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 animate-slide-up hover:shadow-lg transition-all duration-300" style={{ animationDelay: '0.8s' }}>
+              <h3 className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wide mb-6 flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px] text-slate-600">verified_user</span>
+                Verification Breakdown
+              </h3>
+              <div className="mb-8">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-slate-700 animate-pulse" />
+                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wide">QR + GPS Verified</span>
+                  </div>
+                  <span className="text-[13px] font-bold text-slate-900">{gpsVerifiedCount}</span>
+                </div>
+                <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full transition-all duration-1000 ease-out" style={{ width: `${gpsPercent}%`, backgroundColor: "#F5B41C" }} />
+                </div>
+              </div>
+              <div className="flex items-start gap-3 pt-4">
+                <span className="material-symbols-outlined text-[18px] text-slate-900 flex-shrink-0">check</span>
+                <span className="text-[10px] text-slate-900 font-bold uppercase tracking-wide leading-relaxed">
+                  All present students verified with QR + GPS
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Student Attendance Log */}
+          {attendees.length > 0 && (
+            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden mb-6 animate-slide-up" style={{ animationDelay: '0.9s' }}>
+              <div className="px-6 py-4 bg-slate-50 border-b border-slate-200">
+                <h3 className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wide flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[18px] text-slate-600">list_alt</span>
+                  Student Attendance Log ({attendees.length})
+                </h3>
+              </div>
+              <table className="w-full">
                 <thead>
-                  <tr className="bg-slate-900/50 text-slate-500 text-[10px] uppercase font-mono tracking-widest border-b border-slate-200 dark:border-slate-800">
-                    <th className="px-5 py-3 font-semibold text-left">#</th>
-                    <th className="px-5 py-3 font-semibold text-left">Student</th>
-                    <th className="px-5 py-3 font-semibold text-left">Index</th>
-                    <th className="px-5 py-3 font-semibold text-left">Time</th>
-                    <th className="px-5 py-3 font-semibold text-left">Status</th>
+                  <tr style={{ backgroundColor: "#1a2332" }}>
+                    <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-300 uppercase tracking-wider">#</th>
+                    <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-300 uppercase tracking-wider">Student</th>
+                    <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-300 uppercase tracking-wider">Index</th>
+                    <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-300 uppercase tracking-wider">Time</th>
+                    <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-300 uppercase tracking-wider">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/50">
+                <tbody>
                   {attendees.map((student, idx) => (
-                    <tr key={student.id} className="hover:bg-slate-100 dark:bg-slate-800/20 dark:hover:bg-slate-800/40 transition-colors">
-                      <td className="px-5 py-3 text-[10px] text-slate-500 font-mono">{idx + 1}</td>
-                      <td className="px-5 py-3">
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 text-[9px] font-bold shrink-0">{student.avatarInitials}</div>
-                          <span className="text-xs font-bold text-slate-900 dark:text-white">{student.name}</span>
+                    <tr key={student.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors duration-200">
+                      <td className="px-6 py-5 text-[12px] text-slate-500 font-medium">{idx + 1}</td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[11px] font-bold transition-transform hover:scale-110" style={{ backgroundColor: "#1a2332" }}>
+                            {student.avatarInitials}
+                          </div>
+                          <span className="text-[13px] font-semibold text-slate-900">{student.name}</span>
                         </div>
                       </td>
-                      <td className="px-5 py-3 text-xs text-slate-600 dark:text-slate-400 font-mono">{student.indexNumber}</td>
-                      <td className="px-5 py-3 text-xs text-slate-600 dark:text-slate-400 font-mono">{student.time}</td>
-                      <td className="px-5 py-3">
+                      <td className="px-6 py-5 text-[13px] text-slate-600 font-medium">{student.indexNumber}</td>
+                      <td className="px-6 py-5 text-[13px] text-slate-600 font-medium">{student.time}</td>
+                      <td className="px-6 py-5">
                         {student.gpsVerified ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/10 text-emerald-400 rounded text-[9px] font-bold uppercase border border-emerald-500/20">
-                            <span className="material-symbols-outlined text-[12px]">location_on</span>
+                          <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-900">
+                            <span className="material-symbols-outlined text-[16px]">location_on</span>
                             QR + GPS
-                          </span>
+                          </div>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-500/10 text-amber-400 rounded text-[9px] font-bold uppercase border border-amber-500/20">
-                            <span className="material-symbols-outlined text-[12px]">schedule</span>
+                          <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
+                            <span className="material-symbols-outlined text-[16px]">schedule</span>
                             Verifying
-                          </span>
+                          </div>
                         )}
                       </td>
                     </tr>
@@ -243,26 +278,34 @@ export default function SessionSummary() {
                 </tbody>
               </table>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <button onClick={handleDownload} disabled={downloading} className="flex-1 flex items-center justify-center gap-2 py-3 bg-white dark:bg-[#15181E] border border-blue-500/30 text-blue-400 rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-blue-500/10 transition-colors disabled:opacity-50">
-            {downloading ? (
-              <><span className="material-symbols-outlined text-[16px] animate-spin">refresh</span> Downloading...</>
-            ) : (
-              <><span className="material-symbols-outlined text-[16px]">download</span> Download Report</>
-            )}
-          </button>
-          <button onClick={() => navigate('/history')} className="flex-1 flex items-center justify-center gap-2 py-3 bg-white dark:bg-[#15181E] border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-slate-100 dark:bg-slate-800 transition-colors">
-            <span className="material-symbols-outlined text-[16px]">history</span>
-            Session History
-          </button>
-          <button onClick={() => navigate('/')} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-opacity hover:opacity-90" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>
-            <span className="material-symbols-outlined text-[16px]">dashboard</span>
-            Dashboard
-          </button>
+          {/* Action Buttons */}
+          <div className="grid grid-cols-3 gap-4 animate-slide-up" style={{ animationDelay: '1s' }}>
+            <button 
+              onClick={handleDownload} 
+              disabled={downloading}
+              className="flex items-center justify-center gap-2 py-4 bg-white border-2 border-slate-300 text-slate-900 rounded-xl text-[11px] font-extrabold uppercase tracking-wide hover:bg-slate-50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:hover:translate-y-0"
+            >
+              <span className="material-symbols-outlined text-[20px]">{downloading ? 'refresh' : 'download'}</span>
+              {downloading ? 'Downloading...' : 'Download Report'}
+            </button>
+            <button 
+              onClick={() => navigate('/history')}
+              className="flex items-center justify-center gap-2 py-4 bg-white border-2 border-slate-300 text-slate-900 rounded-xl text-[11px] font-extrabold uppercase tracking-wide hover:bg-slate-50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+            >
+              <span className="material-symbols-outlined text-[20px]">history</span>
+              Session History
+            </button>
+            <button 
+              onClick={() => navigate('/')}
+              className="flex items-center justify-center gap-2 py-4 rounded-xl text-[11px] font-extrabold uppercase tracking-wide hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+              style={{ backgroundColor: "#F5B41C", color: "#000" }}
+            >
+              <span className="material-symbols-outlined text-[20px]">dashboard</span>
+              Dashboard
+            </button>
+          </div>
         </div>
       </div>
     </div>

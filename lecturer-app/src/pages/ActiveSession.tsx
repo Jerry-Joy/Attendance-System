@@ -205,184 +205,173 @@ export default function ActiveSession() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0D11] flex flex-col pt-20 px-4 sm:px-8 relative overflow-hidden font-sans">
-      {/* Topnav */}
-      <header className="fixed top-0 left-0 right-0 h-14 border-b border-white/10 px-6 flex items-center justify-between z-40" style={{ backgroundColor: "#081637" }}>
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0D11] flex flex-col relative font-sans">
+      {/* Topnav - Sticky */}
+      <header className="sticky top-0 h-14 border-b px-6 flex items-center justify-between z-50 backdrop-blur-sm" style={{ backgroundColor: "#0F1B2E", borderBottomColor: "rgba(255,255,255,0.08)" }}>
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/')} className="w-8 h-8 rounded border border-white/20 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer" title="Return to dashboard (session stays active)" style={{ backgroundColor: "rgba(255,255,255,0.05)" }}>
-            <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+          <button onClick={() => navigate('/')} className="w-8 h-8 rounded flex items-center justify-center text-white/60 hover:text-white transition-colors cursor-pointer" title="Return to dashboard">
+            <span className="material-symbols-outlined text-[20px]">arrow_back</span>
           </button>
-          <div className="flex items-center gap-2 px-2 py-1 bg-red-500/10 border border-red-500/20 rounded">
-            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.5)]"></div>
-            <span className="text-[10px] font-bold text-red-400 uppercase tracking-widest">Live Session</span>
+          <div className="flex items-center gap-2 px-2.5 py-1 rounded" style={{ backgroundColor: "rgba(59, 130, 246, 0.15)" }}>
+            <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: "#3B82F6" }}></div>
+            <span className="text-[9px] font-bold uppercase tracking-[0.15em]" style={{ color: "#60A5FA" }}>Live Session</span>
           </div>
-          <span className="text-[10px] text-white/60 font-mono uppercase font-bold tracking-wider">{activeSession.courseCode}</span>
+          <span className="text-sm font-bold text-white uppercase tracking-wider">{activeSession.courseCode}</span>
         </div>
         <div className="flex items-center gap-4">
-          <Link to="/session/live-monitor" className="text-[10px] font-bold uppercase tracking-wider hover:opacity-70 transition-opacity flex items-center gap-1" style={{ color: "#F5B41C" }}>
-            <span className="material-symbols-outlined text-[14px]">monitor_heart</span>
+          <Link to="/session/live-monitor" className="text-[10px] font-medium uppercase tracking-wider hover:opacity-70 transition-opacity flex items-center gap-1.5 text-white/60">
+            <span className="material-symbols-outlined text-[16px]">bar_chart</span>
             Live Attendance
           </Link>
-          <button onClick={() => setShowEndConfirm(true)} className="px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition-opacity hover:opacity-90 cursor-pointer" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>
+          <button onClick={() => setShowEndConfirm(true)} className="px-4 py-2 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all hover:opacity-90 cursor-pointer" style={{ backgroundColor: "#F5B41C", color: "#0F1B2E" }}>
             End Session
           </button>
         </div>
       </header>
 
-      {/* Background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[15%] left-[10%] w-[30%] h-[30%] bg-blue-500/3 blur-[100px] rounded-full"></div>
-        <div className="absolute bottom-[15%] right-[10%] w-[25%] h-[25%] bg-emerald-500/3 blur-[100px] rounded-full"></div>
-      </div>
-
-      <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col mt-4 relative z-10 pb-12">
-        {/* Time + Progress Bar */}
-        <div className="bg-white dark:bg-[#15181E] rounded-lg p-5 mb-6 border-t-4" style={{ borderColor: "#081637", borderLeftColor: "#0D2A66", borderRightColor: "#0D2A66", borderBottomColor: "#0D2A66", borderWidth: "4px 1px 1px 1px", borderStyle: "solid" }}>
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-4">
-              <div className="text-center">
-                <p className="text-[9px] text-slate-500 font-mono uppercase tracking-widest">Elapsed</p>
-                <p className="text-2xl font-bold font-mono text-slate-900 dark:text-white tabular-nums">{formatTime(elapsed)}</p>
+      <div className="flex-1 px-6 py-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Time Section - Clean, no card */}
+          <div className="mb-6 animate-fade-in">
+            <div className="flex items-end justify-between mb-4">
+              <div>
+                <p className="text-[9px] text-slate-500 font-semibold uppercase tracking-[0.15em] mb-1.5">Elapsed</p>
+                <p className="text-3xl font-bold tabular-nums" style={{ color: "#0F1B2E" }}>{formatTime(elapsed)}</p>
               </div>
-              <div className="w-px h-10 bg-slate-100 dark:bg-slate-800"></div>
-              <div className="text-center">
-                <p className="text-[9px] text-slate-500 font-mono uppercase tracking-widest">Remaining</p>
-                <p className={`text-2xl font-bold font-mono tabular-nums ${remaining < 60 ? 'text-red-400' : ''}`} style={remaining >= 60 ? { color: "#081637" } : {}}>{formatTime(remaining)}</p>
+              <div>
+                <p className="text-[9px] text-slate-500 font-semibold uppercase tracking-[0.15em] mb-1.5">Remaining</p>
+                <p className="text-3xl font-bold tabular-nums" style={{ color: remaining < 60 ? "#EF4444" : "#0F1B2E" }}>{formatTime(remaining)}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[9px] text-slate-500 font-semibold uppercase tracking-[0.15em] mb-1.5">Duration</p>
+                <p className="text-base font-bold" style={{ color: "#0F1B2E" }}>{activeSession.duration} min</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-[9px] text-slate-500 font-mono uppercase tracking-widest">Duration</p>
-              <p className="text-sm font-bold text-slate-900 dark:text-white">{activeSession.duration} min</p>
-            </div>
-          </div>
-          <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-            <div className={`h-full rounded-full transition-all duration-1000 ${progress >= 90 ? 'bg-red-500' : ''}`} style={progress < 90 ? { width: `${progress}%`, backgroundColor: "#081637" } : { width: `${progress}%` }} />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* QR Code Section */}
-          <div className="lg:col-span-1 rounded-lg flex flex-col items-center gap-4" style={{ backgroundColor: "#081637" }}>
-            <div className="flex items-center justify-between w-full p-6 border-b border-white/10">
-              <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">QR Code</h3>
-              <div className="flex items-center gap-1 text-[10px] font-mono text-white/50">
-                <span className="material-symbols-outlined text-[14px]">timer</span>
-                <span className="tabular-nums">{qrCountdown}s</span>
-              </div>
-            </div>
-
-            <div className="p-4 bg-white rounded-xl cursor-pointer hover:scale-105 transition-transform relative mx-auto mt-2" onClick={() => setIsFullscreenQr(true)}>
-              <QRCodeSVG value={qrValue} size={200} level="H" includeMargin={true} bgColor="#ffffff" fgColor="#0B0D11" />
-            </div>
-
-            <div className="w-full px-6 pb-2 mt-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[9px] font-mono text-white/50 uppercase tracking-widest">Auto-Refresh</span>
-                <span className="text-[9px] font-mono uppercase text-white">{qrCountdown}s</span>
-              </div>
-              <div className="h-1 bg-white/10 rounded-full overflow-hidden">
-                <div className="h-full rounded-full transition-all duration-1000 bg-white" style={{ width: `${(qrCountdown / 30) * 100}%` }} />
-              </div>
-            </div>
-
-            <div className="w-full px-6 pb-6 mt-2">
-              <button onClick={() => setIsFullscreenQr(true)} className="w-full px-4 py-3 rounded text-[10px] font-bold uppercase tracking-wider transition-opacity flex items-center justify-center gap-2 hover:opacity-90" style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "#FFFFFF" }}>
-                <span className="material-symbols-outlined text-[14px]">fullscreen</span>
-                Expand QR
-              </button>
+            <div className="h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div className="h-full rounded-full transition-all duration-1000 ease-out" style={{ width: `${progress}%`, backgroundColor: progress >= 90 ? "#EF4444" : "#0F1B2E" }} />
             </div>
           </div>
 
-          {/* Stats + Info Section */}
-          <div className="lg:col-span-2 flex flex-col gap-6">
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-white dark:bg-[#15181E] border border-slate-200 dark:border-slate-800 rounded-lg p-4 text-center">
-                <span className="material-symbols-outlined text-[20px] mb-1 block" style={{ color: "#081637" }}>groups</span>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">{attendeeCount}</p>
-                <p className="text-[9px] text-slate-500 font-mono uppercase">Checked In</p>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            {/* QR Code Section */}
+            <div className="lg:col-span-1 rounded-xl flex flex-col overflow-hidden animate-slide-up" style={{ backgroundColor: "#0F1B2E", animationDelay: "100ms" }}>
+              <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+                <h3 className="text-[10px] font-bold text-white uppercase tracking-[0.15em]">QR Code</h3>
+                <div className="flex items-center gap-1.5 text-[9px] font-mono text-white/50">
+                  <span className="material-symbols-outlined text-[14px]">timer</span>
+                  <span className="tabular-nums">{qrCountdown}s</span>
+                </div>
               </div>
-              <div className="bg-white dark:bg-[#15181E] border border-slate-200 dark:border-slate-800 rounded-lg p-4 text-center">
-                <span className="material-symbols-outlined text-[20px] mb-1 block" style={{ color: "#0D2A66" }}>verified_user</span>
-                <p className="text-2xl font-bold tabular-nums" style={{ color: "#0D2A66" }}>{gpsVerified}</p>
-                <p className="text-[9px] text-slate-500 font-mono uppercase">GPS Verified</p>
-              </div>
-              <div className="bg-white dark:bg-[#15181E] border border-slate-200 dark:border-slate-800 rounded-lg p-4 text-center">
-                <span className="material-symbols-outlined text-[20px] mb-1 block" style={{ color: "#0D2A66" }}>trending_up</span>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white tabular-nums">{enrolled > 0 ? Math.round((attendeeCount / enrolled) * 100) : 0}%</p>
-                <p className="text-[9px] text-slate-500 font-mono uppercase">Attendance Rate</p>
-              </div>
-              <div className="bg-white dark:bg-[#15181E] border border-slate-200 dark:border-slate-800 rounded-lg p-4 text-center">
-                <span className="material-symbols-outlined text-[20px] mb-1 block" style={{ color: "#081637" }}>people_outline</span>
-                <p className="text-2xl font-bold tabular-nums" style={{ color: "#081637" }}>{Math.max(0, enrolled - attendeeCount)}</p>
-                <p className="text-[9px] text-slate-500 font-mono uppercase">Remaining</p>
+
+              <div className="flex-1 flex flex-col items-center justify-center p-6">
+                <div className="p-5 bg-white rounded-xl cursor-pointer hover:scale-105 transition-transform duration-300 shadow-lg" onClick={() => setIsFullscreenQr(true)}>
+                  <QRCodeSVG value={qrValue} size={200} level="H" includeMargin={true} bgColor="#ffffff" fgColor="#0F1B2E" />
+                </div>
+
+                <div className="w-full mt-6">
+                  <div className="flex items-center justify-between mb-2 px-2">
+                    <span className="text-[9px] font-semibold text-white/50 uppercase tracking-[0.15em]">Auto-Refresh</span>
+                    <span className="text-[10px] font-bold text-white tabular-nums">{qrCountdown}s</span>
+                  </div>
+                  <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${(qrCountdown / 30) * 100}%`, backgroundColor: "#F5B41C" }} />
+                  </div>
+                </div>
+
+                <button onClick={() => setIsFullscreenQr(true)} className="w-full mt-5 px-4 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 border border-white/10 hover:bg-white/5 hover:border-white/20" style={{ color: "#FFFFFF" }}>
+                  <span className="material-symbols-outlined text-[16px]">fullscreen</span>
+                  Expand QR
+                </button>
               </div>
             </div>
 
-            {/* Session Info */}
-            <div className="bg-white dark:bg-[#15181E] rounded-lg p-5 border-t-4" style={{ borderColor: "#081637", borderLeftColor: "#0D2A66", borderRightColor: "#0D2A66", borderBottomColor: "#0D2A66", borderWidth: "4px 1px 1px 1px", borderStyle: "solid" }}>
-              <h3 className="text-[10px] font-bold uppercase tracking-widest mb-4" style={{ color: "#081637" }}>Session Info</h3>
-              <div className="grid grid-cols-2 gap-4 text-[10px] font-mono uppercase">
-                <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/50 pb-2">
-                  <span className="text-slate-500">Course</span>
-                  <span className="font-bold" style={{ color: "#081637" }}>{activeSession.courseCode}</span>
+            {/* Stats + Info Section */}
+            <div className="lg:col-span-2 flex flex-col gap-5">
+              {/* Stats Grid - Top borders only */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 animate-slide-up" style={{ animationDelay: "200ms" }}>
+                <div className="bg-white dark:bg-[#15181E] rounded-lg p-4 text-center border-t-4 hover:shadow-lg transition-all duration-300" style={{ borderTopColor: "#0F1B2E" }}>
+                  <span className="material-symbols-outlined text-[24px] mb-2 block text-slate-400">groups</span>
+                  <p className="text-3xl font-bold text-slate-900 dark:text-white tabular-nums mb-0.5">{attendeeCount}</p>
+                  <p className="text-[9px] text-slate-500 font-semibold uppercase tracking-[0.15em]">Checked In</p>
                 </div>
-                <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/50 pb-2">
-                  <span className="text-slate-500">Venue</span>
-                  <span className="font-bold" style={{ color: "#081637" }}>{course?.venueName || 'N/A'}</span>
+                <div className="bg-white dark:bg-[#15181E] rounded-lg p-4 text-center border-t-4 hover:shadow-lg transition-all duration-300" style={{ borderTopColor: "#F5B41C" }}>
+                  <span className="material-symbols-outlined text-[24px] mb-2 block text-slate-400">verified_user</span>
+                  <p className="text-3xl font-bold text-slate-900 dark:text-white tabular-nums mb-0.5">{gpsVerified}</p>
+                  <p className="text-[9px] text-slate-500 font-semibold uppercase tracking-[0.15em]">GPS Verified</p>
                 </div>
-                <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/50 pb-2">
-                  <span className="text-slate-500">Geofence</span>
-                  <span className="font-bold" style={{ color: "#0D2A66" }}>{activeSession.radius}m</span>
+                <div className="bg-white dark:bg-[#15181E] rounded-lg p-4 text-center border-t-4 hover:shadow-lg transition-all duration-300" style={{ borderTopColor: "#F5B41C" }}>
+                  <span className="material-symbols-outlined text-[24px] mb-2 block text-slate-400">trending_up</span>
+                  <p className="text-3xl font-bold text-slate-900 dark:text-white tabular-nums mb-0.5">{enrolled > 0 ? Math.round((attendeeCount / enrolled) * 100) : 0}%</p>
+                  <p className="text-[9px] text-slate-500 font-semibold uppercase tracking-[0.15em]">Attendance Rate</p>
                 </div>
-                <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/50 pb-2">
-                  <span className="text-slate-500">Enrolled</span>
-                  <span className="font-bold" style={{ color: "#081637" }}>{enrolled}</span>
+                <div className="bg-white dark:bg-[#15181E] rounded-lg p-4 text-center border-t-4 hover:shadow-lg transition-all duration-300" style={{ borderTopColor: "#F5B41C" }}>
+                  <span className="material-symbols-outlined text-[24px] mb-2 block text-slate-400">people_outline</span>
+                  <p className="text-3xl font-bold text-slate-900 dark:text-white tabular-nums mb-0.5">{Math.max(0, enrolled - attendeeCount)}</p>
+                  <p className="text-[9px] text-slate-500 font-semibold uppercase tracking-[0.15em]">Remaining</p>
                 </div>
               </div>
-            </div>
 
-            {/* Recent Check-ins */}
-            <div className="bg-white dark:bg-[#15181E] rounded-lg p-5 border-t-4" style={{ borderColor: "#081637", borderLeftColor: "#0D2A66", borderRightColor: "#0D2A66", borderBottomColor: "#0D2A66", borderWidth: "4px 1px 1px 1px", borderStyle: "solid" }}>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#081637" }}>Recent Check-ins</h3>
-                <Link to="/session/live-monitor" className="text-[10px] font-bold uppercase tracking-wider hover:opacity-70 transition-opacity" style={{ color: "#0D2A66" }}>View All</Link>
-              </div>
-              {activeSession.attendees.length === 0 ? (
-                <div className="text-center py-8">
-                  <span className="material-symbols-outlined text-[32px] text-slate-600 mb-2 block">hourglass_empty</span>
-                  <p className="text-[10px] text-slate-500 font-mono uppercase">Waiting for check-ins...</p>
+              {/* Session Info - Clean, minimal */}
+              <div className="bg-white dark:bg-[#15181E] rounded-lg p-5 animate-slide-up hover:shadow-md transition-all duration-300" style={{ animationDelay: "300ms" }}>
+                <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em] mb-4">Session Information</h3>
+                <div className="grid grid-cols-2 gap-x-10 gap-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] text-slate-500 uppercase font-medium">Course</span>
+                    <span className="text-sm font-bold text-slate-900 dark:text-white">{activeSession.courseCode}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] text-slate-500 uppercase font-medium">Venue</span>
+                    <span className="text-sm font-bold text-slate-900 dark:text-white">{course?.venueName || 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] text-slate-500 uppercase font-medium">Geofence</span>
+                    <span className="text-sm font-bold text-slate-900 dark:text-white">{activeSession.radius}M</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] text-slate-500 uppercase font-medium">Enrolled</span>
+                    <span className="text-sm font-bold text-slate-900 dark:text-white">{enrolled}</span>
+                  </div>
                 </div>
-              ) : (
-                <div className="flex flex-col gap-2 max-h-60 overflow-y-auto relative pl-4">
-                  {/* Vertical Timeline Line */}
-                  <div className="absolute left-6 top-4 bottom-4 w-px bg-slate-200 dark:bg-slate-800" style={{ backgroundColor: "rgba(8,22,55,0.1)" }}></div>
-                  {[...activeSession.attendees].reverse().slice(0, 6).map((student, idx) => (
-                    <div key={student.id} className="flex items-center justify-between px-3 py-2 bg-slate-50 dark:bg-[#0B0D11]/50 rounded border border-slate-200 dark:border-slate-800/50 relative z-10 group">
-                      <div className="flex items-center gap-3">
-                        <div className="relative">
-                          {idx === 0 && (
-                            <div className="absolute -inset-1 rounded-full animate-pulse opacity-50" style={{ backgroundColor: "#0D2A66" }}></div>
+              </div>
+
+              {/* Recent Check-ins - Clean design */}
+              <div className="bg-white dark:bg-[#15181E] rounded-lg p-5 animate-slide-up hover:shadow-md transition-all duration-300" style={{ animationDelay: "400ms" }}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em]">Recent Check-ins</h3>
+                  <Link to="/session/live-monitor" className="text-[10px] font-bold uppercase tracking-wider hover:opacity-70 transition-opacity text-slate-900 dark:text-white flex items-center gap-1">
+                    View All
+                    <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                  </Link>
+                </div>
+                {activeSession.attendees.length === 0 ? (
+                  <div className="text-center py-12">
+                    <span className="material-symbols-outlined text-[48px] text-slate-300 mb-3 block animate-pulse">hourglass_empty</span>
+                    <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.15em]">Waiting for check-ins...</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2.5 max-h-64 overflow-y-auto">
+                    {[...activeSession.attendees].reverse().slice(0, 6).map((student, idx) => (
+                      <div key={student.id} className="flex items-center justify-between px-3 py-3 bg-slate-50 dark:bg-[#0B0D11]/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-all duration-200 animate-slide-in" style={{ animationDelay: `${idx * 50}ms` }}>
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ backgroundColor: "#0F1B2E", color: "#FFFFFF" }}>{student.avatarInitials}</div>
+                          <div>
+                            <p className="text-[13px] font-bold text-slate-900 dark:text-white">{student.name}</p>
+                            <p className="text-[10px] text-slate-500 font-mono">{student.indexNumber}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-[10px] text-slate-500 font-mono">{student.time}</span>
+                          {student.gpsVerified ? (
+                            <span className="text-[9px] px-2 py-0.5 rounded font-bold uppercase" style={{ color: "#FFFFFF", backgroundColor: "#0F1B2E" }}>GPS ✓</span>
+                          ) : (
+                            <span className="text-[9px] px-2 py-0.5 rounded font-bold uppercase border" style={{ color: "#F5B41C", backgroundColor: "rgba(245,180,28,0.1)", borderColor: "rgba(245,180,28,0.3)" }}>Pending</span>
                           )}
-                          <div className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold relative z-10" style={{ backgroundColor: "#0D2A66", color: "#FFFFFF" }}>{student.avatarInitials}</div>
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-slate-900 dark:text-white">{student.name}</p>
-                          <p className="text-[10px] text-slate-500 font-mono">{student.indexNumber}</p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-slate-500 font-mono">{student.time}</span>
-                        {student.gpsVerified ? (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase border" style={{ color: "#0D2A66", backgroundColor: "rgba(13, 42, 102, 0.1)", borderColor: "rgba(13, 42, 102, 0.2)" }}>GPS ✓</span>
-                        ) : (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase border" style={{ color: "#081637", backgroundColor: "rgba(8, 22, 55, 0.1)", borderColor: "rgba(8, 22, 55, 0.2)" }}>Pending</span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -411,19 +400,46 @@ export default function ActiveSession() {
 
       {/* Fullscreen QR Modal */}
       {isFullscreenQr && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-50 dark:bg-[#0B0D11]/95 backdrop-blur-sm cursor-pointer" onClick={() => setIsFullscreenQr(false)}>
-          <div className="flex flex-col items-center gap-6" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: "rgba(15, 27, 46, 0.95)" }} onClick={() => setIsFullscreenQr(false)}>
+          {/* Close button - Top right corner */}
+          <button 
+            onClick={() => setIsFullscreenQr(false)} 
+            className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-white/10"
+            style={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+            title="Close (or click anywhere)"
+          >
+            <span className="material-symbols-outlined text-[24px] text-white">close</span>
+          </button>
+
+          <div className="flex flex-col items-center gap-6 max-w-2xl w-full" onClick={e => e.stopPropagation()}>
+            {/* Header Badge */}
+            <div className="flex items-center gap-3 px-6 py-2.5 rounded-lg" style={{ backgroundColor: "rgba(59, 130, 246, 0.2)" }}>
+              <div className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ backgroundColor: "#3B82F6" }}></div>
+              <span className="text-sm font-bold uppercase tracking-widest text-white">Live QR Code</span>
+            </div>
+            
+            {/* QR Code */}
             <div className="p-8 bg-white rounded-2xl shadow-2xl">
-              <QRCodeSVG value={qrValue} size={350} level="H" includeMargin={true} bgColor="#ffffff" fgColor="#0B0D11" />
+              <QRCodeSVG value={qrValue} size={380} level="H" includeMargin={true} bgColor="#ffffff" fgColor="#0F1B2E" />
             </div>
-            <div className="flex items-center gap-3 text-[10px] font-mono text-slate-500 uppercase">
-              <span>Auto-refresh: {qrCountdown}s</span>
-              <span>|</span>
-              <span>{activeSession.courseCode}</span>
-              <span>|</span>
-              <span>{attendeeCount} checked in</span>
+            
+            {/* Info Bar */}
+            <div className="flex flex-wrap items-center justify-center gap-4 text-sm font-mono px-6 py-3 rounded-lg" style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "#FFFFFF" }}>
+              <span className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">timer</span>
+                <strong>Refresh: {qrCountdown}s</strong>
+              </span>
+              <span style={{ color: "rgba(255,255,255,0.4)" }}>•</span>
+              <span className="font-bold">{activeSession.courseCode}</span>
+              <span style={{ color: "rgba(255,255,255,0.4)" }}>•</span>
+              <span className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px]">groups</span>
+                <strong>{attendeeCount} checked in</strong>
+              </span>
             </div>
-            <button onClick={() => setIsFullscreenQr(false)} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded text-[10px] font-bold uppercase tracking-wider border border-slate-300 dark:border-slate-700 hover:bg-slate-700 transition-colors">Close</button>
+            
+            {/* Hint Text */}
+            <p className="text-[11px] text-white/50 uppercase tracking-wider">Click anywhere or press ESC to close</p>
           </div>
         </div>
       )}
