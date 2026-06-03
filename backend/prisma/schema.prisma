@@ -49,6 +49,7 @@ model Course {
   courseName  String
   joinCode    String   @unique
   venue       String?
+  level       String?
   dayOfWeek   String?
   startTime   String?
   endTime     String?

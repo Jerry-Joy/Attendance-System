@@ -46,6 +46,7 @@ export class CoursesService {
         courseName: dto.courseName,
         joinCode,
         venue: dto.venue,
+        level: dto.level,
         dayOfWeek: dto.dayOfWeek,
         startTime: dto.startTime,
         endTime: dto.endTime,

@@ -19,6 +19,10 @@ export class CreateCourseDto {
 
   @IsOptional()
   @IsString()
+  level?: string;
+
+  @IsOptional()
+  @IsString()
   dayOfWeek?: string;
 
   @IsOptional()

@@ -68,6 +68,7 @@ export interface BackendCourse {
   courseName: string;
   joinCode: string;
   venue: string | null;
+  level: string | null;
   dayOfWeek: string | null;
   startTime: string | null;
   endTime: string | null;
@@ -151,16 +152,23 @@ export function mapUser(u: BackendUser): Lecturer {
 }
 
 export function mapCourse(c: BackendCourse): Course {
+  // Build schedule string from backend fields: "Monday, 09:00 - 10:30"
+  let schedule: string | undefined;
+  if (c.dayOfWeek && c.startTime && c.endTime) {
+    schedule = `${c.dayOfWeek}, ${c.startTime} - ${c.endTime}`;
+  }
+
   return {
     id: c.id,
     code: c.courseCode,
     name: c.courseName,
-    level: '',
+    level: c.level || '',
     studentCount: c._count.enrollments,
     lastSession: '',
     groups: [],
     joinCode: c.joinCode,
     venueName: c.venue || undefined,
+    schedule,
   };
 }
 
@@ -256,6 +264,10 @@ export const api = {
     courseCode: string;
     courseName: string;
     venue?: string;
+    level?: string;
+    dayOfWeek?: string;
+    startTime?: string;
+    endTime?: string;
   }) =>
     request<BackendCourse>('/courses', {
       method: 'POST',
@@ -264,7 +276,15 @@ export const api = {
 
   updateCourse: (
     id: string,
-    data: { courseCode?: string; courseName?: string; venue?: string },
+    data: { 
+      courseCode?: string; 
+      courseName?: string; 
+      venue?: string;
+      level?: string;
+      dayOfWeek?: string;
+      startTime?: string;
+      endTime?: string;
+    },
   ) =>
     request<BackendCourse>(`/courses/${id}`, {
       method: 'PATCH',

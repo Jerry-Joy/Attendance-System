@@ -100,6 +100,19 @@ export default function StudentRoster() {
                 </div>
               </div>
 
+              {/* Schedule */}
+              {course.schedule && (
+                <div className="mb-4 pb-4 border-b border-slate-200">
+                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                    Schedule
+                  </label>
+                  <div className="flex items-center gap-2 text-sm text-slate-700">
+                    <span className="material-symbols-outlined text-[16px] text-slate-400">schedule</span>
+                    <span className="font-semibold">{course.schedule}</span>
+                  </div>
+                </div>
+              )}
+
               {/* Total Enrolled */}
               <div className="mb-4 pb-4 border-b border-slate-200">
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">

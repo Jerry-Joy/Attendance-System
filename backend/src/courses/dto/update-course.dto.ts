@@ -15,6 +15,10 @@ export class UpdateCourseDto {
 
   @IsOptional()
   @IsString()
+  level?: string;
+
+  @IsOptional()
+  @IsString()
   dayOfWeek?: string;
 
   @IsOptional()

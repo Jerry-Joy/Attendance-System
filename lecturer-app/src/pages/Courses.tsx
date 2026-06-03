@@ -22,11 +22,71 @@ export default function Courses() {
   const [editCode, setEditCode] = useState('');
   const [editName, setEditName] = useState('');
   const [editVenue, setEditVenue] = useState('');
+  const [editLevel, setEditLevel] = useState('');
+  const [editScheduleDay, setEditScheduleDay] = useState('');
+  const [editStartTime, setEditStartTime] = useState('');
+  const [editEndTime, setEditEndTime] = useState('');
+
+  // Helper function to check if class is currently in progress
+  const getClassStatus = (schedule?: string) => {
+    if (!schedule) return null;
+    
+    try {
+      const parts = schedule.split(',');
+      if (parts.length < 2) return null;
+      
+      const dayName = parts[0].trim();
+      const timeRange = parts[1].trim();
+      const [startTimePart, endTimePart] = timeRange.split('-').map(t => t.trim());
+      
+      const now = new Date();
+      const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' });
+      const currentTime = now.getHours() * 60 + now.getMinutes();
+      
+      if (dayName !== currentDay) return null;
+      
+      const [startHours, startMinutes] = startTimePart.split(':').map(Number);
+      const scheduledStartTime = startHours * 60 + startMinutes;
+      
+      const [endHours, endMinutes] = endTimePart.split(':').map(Number);
+      const scheduledEndTime = endHours * 60 + endMinutes;
+      
+      // Check if class is currently in progress
+      if (currentTime >= scheduledStartTime && currentTime < scheduledEndTime) {
+        const minutesRemaining = scheduledEndTime - currentTime;
+        return { isLive: true, minutesRemaining };
+      }
+      
+      return null;
+    } catch {
+      return null;
+    }
+  };
 
   const openEditModal = (course: Course) => {
     setEditCode(course.code);
     setEditName(course.name);
     setEditVenue(course.venueName || '');
+    setEditLevel(course.level || '');
+    
+    // Parse schedule if it exists: "Monday, 09:00 - 10:30"
+    if (course.schedule) {
+      const parts = course.schedule.split(',');
+      if (parts.length >= 2) {
+        setEditScheduleDay(parts[0].trim());
+        const timeRange = parts[1].trim();
+        const times = timeRange.split('-').map(t => t.trim());
+        if (times.length >= 2) {
+          setEditStartTime(times[0]);
+          setEditEndTime(times[1]);
+        }
+      }
+    } else {
+      setEditScheduleDay('');
+      setEditStartTime('');
+      setEditEndTime('');
+    }
+    
     setEditTarget(course);
     setOpenMenu(null);
   };
@@ -38,9 +98,13 @@ export default function Courses() {
         courseCode: editCode.trim().toUpperCase(),
         courseName: editName.trim(),
         venue: editVenue.trim() || undefined,
+        level: editLevel || undefined,
+        dayOfWeek: editScheduleDay || undefined,
+        startTime: editStartTime || undefined,
+        endTime: editEndTime || undefined,
       });
       const mapped = mapCourse(result);
-      updateCourse(editTarget.id, { code: mapped.code, name: mapped.name, venueName: mapped.venueName });
+      updateCourse(editTarget.id, mapped);
     } catch { /* ignore */ }
     setEditTarget(null);
   };
@@ -156,14 +220,31 @@ export default function Courses() {
             const progress = getProgress(course.code);
             const trend = getTrendDelta(course.code);
             const isLive = activeSession?.courseId === course.id;
+            const classStatus = getClassStatus(course.schedule);
+            const isInProgress = classStatus?.isLive && !isLive; // In progress but no active session
+            
             return (
               <div 
                 key={course.id} 
-                className="bg-white rounded-2xl border border-slate-200 overflow-hidden group hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-slide-up"
+                className={`rounded-2xl border overflow-hidden group hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-slide-up ${
+                  isLive ? 'bg-emerald-50 border-emerald-200' :
+                  isInProgress ? 'bg-amber-50 border-amber-200' :
+                  'bg-white border-slate-200'
+                }`}
                 style={{ animationDelay: `${idx * 0.1 + 0.4}s` }}
               >
                 {/* Dark Navy Header */}
                 <div className="h-28 relative flex items-end p-5" style={{ backgroundColor: "#1a2332" }}>
+                  {/* Status Badge */}
+                  {(isLive || isInProgress) && (
+                    <div className={`absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-wider ${
+                      isLive ? 'bg-emerald-500/90 text-white' : 'bg-amber-500/90 text-white'
+                    }`}>
+                      <div className={`w-1.5 h-1.5 rounded-full ${isLive ? 'bg-white' : 'bg-white'} animate-pulse`}></div>
+                      {isLive ? 'Live Session' : `In Progress (${classStatus?.minutesRemaining}m left)`}
+                    </div>
+                  )}
+                  
                   <div className="px-3 py-1 rounded-md text-[11px] font-extrabold uppercase tracking-wide" style={{ backgroundColor: "#F5B41C", color: "#000" }}>
                     {course.code}
                   </div>
@@ -171,7 +252,10 @@ export default function Courses() {
 
                 {/* White Body */}
                 <div className="p-6">
-                  <h3 className="text-base font-bold text-slate-900 mb-1">{course.name}</h3>
+                  <h3 className="text-base font-bold text-slate-900 mb-1">
+                    {course.name}
+                    {course.level && <span className="text-sm font-normal text-slate-500 ml-2">• {course.level}</span>}
+                  </h3>
 
                   {/* Attendance Rate */}
                   <div className="mt-6 mb-6">
@@ -199,6 +283,12 @@ export default function Courses() {
                       <span className="material-symbols-outlined text-[16px]">key</span>
                       <span className="font-bold">{course.joinCode}</span>
                     </div>
+                    {course.schedule && (
+                      <div className="flex items-center gap-2 text-[11px] text-slate-600">
+                        <span className="material-symbols-outlined text-[16px]">schedule</span>
+                        <span className="font-semibold">{course.schedule}</span>
+                      </div>
+                    )}
                     {course.venueName && (
                       <div className="flex items-center gap-2 text-[11px] text-slate-600">
                         <span className="material-symbols-outlined text-[16px]">meeting_room</span>
@@ -246,17 +336,33 @@ export default function Courses() {
             const progress = getProgress(course.code);
             const trend = getTrendDelta(course.code);
             const isLive = activeSession?.courseId === course.id;
+            const classStatus = getClassStatus(course.schedule);
+            const isInProgress = classStatus?.isLive && !isLive;
+            
             return (
-              <div key={course.id} className={`bg-white rounded-lg border hover:border-slate-300 transition-colors relative ${isLive ? 'border-emerald-500/50' : 'border-slate-200'}`}>
+              <div key={course.id} className={`bg-white rounded-lg border hover:border-slate-300 transition-colors relative ${
+                isLive ? 'border-emerald-500/50' : 
+                isInProgress ? 'border-amber-500/50 bg-amber-50/30' :
+                'border-slate-200'
+              }`}>
                 {isLive && (
                   <div className="absolute -top-2 left-6 flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/30 rounded text-[9px] font-bold text-emerald-400 uppercase tracking-wider z-10">
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    Live
+                    Live Session
+                  </div>
+                )}
+                {isInProgress && !isLive && (
+                  <div className="absolute -top-2 left-6 flex items-center gap-1.5 px-2 py-0.5 bg-amber-500/20 border border-amber-500/30 rounded text-[9px] font-bold text-amber-600 uppercase tracking-wider z-10">
+                    <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></div>
+                    In Progress ({classStatus?.minutesRemaining}m left)
                   </div>
                 )}
                 <div className="px-5 py-4 flex flex-col lg:flex-row lg:items-center gap-4">
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-bold text-slate-900">{course.code}: {course.name}</h3>
+                    <h3 className="text-sm font-bold text-slate-900">
+                      {course.code}: {course.name}
+                      {course.level && <span className="text-xs font-normal text-slate-500 ml-2">• {course.level}</span>}
+                    </h3>
                     <div className="flex items-center gap-4 mt-1 text-[10px] text-slate-500 font-mono uppercase">
                       <div className="flex items-center gap-1" style={{ color: "#0D2A66" }}>
                         <span className="material-symbols-outlined text-[12px]">key</span>
@@ -334,24 +440,155 @@ export default function Courses() {
       {/* Edit Modal */}
       {editTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-50 backdrop-blur-sm">
-          <div className="bg-white rounded-lg border border-slate-200 p-6 w-full max-w-md shadow-2xl">
-            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Edit Course Details</h2>
+          <div className="bg-white rounded-lg border border-slate-200 p-6 w-full max-w-2xl shadow-2xl">
+            <div className="flex items-start justify-between mb-6">
+              <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider">Edit Course Details</h2>
+              <button 
+                onClick={() => setEditTarget(null)} 
+                className="p-1 hover:bg-slate-100 rounded transition-colors"
+              >
+                <span className="material-symbols-outlined text-[20px] text-slate-400">close</span>
+              </button>
+            </div>
+
             <div className="space-y-4">
-              <div>
-                <label className="block text-[10px] font-mono uppercase text-slate-500 mb-1.5">Course Code</label>
-                <input value={editCode} onChange={e => setEditCode(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs text-slate-900 focus:outline-none font-mono transition-colors" style={{ outlineColor: "#081637" }} />
+              {/* Course Code and Level */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                    Course Code
+                  </label>
+                  <input 
+                    value={editCode} 
+                    onChange={e => setEditCode(e.target.value)} 
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F5B41C] focus:border-transparent transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                    Level
+                  </label>
+                  <select 
+                    value={editLevel} 
+                    onChange={e => setEditLevel(e.target.value)} 
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F5B41C] transition-all appearance-none cursor-pointer"
+                    style={{ 
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23F5B41C' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
+                      backgroundPosition: 'right 0.5rem center',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundSize: '1.5em 1.5em',
+                      paddingRight: '2.5rem'
+                    }}
+                  >
+                    <option value="">Select Level</option>
+                    <option value="Level 100">Level 100</option>
+                    <option value="Level 200">Level 200</option>
+                    <option value="Level 300">Level 300</option>
+                    <option value="Level 400">Level 400</option>
+                  </select>
+                </div>
               </div>
+
+              {/* Course Name */}
               <div>
-                <label className="block text-[10px] font-mono uppercase text-slate-500 mb-1.5">Course Name</label>
-                <input value={editName} onChange={e => setEditName(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs text-slate-900 focus:outline-none font-mono transition-colors" style={{ outlineColor: "#081637" }} />
+                <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                  Course Name
+                </label>
+                <input 
+                  value={editName} 
+                  onChange={e => setEditName(e.target.value)} 
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F5B41C] focus:border-transparent transition-all"
+                />
               </div>
+
+              {/* Venue */}
               <div>
-                <label className="block text-[10px] font-mono uppercase text-slate-500 mb-1.5">Venue</label>
-                <input value={editVenue} onChange={e => setEditVenue(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs text-slate-900 focus:outline-none font-mono transition-colors" style={{ outlineColor: "#081637" }} />
+                <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                  Venue / Room
+                </label>
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-slate-400">location_on</span>
+                  <input 
+                    value={editVenue} 
+                    onChange={e => setEditVenue(e.target.value)} 
+                    placeholder="e.g. Block C, Room 302"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-10 pr-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#F5B41C] focus:border-transparent transition-all"
+                  />
+                </div>
               </div>
-              <div className="flex gap-3 pt-4">
-                <button onClick={() => setEditTarget(null)} className="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-600 border border-slate-200 rounded hover:bg-slate-100 transition-colors">Cancel</button>
-                <button onClick={handleSaveEdit} className="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded transition-opacity hover:opacity-90" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>Save Changes</button>
+
+              {/* Schedule Information */}
+              <div className="pt-2">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                  <h3 className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Schedule</h3>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                      Day
+                    </label>
+                    <select 
+                      value={editScheduleDay} 
+                      onChange={e => setEditScheduleDay(e.target.value)} 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F5B41C] focus:border-transparent transition-all appearance-none cursor-pointer"
+                      style={{ 
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23F5B41C' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
+                        backgroundPosition: 'right 0.5rem center',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundSize: '1.5em 1.5em',
+                        paddingRight: '2.5rem'
+                      }}
+                    >
+                      <option value="">Select Day</option>
+                      <option value="Monday">Monday</option>
+                      <option value="Tuesday">Tuesday</option>
+                      <option value="Wednesday">Wednesday</option>
+                      <option value="Thursday">Thursday</option>
+                      <option value="Friday">Friday</option>
+                      <option value="Saturday">Saturday</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                      Start Time
+                    </label>
+                    <input 
+                      type="time"
+                      value={editStartTime} 
+                      onChange={e => setEditStartTime(e.target.value)} 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F5B41C] focus:border-transparent transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                      End Time
+                    </label>
+                    <input 
+                      type="time"
+                      value={editEndTime} 
+                      onChange={e => setEditEndTime(e.target.value)} 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F5B41C] focus:border-transparent transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-3 pt-6 border-t border-slate-200 mt-6">
+                <button 
+                  onClick={() => setEditTarget(null)} 
+                  className="px-6 py-2.5 text-sm font-semibold text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+                >
+                  CANCEL
+                </button>
+                <button 
+                  onClick={handleSaveEdit} 
+                  className="px-6 py-2.5 text-sm font-bold text-slate-900 rounded-lg transition-all hover:shadow-lg"
+                  style={{ backgroundColor: "#F5B41C" }}
+                >
+                  SAVE CHANGES
+                </button>
               </div>
             </div>
           </div>

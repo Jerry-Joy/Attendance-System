@@ -62,7 +62,10 @@ export default function CourseDetails() {
           >
             <span className="material-symbols-outlined text-[20px] text-slate-600">arrow_back</span>
           </button>
-          <h1 className="text-2xl font-bold text-slate-900">{course.name}</h1>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">{course.name}</h1>
+            {course.level && <p className="text-sm text-slate-500 mt-1">{course.level}</p>}
+          </div>
         </div>
         <button
           onClick={() => navigate(`/session/create?course=${course.id}`)}
@@ -87,12 +90,23 @@ export default function CourseDetails() {
             </div>
 
             <div className="space-y-5">
+              {/* Level */}
+              {course.level && (
+                <div>
+                  <label className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-2 block">Level</label>
+                  <div className="flex items-center gap-2 text-sm text-slate-900">
+                    <span className="material-symbols-outlined text-[16px] text-slate-400">school</span>
+                    <span className="font-semibold">{course.level}</span>
+                  </div>
+                </div>
+              )}
+
               {/* Schedule */}
               <div>
                 <label className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mb-2 block">Schedule</label>
                 <div className="flex items-center gap-2 text-sm text-slate-900">
                   <span className="material-symbols-outlined text-[16px] text-slate-400">schedule</span>
-                  <span>{course.schedule || 'Not set'}</span>
+                  <span className="font-semibold">{course.schedule || 'Not set'}</span>
                 </div>
               </div>
 

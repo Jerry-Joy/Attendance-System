@@ -12,6 +12,9 @@ export default function CreateCourse() {
   const [level, setLevel] = useState('');
   const [venue, setVenue] = useState('');
   const [groups, setGroups] = useState('');
+  const [scheduleDay, setScheduleDay] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [joinCode, setJoinCode] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -26,11 +29,14 @@ export default function CreateCourse() {
         courseCode: code.trim().toUpperCase(),
         courseName: name.trim(),
         venue: venue.trim() || undefined,
+        level: level || undefined,
+        dayOfWeek: scheduleDay || undefined,
+        startTime: startTime || undefined,
+        endTime: endTime || undefined,
       });
 
       const mapped = mapCourse(result);
-      // Attach level and groups from the form (not stored in backend)
-      mapped.level = level || 'Level 100';
+      // Attach groups from the form (not stored in backend)
       const groupList = groups.split(',').map(g => g.trim()).filter(Boolean);
       mapped.groups = groupList.length > 0 ? groupList : ['All'];
 
@@ -140,6 +146,63 @@ export default function CreateCourse() {
                 />
               </div>
 
+              {/* Schedule Information */}
+              <div className="pt-2">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                  <h3 className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Schedule (Optional)</h3>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                      Day
+                    </label>
+                    <select 
+                      value={scheduleDay} 
+                      onChange={e => setScheduleDay(e.target.value)} 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F5B41C] focus:border-transparent transition-all appearance-none cursor-pointer"
+                      style={{ 
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23F5B41C' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
+                        backgroundPosition: 'right 0.5rem center',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundSize: '1.5em 1.5em',
+                        paddingRight: '2.5rem'
+                      }}
+                    >
+                      <option value="">Select Day</option>
+                      <option value="Monday">Monday</option>
+                      <option value="Tuesday">Tuesday</option>
+                      <option value="Wednesday">Wednesday</option>
+                      <option value="Thursday">Thursday</option>
+                      <option value="Friday">Friday</option>
+                      <option value="Saturday">Saturday</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                      Start Time
+                    </label>
+                    <input 
+                      type="time"
+                      value={startTime} 
+                      onChange={e => setStartTime(e.target.value)} 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F5B41C] focus:border-transparent transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                      End Time
+                    </label>
+                    <input 
+                      type="time"
+                      value={endTime} 
+                      onChange={e => setEndTime(e.target.value)} 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F5B41C] focus:border-transparent transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Venue / Room and Groups */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -237,6 +300,9 @@ export default function CreateCourse() {
                 setVenue(''); 
                 setGroups(''); 
                 setLevel(''); 
+                setScheduleDay('');
+                setStartTime('');
+                setEndTime('');
                 setError(null); 
               }} 
               className="flex-1 py-2.5 text-sm font-bold rounded-lg transition-colors hover:shadow-lg"
