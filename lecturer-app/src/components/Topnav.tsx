@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useData } from "../context/DataContext";
-import { useTheme } from "../context/ThemeContext";
 
 export default function Topnav() {
   const [time, setTime] = useState(new Date());
   const { activeSession } = useData();
-  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -18,16 +16,6 @@ export default function Topnav() {
       <div className="flex items-center gap-5">
         {/* Icons */}
         <div className="flex items-center gap-2 text-white/70">
-          <button
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="hover:text-white transition-colors cursor-pointer flex items-center justify-center w-8 h-8 rounded-full hover:bg-white/10"
-            title="Toggle theme"
-          >
-            <span className="material-symbols-outlined text-[18px]">
-              {theme === 'dark' ? 'light_mode' : 'dark_mode'}
-            </span>
-          </button>
-
           <button className="hover:text-white transition-colors cursor-pointer relative w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10">
             <span className="material-symbols-outlined text-[18px]">notifications</span>
             <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full shadow-[0_0_4px_rgba(245,180,28,0.5)]" style={{ backgroundColor: "#F5B41C" }}></span>

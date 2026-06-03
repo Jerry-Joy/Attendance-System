@@ -205,7 +205,7 @@ export default function ActiveSession() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0D11] flex flex-col relative font-sans">
+    <div className="min-h-screen bg-slate-50 flex flex-col relative font-sans">
       {/* Topnav - Sticky */}
       <header className="sticky top-0 h-14 border-b px-6 flex items-center justify-between z-50 backdrop-blur-sm" style={{ backgroundColor: "#0F1B2E", borderBottomColor: "rgba(255,255,255,0.08)" }}>
         <div className="flex items-center gap-4">
@@ -247,7 +247,7 @@ export default function ActiveSession() {
                 <p className="text-base font-bold" style={{ color: "#0F1B2E" }}>{activeSession.duration} min</p>
               </div>
             </div>
-            <div className="h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
               <div className="h-full rounded-full transition-all duration-1000 ease-out" style={{ width: `${progress}%`, backgroundColor: progress >= 90 ? "#EF4444" : "#0F1B2E" }} />
             </div>
           </div>
@@ -289,56 +289,56 @@ export default function ActiveSession() {
             <div className="lg:col-span-2 flex flex-col gap-5">
               {/* Stats Grid - Top borders only */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 animate-slide-up" style={{ animationDelay: "200ms" }}>
-                <div className="bg-white dark:bg-[#15181E] rounded-lg p-4 text-center border-t-4 hover:shadow-lg transition-all duration-300" style={{ borderTopColor: "#0F1B2E" }}>
+                <div className="bg-white rounded-lg p-4 text-center border-t-4 hover:shadow-lg transition-all duration-300" style={{ borderTopColor: "#0F1B2E" }}>
                   <span className="material-symbols-outlined text-[24px] mb-2 block text-slate-400">groups</span>
-                  <p className="text-3xl font-bold text-slate-900 dark:text-white tabular-nums mb-0.5">{attendeeCount}</p>
+                  <p className="text-3xl font-bold text-slate-900 tabular-nums mb-0.5">{attendeeCount}</p>
                   <p className="text-[9px] text-slate-500 font-semibold uppercase tracking-[0.15em]">Checked In</p>
                 </div>
-                <div className="bg-white dark:bg-[#15181E] rounded-lg p-4 text-center border-t-4 hover:shadow-lg transition-all duration-300" style={{ borderTopColor: "#F5B41C" }}>
+                <div className="bg-white rounded-lg p-4 text-center border-t-4 hover:shadow-lg transition-all duration-300" style={{ borderTopColor: "#F5B41C" }}>
                   <span className="material-symbols-outlined text-[24px] mb-2 block text-slate-400">verified_user</span>
-                  <p className="text-3xl font-bold text-slate-900 dark:text-white tabular-nums mb-0.5">{gpsVerified}</p>
+                  <p className="text-3xl font-bold text-slate-900 tabular-nums mb-0.5">{gpsVerified}</p>
                   <p className="text-[9px] text-slate-500 font-semibold uppercase tracking-[0.15em]">GPS Verified</p>
                 </div>
-                <div className="bg-white dark:bg-[#15181E] rounded-lg p-4 text-center border-t-4 hover:shadow-lg transition-all duration-300" style={{ borderTopColor: "#F5B41C" }}>
+                <div className="bg-white rounded-lg p-4 text-center border-t-4 hover:shadow-lg transition-all duration-300" style={{ borderTopColor: "#F5B41C" }}>
                   <span className="material-symbols-outlined text-[24px] mb-2 block text-slate-400">trending_up</span>
-                  <p className="text-3xl font-bold text-slate-900 dark:text-white tabular-nums mb-0.5">{enrolled > 0 ? Math.round((attendeeCount / enrolled) * 100) : 0}%</p>
+                  <p className="text-3xl font-bold text-slate-900 tabular-nums mb-0.5">{enrolled > 0 ? Math.round((attendeeCount / enrolled) * 100) : 0}%</p>
                   <p className="text-[9px] text-slate-500 font-semibold uppercase tracking-[0.15em]">Attendance Rate</p>
                 </div>
-                <div className="bg-white dark:bg-[#15181E] rounded-lg p-4 text-center border-t-4 hover:shadow-lg transition-all duration-300" style={{ borderTopColor: "#F5B41C" }}>
+                <div className="bg-white rounded-lg p-4 text-center border-t-4 hover:shadow-lg transition-all duration-300" style={{ borderTopColor: "#F5B41C" }}>
                   <span className="material-symbols-outlined text-[24px] mb-2 block text-slate-400">people_outline</span>
-                  <p className="text-3xl font-bold text-slate-900 dark:text-white tabular-nums mb-0.5">{Math.max(0, enrolled - attendeeCount)}</p>
+                  <p className="text-3xl font-bold text-slate-900 tabular-nums mb-0.5">{Math.max(0, enrolled - attendeeCount)}</p>
                   <p className="text-[9px] text-slate-500 font-semibold uppercase tracking-[0.15em]">Remaining</p>
                 </div>
               </div>
 
               {/* Session Info - Clean, minimal */}
-              <div className="bg-white dark:bg-[#15181E] rounded-lg p-5 animate-slide-up hover:shadow-md transition-all duration-300" style={{ animationDelay: "300ms" }}>
+              <div className="bg-white rounded-lg p-5 animate-slide-up hover:shadow-md transition-all duration-300" style={{ animationDelay: "300ms" }}>
                 <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em] mb-4">Session Information</h3>
                 <div className="grid grid-cols-2 gap-x-10 gap-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-[11px] text-slate-500 uppercase font-medium">Course</span>
-                    <span className="text-sm font-bold text-slate-900 dark:text-white">{activeSession.courseCode}</span>
+                    <span className="text-sm font-bold text-slate-900">{activeSession.courseCode}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-[11px] text-slate-500 uppercase font-medium">Venue</span>
-                    <span className="text-sm font-bold text-slate-900 dark:text-white">{course?.venueName || 'N/A'}</span>
+                    <span className="text-sm font-bold text-slate-900">{course?.venueName || 'N/A'}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-[11px] text-slate-500 uppercase font-medium">Geofence</span>
-                    <span className="text-sm font-bold text-slate-900 dark:text-white">{activeSession.radius}M</span>
+                    <span className="text-sm font-bold text-slate-900">{activeSession.radius}M</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-[11px] text-slate-500 uppercase font-medium">Enrolled</span>
-                    <span className="text-sm font-bold text-slate-900 dark:text-white">{enrolled}</span>
+                    <span className="text-sm font-bold text-slate-900">{enrolled}</span>
                   </div>
                 </div>
               </div>
 
               {/* Recent Check-ins - Clean design */}
-              <div className="bg-white dark:bg-[#15181E] rounded-lg p-5 animate-slide-up hover:shadow-md transition-all duration-300" style={{ animationDelay: "400ms" }}>
+              <div className="bg-white rounded-lg p-5 animate-slide-up hover:shadow-md transition-all duration-300" style={{ animationDelay: "400ms" }}>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.15em]">Recent Check-ins</h3>
-                  <Link to="/session/live-monitor" className="text-[10px] font-bold uppercase tracking-wider hover:opacity-70 transition-opacity text-slate-900 dark:text-white flex items-center gap-1">
+                  <Link to="/session/live-monitor" className="text-[10px] font-bold uppercase tracking-wider hover:opacity-70 transition-opacity text-slate-900 flex items-center gap-1">
                     View All
                     <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
                   </Link>
@@ -351,11 +351,11 @@ export default function ActiveSession() {
                 ) : (
                   <div className="flex flex-col gap-2.5 max-h-64 overflow-y-auto">
                     {[...activeSession.attendees].reverse().slice(0, 6).map((student, idx) => (
-                      <div key={student.id} className="flex items-center justify-between px-3 py-3 bg-slate-50 dark:bg-[#0B0D11]/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/30 transition-all duration-200 animate-slide-in" style={{ animationDelay: `${idx * 50}ms` }}>
+                      <div key={student.id} className="flex items-center justify-between px-3 py-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-all duration-200 animate-slide-in" style={{ animationDelay: `${idx * 50}ms` }}>
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold" style={{ backgroundColor: "#0F1B2E", color: "#FFFFFF" }}>{student.avatarInitials}</div>
                           <div>
-                            <p className="text-[13px] font-bold text-slate-900 dark:text-white">{student.name}</p>
+                            <p className="text-[13px] font-bold text-slate-900">{student.name}</p>
                             <p className="text-[10px] text-slate-500 font-mono">{student.indexNumber}</p>
                           </div>
                         </div>
@@ -379,18 +379,18 @@ export default function ActiveSession() {
 
       {/* End Session Confirmation Modal */}
       {showEndConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-50 dark:bg-[#0B0D11]/90 backdrop-blur-sm">
-          <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-6 w-full max-w-sm shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-50 backdrop-blur-sm">
+          <div className="bg-white rounded-lg border border-slate-200 p-6 w-full max-w-sm shadow-2xl">
             <div className="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20">
               <span className="material-symbols-outlined text-[24px] text-red-400">stop_circle</span>
             </div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white text-center uppercase tracking-wider mb-2">End Session?</h3>
-            <p className="text-[10px] text-slate-600 dark:text-slate-400 text-center font-mono uppercase mb-6">
+            <h3 className="text-sm font-bold text-slate-900 text-center uppercase tracking-wider mb-2">End Session?</h3>
+            <p className="text-[10px] text-slate-600 text-center font-mono uppercase mb-6">
               {attendeeCount} student{attendeeCount !== 1 ? 's' : ''} checked in. Session data will be archived.
             </p>
             <div className="flex gap-3">
-              <button onClick={() => setShowEndConfirm(false)} className="flex-1 py-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 rounded hover:bg-slate-100 dark:bg-slate-800 transition-colors">Continue</button>
-              <button onClick={handleEndSession} disabled={ending} className={`flex-1 py-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-900 dark:text-white bg-red-600 rounded border border-red-500/50 hover:bg-red-500 transition-colors ${ending ? 'opacity-60 cursor-not-allowed' : ''}`}>
+              <button onClick={() => setShowEndConfirm(false)} className="flex-1 py-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-600 border border-slate-200 rounded hover:bg-slate-100 transition-colors">Continue</button>
+              <button onClick={handleEndSession} disabled={ending} className={`flex-1 py-2.5 text-[10px] font-bold uppercase tracking-wider text-slate-900 bg-red-600 rounded border border-red-500/50 hover:bg-red-500 transition-colors ${ending ? 'opacity-60 cursor-not-allowed' : ''}`}>
                 {ending ? 'Ending...' : 'End Session'}
               </button>
             </div>

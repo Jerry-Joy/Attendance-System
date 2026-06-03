@@ -31,157 +31,136 @@ export default function Settings() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <p className="text-[9px] font-mono tracking-[0.15em] uppercase mb-0.5" style={{ color: "#C5960C" }}>Ghana Communication Technology University</p>
-          <h1 className="text-xl font-bold tracking-tight uppercase" style={{ color: "#081637", fontFamily: "var(--font-display)" }}>System Settings</h1>
-          <div className="h-0.5 w-16 mt-2 rounded-full" style={{ backgroundColor: "#F5B41C" }}></div>
-          <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase mt-2">Configuration & Preferences</p>
-        </div>
+      {/* Header */}
+      <div className="animate-slide-up" style={{ animationDelay: "0.1s" }}>
+        <h1 className="text-2xl font-bold tracking-tight" style={{ color: "#081637", fontFamily: "var(--font-display)" }}>System Settings</h1>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 flex flex-col gap-6">
+      {/* Two-Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left Column */}
+        <div className="flex flex-col gap-6">
           {/* Profile Card */}
-          <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-6 relative overflow-hidden group hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
-            <div className="absolute -right-4 -top-4 w-16 h-16 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out" style={{ backgroundColor: "rgba(245, 180, 28, 0.05)" }}></div>
-            <h3 className="text-[10px] font-bold uppercase tracking-widest border-b pb-2 mb-4 relative z-10" style={{ color: "#081637", borderColor: "rgba(8, 22, 55, 0.1)" }}>Operator Profile</h3>
-            <div className="flex items-center gap-4 mb-5 relative z-10">
-              <div className="w-14 h-14 rounded-xl flex items-center justify-center font-bold text-lg shadow-lg" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>
-                {lecturer?.avatarInitials ?? '??'}
+          <div className="bg-white rounded-lg border border-slate-200 p-6 animate-slide-up" style={{ animationDelay: "0.2s" }}>
+            <div className="flex items-start gap-4">
+              <div className="w-14 h-14 rounded-lg flex items-center justify-center font-bold text-xl" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>
+                {lecturer?.avatarInitials ?? 'PA'}
               </div>
-              <div>
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">{lecturer?.name}</h2>
-                <p className="text-[10px] dark:text-slate-400 font-mono uppercase" style={{ color: "#C5960C" }}>{lecturer?.title}</p>
-                <p className="text-[10px] text-slate-500 font-mono uppercase">{lecturer?.department}</p>
-              </div>
-            </div>
-            <div className="flex flex-col gap-3 relative z-10">
-              <div className="flex items-center gap-3 text-[10px] font-mono uppercase">
-                <span className="material-symbols-outlined text-[14px]" style={{ color: "#081637" }}>mail</span>
-                <span className="text-slate-700 dark:text-slate-300">{lecturer?.email}</span>
-              </div>
-              <div className="flex items-center gap-3 text-[10px] font-mono uppercase">
-                <span className="material-symbols-outlined text-[14px]" style={{ color: "#F5B41C" }}>badge</span>
-                <span className="text-slate-700 dark:text-slate-300">ID: {lecturer?.id}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Session Settings */}
-          <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-6 relative overflow-hidden group hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
-            <div className="absolute -right-4 -top-4 w-16 h-16 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out" style={{ backgroundColor: "rgba(8, 22, 55, 0.05)" }}></div>
-            <h3 className="text-[10px] font-bold uppercase tracking-widest border-b pb-2 mb-4 relative z-10" style={{ color: "#081637", borderColor: "rgba(8, 22, 55, 0.1)" }}>Session Configuration</h3>
-            <div className="flex flex-col gap-4 relative z-10">
-              {[
-                { key: 'qrAutoRefresh' as const, label: 'QR Auto-Refresh', desc: 'Refresh QR code every 30 seconds', icon: 'qr_code_2', accent: '#081637' },
-                { key: 'gpsRequired' as const, label: 'GPS Required', desc: 'Require location services for all sessions', icon: 'location_on', accent: '#F5B41C' },
-                { key: 'notifications' as const, label: 'Check-in Notifications', desc: 'Get alerts when students check in', icon: 'notifications', accent: '#081637' },
-                { key: 'blockchainWrite' as const, label: 'Save to Blockchain', desc: 'Save verified attendance to blockchain', icon: 'link', accent: '#F5B41C' },
-              ].map((setting, i) => (
-                <div key={setting.key}>
-                  {i > 0 && <div className="border-t border-slate-200 dark:border-slate-800/50 mb-4" />}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg flex items-center justify-center border" style={{ backgroundColor: `${setting.accent}10`, borderColor: `${setting.accent}30` }}>
-                        <span className="material-symbols-outlined text-[16px]" style={{ color: setting.accent }}>{setting.icon}</span>
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-slate-900 dark:text-white">{setting.label}</p>
-                        <p className="text-[10px] text-slate-500 font-mono uppercase">{setting.desc}</p>
-                      </div>
-                    </div>
-                    <Toggle checked={preferences[setting.key]} onChange={v => updatePreferences({ [setting.key]: v })} />
+              <div className="flex-1">
+                <h2 className="text-base font-bold text-slate-900 mb-0.5">{lecturer?.name}</h2>
+                <p className="text-[11px] text-slate-500 mb-3">{lecturer?.title}</p>
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[16px] text-slate-400">mail</span>
+                    <span className="text-[11px] text-slate-600">{lecturer?.email}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[16px] text-slate-400">badge</span>
+                    <span className="text-[11px] text-slate-600">ID: {lecturer?.id}</span>
                   </div>
                 </div>
-              ))}
+              </div>
             </div>
           </div>
 
-          {/* Geofence Settings */}
-          <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-6 relative overflow-hidden group hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
-            <div className="absolute -right-4 -top-4 w-16 h-16 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out" style={{ backgroundColor: "rgba(245, 180, 28, 0.05)" }}></div>
-            <h3 className="text-[10px] font-bold uppercase tracking-widest border-b pb-2 mb-4 relative z-10" style={{ color: "#081637", borderColor: "rgba(8, 22, 55, 0.1)" }}>Geofence Parameters</h3>
-            <div className="flex flex-col gap-4 relative z-10">
-              <div>
-                <label className="block text-[10px] font-mono uppercase text-slate-500 mb-1.5">Default Radius (Meters)</label>
-                <select className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none font-mono cursor-pointer" style={{ focusBorderColor: "#081637" }}>
+          {/* Stats Row */}
+          <div className="grid grid-cols-3 gap-4 animate-slide-up" style={{ animationDelay: "0.3s" }}>
+            {[
+              { label: 'COURSES', value: courses.length },
+              { label: 'STUDENTS', value: totalStudents },
+              { label: 'SESSIONS', value: pastSessions.length },
+            ].map((stat, i) => (
+              <div key={i} className="bg-white rounded-lg border border-slate-200 p-4 text-center">
+                <p className="text-3xl font-bold text-slate-900 tabular-nums mb-1">{stat.value}</p>
+                <p className="text-[9px] text-slate-500 font-mono uppercase tracking-wider">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Blockchain Status Card */}
+          <div className="rounded-lg p-6 animate-slide-up" style={{ backgroundColor: "#1a2332", animationDelay: "0.4s" }}>
+            <h3 className="text-[11px] font-bold uppercase tracking-widest mb-4 text-white">Blockchain Status</h3>
+            <div className="bg-slate-800/50 rounded-lg p-4 flex items-center gap-3 mb-4">
+              <span className="material-symbols-outlined text-[20px] text-green-500">link</span>
+              <span className="text-sm font-semibold text-green-500">Node Connected</span>
+            </div>
+            <button className="w-full px-4 py-2.5 rounded-lg text-[11px] uppercase font-bold transition-all font-mono border-2 hover:shadow-lg" style={{ backgroundColor: "transparent", color: "#F5B41C", borderColor: "#F5B41C" }}>
+              TEST CONNECTION
+            </button>
+          </div>
+        </div>
+
+        {/* Right Column */}
+        <div className="flex flex-col gap-6">
+          {/* Session Configuration */}
+          <div className="bg-white rounded-lg border border-slate-200 p-6 animate-slide-up" style={{ animationDelay: "0.2s" }}>
+            <div className="mb-5">
+              <h3 className="text-base font-bold text-slate-900 mb-1">Session Configuration</h3>
+              <p className="text-[11px] text-slate-500">Manage defaults for new attendance sessions.</p>
+            </div>
+            <div className="flex flex-col gap-5">
+              {[
+                { key: 'qrAutoRefresh' as const, label: 'QR Auto-Refresh', desc: 'Refresh QR code every 30 seconds' },
+                { key: 'gpsRequired' as const, label: 'GPS Required', desc: 'Require location services for all sessions' },
+              ].map((setting) => (
+                <div key={setting.key} className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[13px] font-semibold text-slate-900">{setting.label}</p>
+                    <p className="text-[11px] text-slate-500">{setting.desc}</p>
+                  </div>
+                  <Toggle checked={preferences[setting.key]} onChange={v => updatePreferences({ [setting.key]: v })} />
+                </div>
+              ))}
+
+              {/* Default Radius Dropdown */}
+              <div className="pt-1">
+                <label className="block text-[13px] font-semibold text-slate-900 mb-2">Default Radius (Meters)</label>
+                <select className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-0 cursor-pointer" style={{ focusRingColor: "#081637" }}>
                   <option>25m (High Precision)</option>
                   <option>50m (Standard)</option>
                   <option>100m (Large Lecture Hall)</option>
                 </select>
               </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Right column */}
-        <div className="flex flex-col gap-6">
-          {/* Quick Stats */}
-          <div className="bg-white dark:bg-[#15181E] rounded-lg border-y border-r border-slate-200 dark:border-slate-800 p-6 relative overflow-hidden group hover:border-slate-300 dark:hover:border-slate-700 transition-colors" style={{ borderLeft: "4px solid #F5B41C" }}>
-            <div className="absolute -right-4 -top-4 w-16 h-16 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out" style={{ backgroundColor: "rgba(245, 180, 28, 0.05)" }}></div>
-            <h3 className="text-[10px] font-bold uppercase tracking-widest border-b pb-2 mb-4 relative z-10" style={{ color: "#081637", borderColor: "rgba(8, 22, 55, 0.1)" }}>Quick Stats</h3>
-            <div className="grid grid-cols-3 gap-3 relative z-10">
               {[
-                { label: 'Courses', value: courses.length, icon: 'school', color: '#081637', bg: 'rgba(8, 22, 55, 0.08)' },
-                { label: 'Students', value: totalStudents, icon: 'groups', color: '#F5B41C', bg: 'rgba(245, 180, 28, 0.15)' },
-                { label: 'Sessions', value: pastSessions.length, icon: 'history', color: '#081637', bg: 'rgba(8, 22, 55, 0.08)' },
-              ].map((stat, i) => (
-                <div key={i} className="bg-slate-50 dark:bg-[#0B0D11]/50 rounded-lg border border-slate-200 dark:border-slate-800 p-3 text-center hover:scale-105 transition-transform duration-200 cursor-pointer">
-                  <div className="w-8 h-8 rounded-lg mx-auto mb-2 flex items-center justify-center" style={{ backgroundColor: stat.bg }}>
-                    <span className="material-symbols-outlined text-[18px]" style={{ color: stat.color }}>{stat.icon}</span>
+                { key: 'notifications' as const, label: 'Check-in Notifications', desc: 'Get alerts when students check in' },
+                { key: 'blockchainWrite' as const, label: 'Save to Blockchain', desc: 'Save verified attendance to blockchain' },
+              ].map((setting) => (
+                <div key={setting.key} className="flex items-center justify-between pt-1">
+                  <div>
+                    <p className="text-[13px] font-semibold text-slate-900">{setting.label}</p>
+                    <p className="text-[11px] text-slate-500">{setting.desc}</p>
                   </div>
-                  <p className="text-lg font-bold text-slate-900 dark:text-white tabular-nums">{stat.value}</p>
-                  <p className="text-[9px] text-slate-500 font-mono uppercase">{stat.label}</p>
+                  <Toggle checked={preferences[setting.key]} onChange={v => updatePreferences({ [setting.key]: v })} />
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Blockchain Sync */}
-          <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-6 relative overflow-hidden group hover:border-slate-300 dark:hover:border-slate-700 transition-colors">
-            <div className="absolute -right-4 -top-4 w-16 h-16 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out" style={{ backgroundColor: "rgba(8, 22, 55, 0.05)" }}></div>
-            <h3 className="text-[10px] font-bold uppercase tracking-widest border-b pb-2 mb-4 relative z-10" style={{ color: "#081637", borderColor: "rgba(8, 22, 55, 0.1)" }}>Blockchain Sync</h3>
-            <div className="bg-slate-50 dark:bg-[#0B0D11]/50 border border-slate-300 dark:border-slate-700/50 p-4 rounded flex flex-col items-center justify-center text-center gap-2 relative z-10">
-              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-1" style={{ background: "linear-gradient(135deg, #081637 0%, #F5B41C 100%)" }}>
-                <span className="material-symbols-outlined text-[24px] text-white">link</span>
-              </div>
-              <h4 className="text-xs font-bold text-slate-900 dark:text-white">Blockchain Connected</h4>
-              <p className="text-[10px] text-slate-500 font-mono uppercase leading-relaxed">Records are being saved to the blockchain.</p>
-              <button className="mt-2 px-4 py-2 rounded text-[10px] uppercase font-bold transition-all font-mono hover:shadow-lg" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>Test Connection</button>
+          {/* Privacy & Security Link */}
+          <button className="bg-white rounded-lg border border-slate-200 p-4 flex items-center justify-between hover:bg-slate-50 transition-colors animate-slide-up" style={{ animationDelay: "0.3s" }}>
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-[20px] text-slate-600">shield</span>
+              <span className="text-[13px] font-semibold text-slate-900">Privacy & Security</span>
             </div>
-          </div>
+            <span className="material-symbols-outlined text-[18px] text-slate-400">chevron_right</span>
+          </button>
 
-          {/* Actions */}
-          <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
-            <button className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-200 dark:border-slate-800 group">
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform" style={{ color: "#081637" }}>security</span>
-                <span className="text-xs font-bold text-slate-900 dark:text-white">Privacy & Security</span>
-              </div>
-              <span className="material-symbols-outlined text-[16px]" style={{ color: "#F5B41C" }}>chevron_right</span>
-            </button>
-            <button className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors group">
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform" style={{ color: "#081637" }}>help</span>
-                <span className="text-xs font-bold text-slate-900 dark:text-white">Help & Support</span>
-              </div>
-              <span className="material-symbols-outlined text-[16px]" style={{ color: "#F5B41C" }}>chevron_right</span>
-            </button>
-          </div>
+          {/* Help & Support Link */}
+          <button className="bg-white rounded-lg border border-slate-200 p-4 flex items-center justify-between hover:bg-slate-50 transition-colors animate-slide-up" style={{ animationDelay: "0.4s" }}>
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-[20px] text-slate-600">help_outline</span>
+              <span className="text-[13px] font-semibold text-slate-900">Help & Support</span>
+            </div>
+            <span className="material-symbols-outlined text-[18px] text-slate-400">chevron_right</span>
+          </button>
 
-          {/* Danger Zone */}
-          <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-6">
-            <h3 className="text-[10px] font-bold text-red-500 uppercase tracking-widest border-b border-red-900/30 pb-2 mb-4">Danger Zone</h3>
-            <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer">
-              <span className="material-symbols-outlined text-[16px]">logout</span>
-              Sign Out
+          {/* Sign Out Button */}
+          <div className="flex justify-center animate-slide-up" style={{ animationDelay: "0.5s" }}>
+            <button onClick={handleLogout} className="flex items-center justify-center gap-2 px-8 py-3 hover:bg-red-50 text-red-500 border-2 border-red-500/40 rounded-lg font-bold text-[11px] uppercase tracking-wider transition-all cursor-pointer">
+              <span className="material-symbols-outlined text-[18px]">logout</span>
+              SIGN OUT
             </button>
-          </div>
-
-          <div className="text-center space-y-1">
-            <p className="text-[10px] font-mono uppercase" style={{ color: "#081637" }}>GCTU Smart Attendance v1.0.0</p>
-            <p className="text-[9px] font-mono uppercase tracking-wider" style={{ color: "#C5960C" }}>Ghana Communication Technology University</p>
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 export default function Setup() {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0D11] text-slate-100 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-100 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden font-sans">
       {/* Background decoration */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"></div>
 
@@ -10,19 +10,19 @@ export default function Setup() {
         <span className="material-symbols-outlined text-[28px] text-blue-500">settings_applications</span>
       </div>
       <div className="text-center relative z-10">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight uppercase">Get Started</h1>
+        <h1 className="text-2xl font-bold text-slate-900 tracking-tight uppercase">Get Started</h1>
         <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase mt-2">Set up your organization</p>
       </div>
 
-      <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-8 w-full max-w-md mt-8 shadow-xl relative z-10">
+      <div className="bg-white rounded-lg border border-slate-200 p-8 w-full max-w-md mt-8 shadow-xl relative z-10">
         <form className="space-y-6">
           <div>
             <label className="block text-[10px] font-mono uppercase text-slate-500 mb-1.5">Organization Name</label>
-            <input type="text" className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded px-3 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 placeholder-slate-700 font-mono focus:ring-1 focus:ring-blue-500 transition-colors" placeholder="E.g. Computer Science Dept." />
+            <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-500 placeholder-slate-700 font-mono focus:ring-1 focus:ring-blue-500 transition-colors" placeholder="E.g. Computer Science Dept." />
           </div>
           <div>
             <label className="block text-[10px] font-mono uppercase text-slate-500 mb-1.5">Admin Name</label>
-            <input type="text" className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded px-3 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-blue-500 placeholder-slate-700 font-mono focus:ring-1 focus:ring-blue-500 transition-colors" placeholder="E.g. Dr. Alan Turing" />
+            <input type="text" className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-blue-500 placeholder-slate-700 font-mono focus:ring-1 focus:ring-blue-500 transition-colors" placeholder="E.g. Dr. Alan Turing" />
           </div>
 
           <div className="pt-4">

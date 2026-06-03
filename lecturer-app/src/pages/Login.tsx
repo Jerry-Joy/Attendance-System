@@ -30,7 +30,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex bg-white dark:bg-[#0B0D11]">
+    <div className="min-h-screen flex bg-white">
 
       {/* Left Panel - Brand Anchor (Hidden on mobile) */}
       <div className="hidden lg:flex lg:w-1/2 bg-primary relative flex-col justify-center items-center p-12 overflow-hidden">
@@ -72,7 +72,7 @@ export default function Login() {
             <div className="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center shadow-lg mx-auto mb-4">
               <img src="/gctu-crest.png" alt="GCTU Crest" className="w-14 h-14 object-contain" />
             </div>
-            <h1 className="text-2xl font-bold text-primary dark:text-white uppercase tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
+            <h1 className="text-2xl font-bold text-primary uppercase tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
               GCTU Attendance
             </h1>
             <p className="mt-2 text-secondary font-mono tracking-[0.2em] uppercase text-[10px] font-bold">
@@ -81,20 +81,20 @@ export default function Login() {
           </div>
 
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Welcome back</h2>
-            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Please enter your credentials to access your account.</p>
+            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Welcome back</h2>
+            <p className="mt-2 text-sm text-slate-500">Please enter your credentials to access your account.</p>
           </div>
 
           <div className="mt-8">
             <form className="space-y-5" onSubmit={handleSubmit}>
               {error && (
-                <div className="p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded text-[10px] text-red-600 dark:text-red-400 font-mono uppercase text-center animate-shake">
+                <div className="p-3 bg-red-50 border border-red-200 rounded text-[10px] text-red-600 font-mono uppercase text-center animate-shake">
                   {error}
                 </div>
               )}
 
               <div>
-                <label htmlFor="email" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 dark:text-slate-400 mb-1.5">
+                <label htmlFor="email" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
                   Email Address
                 </label>
                 <div className="relative mt-1">
@@ -109,14 +109,14 @@ export default function Login() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="appearance-none block w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-[#15181E] border border-slate-200 dark:border-slate-800 rounded text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-secondary transition-all font-mono"
+                    className="appearance-none block w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all font-mono"
                     placeholder="adeyemi@university.edu"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 dark:text-slate-400 mb-1.5">
+                <label htmlFor="password" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
                   Password
                 </label>
                 <div className="relative mt-1">
@@ -131,7 +131,7 @@ export default function Login() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="appearance-none block w-full pl-10 pr-3 py-2.5 bg-slate-50 dark:bg-[#15181E] border border-slate-200 dark:border-slate-800 rounded text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-secondary transition-all font-mono"
+                    className="appearance-none block w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all font-mono"
                     placeholder="••••••••"
                   />
                 </div>
@@ -145,12 +145,12 @@ export default function Login() {
                     type="checkbox"
                     className="h-3.5 w-3.5 text-primary border-slate-300 rounded cursor-pointer focus:ring-primary"
                   />
-                  <label htmlFor="remember-me" className="ml-2 block text-[10px] uppercase font-mono text-slate-500 dark:text-slate-400 cursor-pointer">
+                  <label htmlFor="remember-me" className="ml-2 block text-[10px] uppercase font-mono text-slate-500 cursor-pointer">
                     Remember me
                   </label>
                 </div>
                 <div className="text-[10px]">
-                  <a href="#" className="font-bold uppercase tracking-wider text-primary hover:text-primary-container dark:text-secondary dark:hover:text-secondary-fixed transition-colors">
+                  <a href="#" className="font-bold uppercase tracking-wider text-primary hover:text-primary-container transition-colors">
                     Forgot password?
                   </a>
                 </div>
@@ -174,10 +174,10 @@ export default function Login() {
                 </button>
               </div>
 
-              <div className="mt-6 flex flex-col items-center justify-center border-t border-slate-100 dark:border-slate-800 pt-6">
-                <p className="text-[10px] uppercase font-mono text-slate-500 dark:text-slate-400">
+              <div className="mt-6 flex flex-col items-center justify-center border-t border-slate-100 pt-6">
+                <p className="text-[10px] uppercase font-mono text-slate-500">
                   New to the system?{' '}
-                  <Link to="/register" className="font-bold text-primary hover:text-primary-container dark:text-secondary dark:hover:text-secondary-fixed transition-colors">
+                  <Link to="/register" className="font-bold text-primary hover:text-primary-container transition-colors">
                     Create an account
                   </Link>
                 </p>

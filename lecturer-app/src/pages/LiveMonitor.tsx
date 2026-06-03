@@ -46,7 +46,7 @@ export default function LiveMonitor() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0D11] flex flex-col pt-20 px-4 sm:px-8 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-slate-50 flex flex-col pt-20 px-4 sm:px-8 relative overflow-hidden font-sans">
       {/* Topnav */}
       <header className="fixed top-0 left-0 right-0 h-14 border-b border-white/10 px-6 flex items-center justify-between z-40" style={{ backgroundColor: "#081637" }}>
         <div className="flex items-center gap-4">
@@ -75,7 +75,7 @@ export default function LiveMonitor() {
 
         {/* Stats Row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-4">
+          <div className="bg-white rounded-lg border border-slate-200 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: "rgba(245, 180, 28, 0.15)" }}>
                 <span className="material-symbols-outlined text-[16px]" style={{ color: "#F5B41C" }}>groups</span>
@@ -87,7 +87,7 @@ export default function LiveMonitor() {
               <span className="text-sm text-slate-500 font-mono">/ {enrolled}</span>
             </div>
           </div>
-          <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-4">
+          <div className="bg-white rounded-lg border border-slate-200 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
                 <span className="material-symbols-outlined text-[16px] text-emerald-400">verified_user</span>
@@ -96,7 +96,7 @@ export default function LiveMonitor() {
             </div>
             <span className="text-3xl font-bold text-emerald-400 tabular-nums">{gpsVerified}</span>
           </div>
-          <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-4">
+          <div className="bg-white rounded-lg border border-slate-200 p-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
                 <span className="material-symbols-outlined text-[16px] text-amber-400">trending_up</span>
@@ -105,14 +105,14 @@ export default function LiveMonitor() {
             </div>
             <span className="text-3xl font-bold text-amber-400 tabular-nums">{enrolled > 0 ? Math.round((totalCount / enrolled) * 100) : 0}%</span>
           </div>
-          <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-4">
+          <div className="bg-white rounded-lg border border-slate-200 p-4">
             <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-                <span className="material-symbols-outlined text-[16px] text-slate-600 dark:text-slate-400">schedule</span>
+              <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
+                <span className="material-symbols-outlined text-[16px] text-slate-600">schedule</span>
               </div>
               <span className="text-[10px] text-slate-500 uppercase tracking-wider font-bold font-mono">Time</span>
             </div>
-            <span className="text-sm font-bold text-slate-700 dark:text-slate-300 font-mono tabular-nums">
+            <span className="text-sm font-bold text-slate-700 font-mono tabular-nums">
               {new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true })}
             </span>
           </div>
@@ -122,26 +122,26 @@ export default function LiveMonitor() {
         <div className="flex flex-col sm:flex-row gap-3 mb-4">
           <div className="flex gap-2">
             {([{ key: 'all' as FilterType, label: 'All', count: totalCount }, { key: 'gps' as FilterType, label: 'GPS Verified', count: gpsVerified }]).map(f => (
-              <button key={f.key} onClick={() => setFilter(f.key)} className={`px-4 py-2 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${filter === f.key ? 'border-amber-400/50' : 'bg-white dark:bg-[#15181E] text-slate-500 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:border-slate-700'}`} style={filter === f.key ? { backgroundColor: "rgba(245, 180, 28, 0.2)", color: "#081637" } : {}}>
+              <button key={f.key} onClick={() => setFilter(f.key)} className={`px-4 py-2 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${filter === f.key ? 'border-amber-400/50' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'}`} style={filter === f.key ? { backgroundColor: "rgba(245, 180, 28, 0.2)", color: "#081637" } : {}}>
                 {f.label} <span className={`ml-1 ${filter === f.key ? 'opacity-70' : 'text-slate-600'}`}>{f.count}</span>
               </button>
             ))}
           </div>
           <div className="flex-1 relative">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-slate-500">search</span>
-            <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search by name or student ID..." className="w-full pl-9 pr-4 py-2 bg-white dark:bg-[#15181E] border border-slate-200 dark:border-slate-800 rounded text-xs text-slate-900 dark:text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500 font-mono transition-colors" />
+            <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search by name or student ID..." className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded text-xs text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-blue-500 font-mono transition-colors" />
           </div>
         </div>
 
         {/* Table */}
-        <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
+        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
           <div ref={tableEndRef} className="overflow-y-auto overflow-x-auto max-h-[480px]">
             {totalCount === 0 ? (
               <div className="py-20 flex flex-col items-center justify-center">
-                <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-100 dark:bg-slate-800/50 flex items-center justify-center mb-4 border border-slate-300 dark:border-slate-700/50">
+                <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4 border border-slate-300">
                   <span className="material-symbols-outlined text-[28px] text-slate-500">person_add</span>
                 </div>
-                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-1">No Students Yet</h3>
+                <h3 className="text-sm font-bold text-slate-800 uppercase tracking-widest mb-1">No Students Yet</h3>
                 <p className="text-[10px] text-slate-500 font-mono uppercase max-w-xs text-center">Waiting for students to scan the QR code.</p>
                 {activeSession && (
                   <div className="flex items-center gap-2 mt-4 text-[10px] text-slate-500 font-mono uppercase">
@@ -158,8 +158,8 @@ export default function LiveMonitor() {
               </div>
             ) : (
               <table className="w-full">
-                <thead className="sticky top-0 bg-white dark:bg-[#15181E] z-10">
-                  <tr className="border-b border-slate-200 dark:border-slate-800">
+                <thead className="sticky top-0 bg-white z-10">
+                  <tr className="border-b border-slate-200">
                     <th className="text-left text-[10px] font-bold text-slate-500 uppercase tracking-widest px-5 py-3 w-10 font-mono">#</th>
                     <th className="text-left text-[10px] font-bold text-slate-500 uppercase tracking-widest px-5 py-3 font-mono">Student</th>
                     <th className="text-left text-[10px] font-bold text-slate-500 uppercase tracking-widest px-5 py-3 font-mono">Student ID</th>
@@ -171,19 +171,19 @@ export default function LiveMonitor() {
                   {filteredStudents.map((student, index) => {
                     const isNew = student.id === newRowId;
                     return (
-                      <tr key={student.id} className={`border-b border-slate-200 dark:border-slate-800/30 transition-all duration-500 ${isNew ? '' : 'hover:bg-slate-100 dark:bg-slate-800/20'}`} style={isNew ? { backgroundColor: "rgba(245, 180, 28, 0.1)" } : {}}>
+                      <tr key={student.id} className={`border-b border-slate-200 transition-all duration-500 ${isNew ? '' : 'hover:bg-slate-100'}`} style={isNew ? { backgroundColor: "rgba(245, 180, 28, 0.1)" } : {}}>
                         <td className="px-5 py-3.5 text-xs font-mono text-slate-500 tabular-nums">{filteredStudents.length - index}</td>
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-3">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0 transition-all ${isNew ? 'text-[#081637]' : ''}`} style={isNew ? { backgroundColor: "#F5B41C" } : { backgroundColor: "rgba(8, 22, 55, 0.1)", color: "#081637", border: "1px solid rgba(8, 22, 55, 0.2)" }}>{student.avatarInitials}</div>
                             <div>
-                              <p className="text-xs font-bold text-slate-900 dark:text-white">{student.name}</p>
+                              <p className="text-xs font-bold text-slate-900">{student.name}</p>
                               {isNew && <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: "#F5B41C" }}>Just joined</span>}
                             </div>
                           </div>
                         </td>
-                        <td className="px-5 py-3.5 text-xs text-slate-600 dark:text-slate-400 font-mono">{student.indexNumber}</td>
-                        <td className="px-5 py-3.5 text-center text-xs text-slate-700 dark:text-slate-300 font-mono">{student.time}</td>
+                        <td className="px-5 py-3.5 text-xs text-slate-600 font-mono">{student.indexNumber}</td>
+                        <td className="px-5 py-3.5 text-center text-xs text-slate-700 font-mono">{student.time}</td>
                         <td className="px-5 py-3.5">
                           <div className="flex justify-center">
                             {student.gpsVerified ? (
@@ -208,9 +208,9 @@ export default function LiveMonitor() {
           </div>
 
           {totalCount > 0 && (
-            <div className="px-5 py-3 bg-slate-50 dark:bg-[#0B0D11]/30 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div className="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
               <span className="text-[10px] text-slate-500 font-mono uppercase">
-                Showing <span className="font-bold text-slate-700 dark:text-slate-300">{filteredStudents.length}</span> of <span className="font-bold text-slate-700 dark:text-slate-300">{totalCount}</span> checked-in students
+                Showing <span className="font-bold text-slate-700">{filteredStudents.length}</span> of <span className="font-bold text-slate-700">{totalCount}</span> checked-in students
               </span>
               <span className="text-[10px] text-slate-500 font-mono uppercase">{enrolled - totalCount} remaining</span>
             </div>

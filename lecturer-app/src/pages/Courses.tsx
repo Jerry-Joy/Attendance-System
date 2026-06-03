@@ -83,25 +83,37 @@ export default function Courses() {
   const getTrendDelta = (code: string) => courseAnalytics[code]?.trendDelta ?? null;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 animate-fade-in">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-start">
         <div>
-          <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">Welcome back,</p>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight uppercase">{lecturer?.name ?? 'Operator'}</h1>
+          <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wider mb-1">Welcome back,</p>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight uppercase">{lecturer?.name ?? 'Prof. Adeyemi'}</h1>
         </div>
         <div className="flex items-center gap-3">
           {/* View toggle */}
-          <div className="flex gap-0.5 p-0.5 bg-slate-100 dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-700">
-            <button onClick={() => handleSetView('list')} className={`p-1.5 rounded transition-all ${view === 'list' ? 'text-[#081637]' : 'text-slate-500 hover:text-slate-700'}`} style={view === 'list' ? { backgroundColor: "rgba(245,180,28,0.2)" } : {}} title="List">
-              <span className="material-symbols-outlined text-[16px]">view_list</span>
+          <div className="flex gap-1 p-1 bg-white border border-slate-200 rounded-lg">
+            <button 
+              onClick={() => handleSetView('grid')} 
+              className={`p-2 rounded transition-all ${view === 'grid' ? 'bg-slate-100 text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+              title="Grid"
+            >
+              <span className="material-symbols-outlined text-[18px]">grid_view</span>
             </button>
-            <button onClick={() => handleSetView('grid')} className={`p-1.5 rounded transition-all ${view === 'grid' ? 'text-[#081637]' : 'text-slate-500 hover:text-slate-700'}`} style={view === 'grid' ? { backgroundColor: "rgba(245,180,28,0.2)" } : {}} title="Grid">
-              <span className="material-symbols-outlined text-[16px]">grid_view</span>
+            <button 
+              onClick={() => handleSetView('list')} 
+              className={`p-2 rounded transition-all ${view === 'list' ? 'bg-slate-100 text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+              title="List"
+            >
+              <span className="material-symbols-outlined text-[18px]">view_list</span>
             </button>
           </div>
-          <button onClick={() => navigate('/courses/create')} className="font-bold text-[10px] uppercase tracking-wider px-4 py-2 rounded flex items-center gap-2 transition-opacity hover:opacity-90 cursor-pointer" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>
-            <span className="material-symbols-outlined text-[16px]">add</span>
+          <button 
+            onClick={() => navigate('/courses/create')} 
+            className="font-extrabold text-[11px] uppercase tracking-wide px-5 py-2.5 rounded-lg flex items-center gap-2 transition-all hover:shadow-md hover:-translate-y-0.5" 
+            style={{ backgroundColor: "#F5B41C", color: "#000" }}
+          >
+            <span className="material-symbols-outlined text-[18px]">add</span>
             New Course
           </button>
         </div>
@@ -110,109 +122,117 @@ export default function Courses() {
       {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          { label: 'Active Courses', value: courses.length, icon: 'school', color: '#081637' },
-          { label: 'Total Students', value: totalStudents, icon: 'groups', color: '#F5B41C' },
-          { label: 'Total Sessions', value: totalSessions, icon: 'history', color: '#0D2A66' },
-          { label: 'Blockchain Records', value: '1.2k', icon: 'link', color: '#F5B41C' },
+          { label: 'Active Courses', value: String(courses.length).padStart(2, '0'), icon: 'school' },
+          { label: 'Total Students', value: String(totalStudents).padStart(2, '0'), icon: 'groups' },
+          { label: 'Total Sessions', value: String(totalSessions).padStart(2, '0'), icon: 'schedule' },
+          { label: 'Blockchain\nRecords', value: '1.2k', icon: 'link' },
         ].map((stat, i) => (
-          <div key={i} className="bg-white dark:bg-[#15181E] border border-slate-200 dark:border-slate-800 rounded-lg p-5 flex flex-col gap-3 relative overflow-hidden group hover:border-slate-300 dark:border-slate-700 transition-colors">
-            <div className={`absolute -right-4 -top-4 w-16 h-16 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out`} style={{ backgroundColor: stat.color, opacity: 0.05 }}></div>
-            <div className="text-[10px] text-slate-500 font-mono uppercase flex justify-between items-center relative z-10">
-              <span>{stat.label}</span>
-              <span className="material-symbols-outlined text-[14px]">{stat.icon}</span>
+          <div 
+            key={i} 
+            className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col animate-slide-up hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+            style={{ animationDelay: `${i * 0.1}s` }}
+          >
+            <div className="flex items-start justify-between mb-4">
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider whitespace-pre-line leading-relaxed">{stat.label}</span>
+              <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
+                <span className="material-symbols-outlined text-[20px] text-slate-700">{stat.icon}</span>
+              </div>
             </div>
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white tabular-nums relative z-10">{typeof stat.value === 'number' ? String(stat.value).padStart(2, '0') : stat.value}</h2>
+            <h2 className="text-4xl font-extrabold text-slate-900 tabular-nums">{stat.value}</h2>
           </div>
         ))}
       </div>
 
       {/* Course Section Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h2 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Active Courses</h2>
-          <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold font-mono rounded border border-slate-300 dark:border-slate-700">{courses.length}</span>
-        </div>
+      <div className="flex items-center gap-3">
+        <h2 className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wide">Active Courses</h2>
+        <span className="px-2 py-1 bg-slate-100 text-slate-700 text-[11px] font-bold rounded-md">{courses.length}</span>
       </div>
 
       {/* Grid View */}
       {view === 'grid' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {courses.map((course) => {
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {courses.map((course, idx) => {
             const progress = getProgress(course.code);
             const trend = getTrendDelta(course.code);
             const isLive = activeSession?.courseId === course.id;
             return (
-              <div key={course.id} className={`bg-white dark:bg-[#15181E] rounded-lg border group flex flex-col hover:border-slate-300 dark:border-slate-700 transition-colors relative ${isLive ? 'border-emerald-500/50 ring-1 ring-emerald-500/20' : 'border-slate-200 dark:border-slate-800'}`}>
-                {isLive && (
-                  <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/30 rounded text-[9px] font-bold text-emerald-400 uppercase tracking-wider z-10">
-                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_6px_rgba(16,185,129,0.5)]"></div>
-                    Live
-                  </div>
-                )}
-                <div className="h-20 border-b border-slate-200 p-4 flex flex-col justify-end relative rounded-t-lg" style={{ backgroundColor: "#081637" }}>
-                  <div className="absolute top-4 left-4 px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase tracking-wider" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>
+              <div 
+                key={course.id} 
+                className="bg-white rounded-2xl border border-slate-200 overflow-hidden group hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-slide-up"
+                style={{ animationDelay: `${idx * 0.1 + 0.4}s` }}
+              >
+                {/* Dark Navy Header */}
+                <div className="h-28 relative flex items-end p-5" style={{ backgroundColor: "#1a2332" }}>
+                  <div className="px-3 py-1 rounded-md text-[11px] font-extrabold uppercase tracking-wide" style={{ backgroundColor: "#F5B41C", color: "#000" }}>
                     {course.code}
                   </div>
                 </div>
 
-                <div className="p-5 flex flex-col flex-1">
-                  <h2 className="font-bold text-sm text-slate-900 dark:text-white mb-1 line-clamp-2">{course.name}</h2>
-                  <span className="text-[10px] text-slate-500 font-mono uppercase mb-4">{course.level}</span>
+                {/* White Body */}
+                <div className="p-6">
+                  <h3 className="text-base font-bold text-slate-900 mb-1">{course.name}</h3>
 
-                  {/* Attendance Progress */}
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Attendance Rate</span>
-                      <span className="text-xs font-bold text-slate-900 dark:text-white tabular-nums">{progress}%</span>
+                  {/* Attendance Rate */}
+                  <div className="mt-6 mb-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Attendance Rate</span>
+                      <span className="text-sm font-extrabold text-slate-900">{progress}%</span>
                     </div>
-                    <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full transition-all duration-700`} style={{ width: `${progress}%`, backgroundColor: progress >= 70 ? "#081637" : "#F5B41C" }} />
+                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full rounded-full transition-all duration-1000" 
+                        style={{ width: `${progress}%`, backgroundColor: "#1a2332" }}
+                      />
                     </div>
-                    {trend !== null && (
-                      <div className={`mt-1.5 flex items-center gap-1 text-[9px] font-mono uppercase ${trend > 0 ? 'text-emerald-400' : trend < 0 ? 'text-red-400' : 'text-slate-500'}`}>
-                        <span className="material-symbols-outlined text-[10px]">{trend > 0 ? 'trending_up' : trend < 0 ? 'trending_down' : 'trending_flat'}</span>
-                        {trend > 0 ? `+${trend}%` : `${trend}%`} vs prev
+                    {trend !== null && trend !== 0 && (
+                      <div className={`mt-2 flex items-center gap-1 text-[10px] font-bold ${trend > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                        <span className="material-symbols-outlined text-[12px]">{trend > 0 ? 'arrow_upward' : 'arrow_downward'}</span>
+                        {Math.abs(trend)}% VS PREV
                       </div>
                     )}
                   </div>
 
-                  <div className="flex flex-col gap-2 text-[10px] uppercase font-mono text-slate-600 dark:text-slate-400 mb-4">
-                    <div className="flex items-center gap-2" style={{ color: "#0D2A66" }}>
-                      <span className="material-symbols-outlined text-[14px]">key</span>
+                  {/* Course Details */}
+                  <div className="space-y-3 mb-6">
+                    <div className="flex items-center gap-2 text-[11px] text-slate-600">
+                      <span className="material-symbols-outlined text-[16px]">key</span>
                       <span className="font-bold">{course.joinCode}</span>
                     </div>
                     {course.venueName && (
-                      <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-[14px]">meeting_room</span>
+                      <div className="flex items-center gap-2 text-[11px] text-slate-600">
+                        <span className="material-symbols-outlined text-[16px]">meeting_room</span>
                         <span>{course.venueName}</span>
                       </div>
                     )}
-                    <div className="flex items-center gap-2" style={{ color: "#081637" }}>
-                      <span className="material-symbols-outlined text-[14px]">groups</span>
+                    <div className="flex items-center gap-2 text-[11px] text-slate-900">
+                      <span className="material-symbols-outlined text-[16px]">groups</span>
                       <span className="font-bold">{course.studentCount} Enrolled</span>
                     </div>
                   </div>
 
-                  <div className="mt-auto pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2">
-                    {isLive ? (
-                      <button onClick={() => navigate('/session/active')} className="flex-1 flex justify-center items-center gap-1.5 uppercase tracking-wider bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/30 font-bold text-[10px] py-2 rounded transition-colors cursor-pointer">
-                        <span className="material-symbols-outlined text-[14px]">radio_button_checked</span>
-                        Rejoin
-                      </button>
-                    ) : (
-                      <button onClick={() => navigate(`/session/create?course=${course.id}`)} className="flex-1 flex justify-center items-center gap-1.5 uppercase tracking-wider font-bold text-[10px] py-2 rounded transition-opacity hover:opacity-90 cursor-pointer" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>
-                        <span className="material-symbols-outlined text-[14px]">play_arrow</span>
-                        Start Session
-                      </button>
-                    )}
-                    <button onClick={() => navigate(`/courses/${course.id}/students`)} className="px-3 py-2 border border-slate-200 dark:border-slate-800 rounded text-slate-500 hover:text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 transition-colors">
-                      <span className="material-symbols-outlined text-[14px]">groups</span>
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => navigate(`/session/create?course=${course.id}`)}
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-[11px] font-extrabold uppercase tracking-wide transition-all hover:shadow-md hover:-translate-y-0.5"
+                      style={{ backgroundColor: "#F5B41C", color: "#000" }}
+                    >
+                      <span className="material-symbols-outlined text-[16px]">play_arrow</span>
+                      Start Session
                     </button>
-                    <div>
-                      <button onClick={(e) => setOpenMenu(openMenu?.id === course.id ? null : { id: course.id, rect: e.currentTarget.getBoundingClientRect() })} className="px-3 py-2 border border-slate-200 dark:border-slate-800 rounded text-slate-500 hover:text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 transition-colors">
-                        <span className="material-symbols-outlined text-[14px]">more_horiz</span>
-                      </button>
-                    </div>
+                    <button 
+                      onClick={() => navigate(`/courses/${course.id}/roster`)}
+                      className="p-2.5 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">push_pin</span>
+                    </button>
+                    <button 
+                      onClick={(e) => setOpenMenu(openMenu?.id === course.id ? null : { id: course.id, rect: e.currentTarget.getBoundingClientRect() })}
+                      className="p-2.5 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">more_horiz</span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -227,7 +247,7 @@ export default function Courses() {
             const trend = getTrendDelta(course.code);
             const isLive = activeSession?.courseId === course.id;
             return (
-              <div key={course.id} className={`bg-white dark:bg-[#15181E] rounded-lg border hover:border-slate-300 dark:border-slate-700 transition-colors relative ${isLive ? 'border-emerald-500/50' : 'border-slate-200 dark:border-slate-800'}`}>
+              <div key={course.id} className={`bg-white rounded-lg border hover:border-slate-300 transition-colors relative ${isLive ? 'border-emerald-500/50' : 'border-slate-200'}`}>
                 {isLive && (
                   <div className="absolute -top-2 left-6 flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/20 border border-emerald-500/30 rounded text-[9px] font-bold text-emerald-400 uppercase tracking-wider z-10">
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
@@ -236,7 +256,7 @@ export default function Courses() {
                 )}
                 <div className="px-5 py-4 flex flex-col lg:flex-row lg:items-center gap-4">
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">{course.code}: {course.name}</h3>
+                    <h3 className="text-sm font-bold text-slate-900">{course.code}: {course.name}</h3>
                     <div className="flex items-center gap-4 mt-1 text-[10px] text-slate-500 font-mono uppercase">
                       <div className="flex items-center gap-1" style={{ color: "#0D2A66" }}>
                         <span className="material-symbols-outlined text-[12px]">key</span>
@@ -258,9 +278,9 @@ export default function Courses() {
                   <div className="shrink-0 w-36">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">Rate</span>
-                      <span className="text-xs font-bold text-slate-900 dark:text-white tabular-nums">{progress}%</span>
+                      <span className="text-xs font-bold text-slate-900 tabular-nums">{progress}%</span>
                     </div>
-                    <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
                       <div className={`h-full rounded-full transition-all duration-700`} style={{ width: `${progress}%`, backgroundColor: progress >= 70 ? "#081637" : "#F5B41C" }} />
                     </div>
                     {trend !== null && (
@@ -271,7 +291,7 @@ export default function Courses() {
                     )}
                   </div>
                   <div className="shrink-0 text-center w-16">
-                    <p className="text-lg font-bold text-slate-900 dark:text-white tabular-nums">{course.studentCount}</p>
+                    <p className="text-lg font-bold text-slate-900 tabular-nums">{course.studentCount}</p>
                     <p className="text-[9px] text-slate-500 font-mono uppercase">Students</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
@@ -287,7 +307,7 @@ export default function Courses() {
                       </button>
                     )}
                     <div>
-                      <button onClick={(e) => setOpenMenu(openMenu?.id === course.id ? null : { id: course.id, rect: e.currentTarget.getBoundingClientRect() })} className="p-1.5 border border-slate-200 dark:border-slate-800 rounded text-slate-500 hover:text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 transition-colors">
+                      <button onClick={(e) => setOpenMenu(openMenu?.id === course.id ? null : { id: course.id, rect: e.currentTarget.getBoundingClientRect() })} className="p-1.5 border border-slate-200 rounded text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors">
                         <span className="material-symbols-outlined text-[14px]">more_horiz</span>
                       </button>
                     </div>
@@ -301,11 +321,11 @@ export default function Courses() {
 
       {/* Empty state */}
       {courses.length === 0 && (
-        <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center py-20 px-4 text-center">
-          <div className="w-16 h-16 bg-slate-100 dark:bg-slate-100 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-4 border border-slate-300 dark:border-slate-700/50">
+        <div className="bg-white rounded-lg border border-slate-200 flex flex-col items-center justify-center py-20 px-4 text-center">
+          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4 border border-slate-300">
             <span className="material-symbols-outlined text-[24px] text-slate-500">school</span>
           </div>
-          <h2 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-2">No Courses</h2>
+          <h2 className="text-sm font-bold text-slate-800 uppercase tracking-widest mb-2">No Courses</h2>
           <p className="text-[10px] text-slate-500 max-w-sm mx-auto font-mono uppercase leading-relaxed mb-4">Create your first course to start tracking attendance.</p>
           <button onClick={() => navigate('/courses/create')} className="font-bold text-[10px] uppercase tracking-wider px-5 py-2 rounded transition-opacity hover:opacity-90" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>Create First Course</button>
         </div>
@@ -313,24 +333,24 @@ export default function Courses() {
 
       {/* Edit Modal */}
       {editTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-50 dark:bg-[#0B0D11]/90 backdrop-blur-sm">
-          <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-6 w-full max-w-md shadow-2xl">
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-4">Edit Course Details</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-50 backdrop-blur-sm">
+          <div className="bg-white rounded-lg border border-slate-200 p-6 w-full max-w-md shadow-2xl">
+            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Edit Course Details</h2>
             <div className="space-y-4">
               <div>
                 <label className="block text-[10px] font-mono uppercase text-slate-500 mb-1.5">Course Code</label>
-                <input value={editCode} onChange={e => setEditCode(e.target.value)} className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none font-mono transition-colors" style={{ outlineColor: "#081637" }} />
+                <input value={editCode} onChange={e => setEditCode(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs text-slate-900 focus:outline-none font-mono transition-colors" style={{ outlineColor: "#081637" }} />
               </div>
               <div>
                 <label className="block text-[10px] font-mono uppercase text-slate-500 mb-1.5">Course Name</label>
-                <input value={editName} onChange={e => setEditName(e.target.value)} className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none font-mono transition-colors" style={{ outlineColor: "#081637" }} />
+                <input value={editName} onChange={e => setEditName(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs text-slate-900 focus:outline-none font-mono transition-colors" style={{ outlineColor: "#081637" }} />
               </div>
               <div>
                 <label className="block text-[10px] font-mono uppercase text-slate-500 mb-1.5">Venue</label>
-                <input value={editVenue} onChange={e => setEditVenue(e.target.value)} className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none font-mono transition-colors" style={{ outlineColor: "#081637" }} />
+                <input value={editVenue} onChange={e => setEditVenue(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs text-slate-900 focus:outline-none font-mono transition-colors" style={{ outlineColor: "#081637" }} />
               </div>
               <div className="flex gap-3 pt-4">
-                <button onClick={() => setEditTarget(null)} className="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 rounded hover:bg-slate-100 dark:bg-slate-800 transition-colors">Cancel</button>
+                <button onClick={() => setEditTarget(null)} className="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-600 border border-slate-200 rounded hover:bg-slate-100 transition-colors">Cancel</button>
                 <button onClick={handleSaveEdit} className="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded transition-opacity hover:opacity-90" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>Save Changes</button>
               </div>
             </div>
@@ -340,16 +360,16 @@ export default function Courses() {
 
       {/* Delete Confirmation Modal */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-50 dark:bg-[#0B0D11]/90 backdrop-blur-sm">
-          <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-6 w-full max-w-sm shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-50 backdrop-blur-sm">
+          <div className="bg-white rounded-lg border border-slate-200 p-6 w-full max-w-sm shadow-2xl">
             <div className="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20">
               <span className="material-symbols-outlined text-[24px] text-red-400">warning</span>
             </div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white text-center uppercase tracking-wider mb-2">Delete Course?</h3>
-            <p className="text-[10px] text-slate-600 dark:text-slate-400 text-center font-mono uppercase mb-6">This will permanently remove {deleteTarget.code} and all associated records.</p>
+            <h3 className="text-sm font-bold text-slate-900 text-center uppercase tracking-wider mb-2">Delete Course?</h3>
+            <p className="text-[10px] text-slate-600 text-center font-mono uppercase mb-6">This will permanently remove {deleteTarget.code} and all associated records.</p>
             <div className="flex gap-3">
-              <button onClick={() => setDeleteTarget(null)} className="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 rounded hover:bg-slate-100 dark:bg-slate-800 transition-colors">Cancel</button>
-              <button onClick={handleConfirmDelete} className="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-900 dark:text-white bg-red-600 rounded border border-red-500/50 hover:bg-red-500 transition-colors">Delete</button>
+              <button onClick={() => setDeleteTarget(null)} className="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-600 border border-slate-200 rounded hover:bg-slate-100 transition-colors">Cancel</button>
+              <button onClick={handleConfirmDelete} className="flex-1 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-900 bg-red-600 rounded border border-red-500/50 hover:bg-red-500 transition-colors">Delete</button>
             </div>
           </div>
         </div>
@@ -371,18 +391,18 @@ export default function Courses() {
             if (left < 10) left = 10;
             return (
               <div 
-                className="fixed bg-white dark:bg-[#15181E] rounded-lg border border-slate-300 dark:border-slate-700 shadow-2xl z-50 py-1"
+                className="fixed bg-white rounded-lg border border-slate-300 shadow-2xl z-50 py-1"
                 style={{ top, left, width: menuWidth }}
               >
-                <button onClick={() => { setOpenMenu(null); navigate(`/courses/${course.id}/students`); }} className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 transition-colors">
+                <button onClick={() => { setOpenMenu(null); navigate(`/courses/${course.id}/students`); }} className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-slate-700 hover:bg-slate-100 transition-colors">
                   <span className="material-symbols-outlined text-[14px] text-slate-500">person_add</span>
                   Manage Students
                 </button>
-                <button onClick={() => openEditModal(course)} className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-800 transition-colors">
+                <button onClick={() => openEditModal(course)} className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-slate-700 hover:bg-slate-100 transition-colors">
                   <span className="material-symbols-outlined text-[14px] text-slate-500">edit</span>
                   Edit Course
                 </button>
-                <div className="my-1 border-t border-slate-200 dark:border-slate-800" />
+                <div className="my-1 border-t border-slate-200" />
                 <button onClick={() => { setDeleteTarget(course); setOpenMenu(null); }} className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs text-red-400 hover:bg-red-500/10 transition-colors">
                   <span className="material-symbols-outlined text-[14px]">delete</span>
                   Delete Course

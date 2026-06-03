@@ -130,11 +130,11 @@ export default function Reports() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-primary dark:text-white tracking-tight uppercase flex items-center gap-2">
+          <h1 className="text-xl font-bold text-primary tracking-tight uppercase flex items-center gap-2">
             <span className="material-symbols-outlined text-[20px] text-secondary">insights</span>
             Reports & Analytics
           </h1>
-          <p className="text-[10px] text-slate-600 dark:text-slate-400 font-mono tracking-widest uppercase mt-1">Performance Metrics & Integrity Audit</p>
+          <p className="text-[10px] text-slate-600 font-mono tracking-widest uppercase mt-1">Performance Metrics & Integrity Audit</p>
         </div>
         <button onClick={handleExportAll} className="font-bold text-[10px] uppercase tracking-wider px-4 py-2 rounded flex items-center gap-2 transition-opacity hover:opacity-90 cursor-pointer self-start sm:self-auto bg-secondary text-primary">
           <span className="material-symbols-outlined text-[14px]">download</span>
@@ -143,12 +143,12 @@ export default function Reports() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-4">
+      <div className="bg-white rounded-lg border border-slate-200 p-4">
         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
           {/* Course filter */}
           <div className="relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-slate-600 dark:text-slate-400">filter_alt</span>
-            <select value={courseFilter} onChange={e => setCourseFilter(e.target.value)} className="appearance-none pl-9 pr-8 py-2.5 bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded text-xs text-slate-900 dark:text-white focus:outline-none focus:border-primary font-mono transition-colors cursor-pointer">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-slate-600">filter_alt</span>
+            <select value={courseFilter} onChange={e => setCourseFilter(e.target.value)} className="appearance-none pl-9 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded text-xs text-slate-900 focus:outline-none focus:border-primary font-mono transition-colors cursor-pointer">
               <option value="all">All Courses</option>
               {courseOptions.map(opt => (
                 <option key={opt.code} value={opt.code}>{opt.code} — {opt.name}</option>
@@ -157,7 +157,7 @@ export default function Reports() {
           </div>
 
           {/* Period toggle */}
-          <div className="flex gap-0.5 p-0.5 bg-slate-50 dark:bg-[#0B0D11] rounded border border-slate-200 dark:border-slate-800">
+          <div className="flex gap-0.5 p-0.5 bg-slate-50 rounded border border-slate-200">
             {([['week', 'This Week'], ['month', 'This Month'], ['all', 'All Time']] as [PeriodFilter, string][]).map(([key, label]) => (
               <button key={key} onClick={() => setPeriodFilter(key)} className={`px-3 py-1.5 rounded text-[10px] font-bold uppercase transition-all cursor-pointer ${periodFilter === key ? 'bg-secondary text-primary' : 'text-slate-600 hover:text-slate-700'}`}>
                 {label}
@@ -187,10 +187,10 @@ export default function Reports() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           { label: 'Avg. Attendance', value: `${avgAttendance}%`, icon: 'trending_up', cardClass: 'bg-primary border-primary text-white', iconContainer: 'bg-white/10 border-white/20', iconClass: 'text-secondary', valueClass: 'text-white', labelClass: 'text-white/80', subClass: 'text-white/60', hoverEffect: 'bg-white/5', sub: `across ${totalSessions} sessions` },
-          { label: 'Total Sessions', value: totalSessions, icon: 'calendar_today', cardClass: 'bg-white dark:bg-[#15181E] border-slate-200 dark:border-slate-800', iconContainer: 'bg-primary/10 border-primary/20', iconClass: 'text-primary', valueClass: 'text-slate-900 dark:text-white', labelClass: 'text-slate-600 dark:text-slate-400', subClass: 'text-slate-600', hoverEffect: 'bg-primary/5', sub: periodFilter === 'all' ? 'all time' : periodFilter === 'week' ? 'this week' : 'this month' },
-          { label: 'GPS Verified', value: `${avgGps}%`, icon: 'location_on', cardClass: 'bg-white dark:bg-[#15181E] border-slate-200 dark:border-slate-800', iconContainer: 'bg-emerald-500/10 border-emerald-500/20', iconClass: 'text-emerald-500', valueClass: 'text-slate-900 dark:text-white', labelClass: 'text-slate-600 dark:text-slate-400', subClass: 'text-slate-600', hoverEffect: 'bg-emerald-500/5', sub: avgGps >= 95 ? 'excellent integrity' : avgGps >= 85 ? 'good integrity' : 'needs review' },
+          { label: 'Total Sessions', value: totalSessions, icon: 'calendar_today', cardClass: 'bg-white border-slate-200', iconContainer: 'bg-primary/10 border-primary/20', iconClass: 'text-primary', valueClass: 'text-slate-900', labelClass: 'text-slate-600', subClass: 'text-slate-600', hoverEffect: 'bg-primary/5', sub: periodFilter === 'all' ? 'all time' : periodFilter === 'week' ? 'this week' : 'this month' },
+          { label: 'GPS Verified', value: `${avgGps}%`, icon: 'location_on', cardClass: 'bg-white border-slate-200', iconContainer: 'bg-emerald-500/10 border-emerald-500/20', iconClass: 'text-emerald-500', valueClass: 'text-slate-900', labelClass: 'text-slate-600', subClass: 'text-slate-600', hoverEffect: 'bg-emerald-500/5', sub: avgGps >= 95 ? 'excellent integrity' : avgGps >= 85 ? 'good integrity' : 'needs review' },
         ].map((stat, i) => (
-          <div key={i} className={`${stat.cardClass} rounded-lg border px-5 py-4 flex items-center justify-between hover:border-slate-300 dark:hover:border-slate-700 transition-colors group relative overflow-hidden`}>
+          <div key={i} className={`${stat.cardClass} rounded-lg border px-5 py-4 flex items-center justify-between hover:border-slate-300 transition-colors group relative overflow-hidden`}>
             <div className={`absolute -right-4 -top-4 w-16 h-16 ${stat.hoverEffect} rounded-full group-hover:scale-150 transition-transform duration-500 ease-out`}></div>
             <div className="relative z-10">
               <p className={`text-[10px] font-bold uppercase tracking-widest mb-1 ${stat.labelClass}`}>{stat.label}</p>
@@ -207,11 +207,11 @@ export default function Reports() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Attendance Trend Chart */}
-        <div className="lg:col-span-2 bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-5 flex flex-col">
-          <h3 className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest mb-4">Attendance Trends</h3>
+        <div className="lg:col-span-2 bg-white rounded-lg border border-slate-200 p-5 flex flex-col">
+          <h3 className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-4">Attendance Trends</h3>
           {chartData.length === 0 ? (
             <div className="flex-1 flex items-center justify-center py-12">
-              <p className="text-[10px] text-slate-600 dark:text-slate-400 font-mono uppercase">No data for selected filters</p>
+              <p className="text-[10px] text-slate-600 font-mono uppercase">No data for selected filters</p>
             </div>
           ) : (
             <div className="flex-1 h-64 min-h-[200px]">
@@ -243,42 +243,42 @@ export default function Reports() {
         </div>
 
         {/* Verification Integrity */}
-        <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-5 flex flex-col">
-          <h3 className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest mb-6">Verification Integrity</h3>
+        <div className="bg-white rounded-lg border border-slate-200 p-5 flex flex-col">
+          <h3 className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-6">Verification Integrity</h3>
           <div className="space-y-5 flex-1">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-mono text-slate-600 dark:text-slate-400 uppercase flex items-center gap-1.5">
+                <span className="text-[10px] font-mono text-slate-600 uppercase flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-[12px] text-emerald-400">qr_code_2</span>
                   QR + GPS
                 </span>
                 <span className="text-xs font-bold text-emerald-400">{avgGps}%</span>
               </div>
-              <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                 <div className="h-full bg-emerald-500 rounded-full transition-all duration-700 shadow-[0_0_6px_rgba(16,185,129,0.3)]" style={{ width: `${avgGps}%` }} />
               </div>
             </div>
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-mono text-slate-600 dark:text-slate-400 uppercase flex items-center gap-1.5">
+                <span className="text-[10px] font-mono text-slate-600 uppercase flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-[12px] text-primary">verified</span>
                   All Verified
                 </span>
                 <span className="text-xs font-bold text-primary">100%</span>
               </div>
-              <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                 <div className="h-full bg-primary rounded-full transition-all duration-700" style={{ width: '100%' }} />
               </div>
             </div>
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-mono text-slate-600 dark:text-slate-400 uppercase flex items-center gap-1.5">
+                <span className="text-[10px] font-mono text-slate-600 uppercase flex items-center gap-1.5">
                   <span className="material-symbols-outlined text-[12px] text-amber-400">gps_fixed</span>
                   Geofence Pass
                 </span>
                 <span className="text-xs font-bold text-amber-400">{Math.min(avgGps + 2, 100)}%</span>
               </div>
-              <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                 <div className="h-full bg-amber-500 rounded-full transition-all duration-700" style={{ width: `${Math.min(avgGps + 2, 100)}%` }} />
               </div>
             </div>
@@ -298,7 +298,7 @@ export default function Reports() {
       </div>
 
       {/* Course Performance Table */}
-      <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
+      <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
         <div className="bg-primary px-5 py-4 flex items-center justify-between">
           <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">Course Performance</h3>
           <span className="text-[10px] text-white/80 font-mono">{coursePerformance.length} courses</span>
@@ -307,7 +307,7 @@ export default function Reports() {
         {coursePerformance.length === 0 ? (
           <div className="py-16 text-center">
             <span className="material-symbols-outlined text-[24px] text-slate-600 mb-2 block">school</span>
-            <p className="text-[10px] text-slate-600 dark:text-slate-400 font-mono uppercase">No course data for selected filters</p>
+            <p className="text-[10px] text-slate-600 font-mono uppercase">No course data for selected filters</p>
           </div>
         ) : (
           <div className="divide-y divide-slate-800/50">
@@ -318,14 +318,14 @@ export default function Reports() {
                 <button
                   key={report.code}
                   onClick={() => report.courseId && navigate(`/courses/${report.courseId}`)}
-                  className="w-full px-5 py-4 flex items-center gap-4 hover:bg-primary/5 dark:bg-slate-800/20 dark:hover:bg-primary/20 transition-all group cursor-pointer text-left"
+                  className="w-full px-5 py-4 flex items-center gap-4 hover:bg-primary/5 transition-all group cursor-pointer text-left"
                 >
                   <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
                     <span className="material-symbols-outlined text-[18px] text-primary">school</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase">{report.code}</h4>
+                      <h4 className="text-xs font-bold text-slate-900 uppercase">{report.code}</h4>
                       {isAtRisk ? (
                         <span className="px-1.5 py-0.5 bg-red-500/10 text-red-400 text-[9px] font-bold uppercase rounded border border-red-500/20 flex items-center gap-1">
                           <span className="material-symbols-outlined text-[9px]">warning</span>
@@ -335,7 +335,7 @@ export default function Reports() {
                         <span className="px-1.5 py-0.5 bg-emerald-500/10 text-emerald-400 text-[9px] font-bold uppercase rounded border border-emerald-500/20">Healthy</span>
                       )}
                     </div>
-                    <p className="text-[10px] text-slate-600 dark:text-slate-400 font-mono mt-0.5 truncate">{report.name}</p>
+                    <p className="text-[10px] text-slate-600 font-mono mt-0.5 truncate">{report.name}</p>
                   </div>
 
                   {/* Mini sparkline */}
@@ -366,7 +366,7 @@ export default function Reports() {
                         {report.trend}%
                       </span>
                     ) : (
-                      <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-700 flex items-center gap-0.5">
+                      <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-300 flex items-center gap-0.5">
                         <span className="material-symbols-outlined text-[10px]">trending_flat</span>
                         0%
                       </span>
@@ -374,12 +374,12 @@ export default function Reports() {
                   </div>
 
                   <div className="text-right shrink-0">
-                    <p className="text-[9px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">Rate</p>
-                    <p className="text-2xl font-extrabold text-slate-900 dark:text-white tabular-nums">{report.avgRate}%</p>
-                    <p className="text-[10px] text-slate-600 dark:text-slate-400 font-mono">{report.sessions} sessions</p>
+                    <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Rate</p>
+                    <p className="text-2xl font-extrabold text-slate-900 tabular-nums">{report.avgRate}%</p>
+                    <p className="text-[10px] text-slate-600 font-mono">{report.sessions} sessions</p>
                   </div>
 
-                  <span className="material-symbols-outlined text-[18px] text-slate-600 group-hover:text-slate-600 dark:text-slate-400 transition-colors shrink-0">chevron_right</span>
+                  <span className="material-symbols-outlined text-[18px] text-slate-600 group-hover:text-slate-600 transition-colors shrink-0">chevron_right</span>
                 </button>
               );
             })}
@@ -389,11 +389,11 @@ export default function Reports() {
 
       {/* Flagged Students */}
       {flaggedStudents.length > 0 && (
-        <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
-          <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined text-[16px] text-red-400">flag</span>
-              <h3 className="text-[10px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">Flagged Students</h3>
+              <h3 className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Flagged Students</h3>
             </div>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20 font-bold">
               {flaggedStudents.length} below 75%
@@ -403,13 +403,13 @@ export default function Reports() {
             {flaggedStudents.map((student, i) => {
               const severity = student.rate < 60 ? 'red' : 'amber';
               return (
-                <div key={`${student.indexNumber}-${student.course}-${i}`} className="px-5 py-3.5 flex items-center gap-4 hover:bg-primary/5 dark:bg-slate-800/20 dark:hover:bg-primary/20 transition-colors">
+                <div key={`${student.indexNumber}-${student.course}-${i}`} className="px-5 py-3.5 flex items-center gap-4 hover:bg-primary/5 transition-colors">
                   <div className={`w-9 h-9 rounded-full bg-${severity}-500/10 border border-${severity}-500/20 flex items-center justify-center text-${severity}-400 font-bold text-[10px] shrink-0`}>
                     {student.avatarInitials}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-slate-900 dark:text-white">{student.name}</p>
-                    <p className="text-[10px] text-slate-600 dark:text-slate-400 font-mono mt-0.5">{student.indexNumber}</p>
+                    <p className="text-xs font-bold text-slate-900">{student.name}</p>
+                    <p className="text-[10px] text-slate-600 font-mono mt-0.5">{student.indexNumber}</p>
                   </div>
                   <span className="text-[10px] font-mono font-bold text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded shrink-0">
                     {student.course}

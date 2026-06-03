@@ -48,7 +48,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex bg-white dark:bg-[#0B0D11]">
+    <div className="min-h-screen flex bg-white">
 
       {/* Left Panel - Brand Anchor (Hidden on mobile) */}
       <div className="hidden lg:flex lg:w-5/12 bg-primary relative flex-col justify-center items-center p-12 overflow-hidden">
@@ -90,7 +90,7 @@ export default function Register() {
             <div className="w-20 h-20 bg-primary rounded-2xl flex items-center justify-center shadow-lg mx-auto mb-4">
               <img src="/gctu-crest.png" alt="GCTU Crest" className="w-14 h-14 object-contain" />
             </div>
-            <h1 className="text-2xl font-bold text-primary dark:text-white uppercase tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
+            <h1 className="text-2xl font-bold text-primary uppercase tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
               GCTU Registration
             </h1>
             <p className="mt-2 text-secondary font-mono tracking-[0.2em] uppercase text-[10px] font-bold">
@@ -99,20 +99,20 @@ export default function Register() {
           </div>
 
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Create your account</h2>
-            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Fill in your professional details to request access to the portal.</p>
+            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Create your account</h2>
+            <p className="mt-2 text-sm text-slate-500">Fill in your professional details to request access to the portal.</p>
           </div>
 
           <div className="mt-8">
             <form className="space-y-4" onSubmit={handleSubmit}>
               {error && (
-                <div className="p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded text-[10px] text-red-600 dark:text-red-400 font-mono uppercase text-center animate-shake">
+                <div className="p-3 bg-red-50 border border-red-200 rounded text-[10px] text-red-600 font-mono uppercase text-center animate-shake">
                   {error}
                 </div>
               )}
 
               <div>
-                <label htmlFor="name" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 dark:text-slate-400 mb-1.5">
+                <label htmlFor="name" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
                   Full Name
                 </label>
                 <div className="relative mt-1">
@@ -126,14 +126,14 @@ export default function Register() {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-[#15181E] border border-slate-200 dark:border-slate-800 rounded text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-secondary transition-all font-mono"
+                    className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all font-mono"
                     placeholder="Prof. John Doe"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 dark:text-slate-400 mb-1.5">
+                <label htmlFor="email" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
                   Official Email
                 </label>
                 <div className="relative mt-1">
@@ -148,7 +148,7 @@ export default function Register() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-[#15181E] border border-slate-200 dark:border-slate-800 rounded text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-secondary transition-all font-mono"
+                    className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all font-mono"
                     placeholder="jdoe@gctu.edu.gh"
                   />
                 </div>
@@ -156,7 +156,7 @@ export default function Register() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="department" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 dark:text-slate-400 mb-1.5">
+                  <label htmlFor="department" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
                     Department
                   </label>
                   <div className="relative mt-1">
@@ -170,14 +170,14 @@ export default function Register() {
                       required
                       value={department}
                       onChange={(e) => setDepartment(e.target.value)}
-                      className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-[#15181E] border border-slate-200 dark:border-slate-800 rounded text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-secondary transition-all font-mono"
+                      className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all font-mono"
                       placeholder="Computer Science"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="staffId" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 dark:text-slate-400 mb-1.5">
+                  <label htmlFor="staffId" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
                     Staff ID
                   </label>
                   <div className="relative mt-1">
@@ -191,7 +191,7 @@ export default function Register() {
                       required
                       value={staffId}
                       onChange={(e) => setStaffId(e.target.value)}
-                      className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-[#15181E] border border-slate-200 dark:border-slate-800 rounded text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-secondary transition-all font-mono"
+                      className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all font-mono"
                       placeholder="GCTU-2026-XX"
                     />
                   </div>
@@ -200,7 +200,7 @@ export default function Register() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="password" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 dark:text-slate-400 mb-1.5">
+                  <label htmlFor="password" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
                     Password
                   </label>
                   <div className="relative mt-1">
@@ -215,14 +215,14 @@ export default function Register() {
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-[#15181E] border border-slate-200 dark:border-slate-800 rounded text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-secondary transition-all font-mono"
+                      className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all font-mono"
                       placeholder="••••••••"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="confirmPassword" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 dark:text-slate-400 mb-1.5">
+                  <label htmlFor="confirmPassword" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
                     Confirm Password
                   </label>
                   <div className="relative mt-1">
@@ -237,7 +237,7 @@ export default function Register() {
                       required
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-[#15181E] border border-slate-200 dark:border-slate-800 rounded text-slate-900 dark:text-white text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary dark:focus:ring-secondary transition-all font-mono"
+                      className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all font-mono"
                       placeholder="••••••••"
                     />
                   </div>
@@ -262,10 +262,10 @@ export default function Register() {
                 </button>
               </div>
 
-              <div className="mt-6 flex flex-col items-center justify-center border-t border-slate-100 dark:border-slate-800 pt-6">
-                <p className="text-[10px] uppercase font-mono text-slate-500 dark:text-slate-400">
+              <div className="mt-6 flex flex-col items-center justify-center border-t border-slate-100 pt-6">
+                <p className="text-[10px] uppercase font-mono text-slate-500">
                   Already have an account?{' '}
-                  <Link to="/login" className="font-bold text-primary hover:text-primary-container dark:text-secondary dark:hover:text-secondary-fixed transition-colors">
+                  <Link to="/login" className="font-bold text-primary hover:text-primary-container transition-colors">
                     Sign in here
                   </Link>
                 </p>

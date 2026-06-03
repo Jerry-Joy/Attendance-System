@@ -41,9 +41,9 @@ export default function History() {
   const handleSearchChange = (value: string) => { setSearchQuery(value); setCurrentPage(1); };
   const handleCourseFilterChange = (value: string) => { setCourseFilter(value); setCurrentPage(1); };
 
-  const totalSessions = filtered.length;
-  const avgAttendance = filtered.length > 0 ? Math.round(filtered.reduce((acc, s) => acc + (s.presentCount / s.totalStudents) * 100, 0) / filtered.length) : 0;
-  const totalPresent = filtered.reduce((acc, s) => acc + s.presentCount, 0);
+  const totalSessions = pastSessions.length;
+  const totalCheckIns = pastSessions.reduce((acc, s) => acc + s.presentCount, 0);
+  const avgAttendance = pastSessions.length > 0 ? Math.round(pastSessions.reduce((acc, s) => acc + (s.presentCount / s.totalStudents) * 100, 0) / pastSessions.length) : 0;
 
   const handleDownload = (session: typeof pastSessions[0]) => {
     setDownloadingId(session.id);
@@ -67,134 +67,149 @@ export default function History() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 animate-fade-in">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#FFF9E6" }}>
+          <span className="material-symbols-outlined text-[24px]" style={{ color: "#F5B41C" }}>history</span>
+        </div>
         <div>
-          <h1 className="text-xl font-bold text-primary dark:text-white tracking-tight uppercase flex items-center gap-2">
-            <span className="material-symbols-outlined text-[20px] mb-1 block text-secondary">history</span>
-            Session History
-          </h1>
-          <p className="text-[10px] text-slate-600 dark:text-slate-400 font-mono tracking-widest uppercase mt-1">Archived Records & Analytics</p>
+          <h1 className="text-3xl font-extrabold tracking-tight uppercase text-slate-900">Session History</h1>
+          <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold mt-1">Archived Records & Analytics</p>
         </div>
       </div>
 
       {/* Stats Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {[
-          { label: 'Total Sessions', value: totalSessions, icon: 'calendar_today', cardClass: 'bg-primary border-primary hover:border-primary text-white', iconContainer: 'bg-white/10', iconClass: 'text-secondary', valueClass: 'text-white', labelClass: 'text-white/80' },
-          { label: 'Total Check-ins', value: totalPresent, icon: 'how_to_reg', cardClass: 'bg-white dark:bg-[#15181E] border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700', iconContainer: 'bg-emerald-500/10 dark:bg-emerald-500/20', iconClass: 'text-emerald-600 dark:text-emerald-400', valueClass: 'text-slate-900 dark:text-white', labelClass: 'text-slate-600 dark:text-slate-400' },
-          { label: 'Avg. Attendance', value: `${avgAttendance}%`, icon: 'groups', cardClass: 'bg-white dark:bg-[#15181E] border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700', iconContainer: 'bg-secondary/10', iconClass: 'text-secondary dark:text-secondary-fixed', valueClass: 'text-slate-900 dark:text-white', labelClass: 'text-slate-600 dark:text-slate-400' },
-        ].map((stat, i) => (
-          <div key={i} className={`${stat.cardClass} rounded-lg border p-4 flex items-center gap-3 transition-colors`}>
-            <div className={`w-10 h-10 rounded-lg ${stat.iconContainer} flex items-center justify-center`}>
-              <span className={`material-symbols-outlined text-[18px] ${stat.iconClass}`}>{stat.icon}</span>
-            </div>
-            <div>
-              <p className={`text-xl font-bold tabular-nums ${stat.valueClass}`}>{stat.value}</p>
-              <p className={`text-[10px] font-mono uppercase ${stat.labelClass}`}>{stat.label}</p>
+        {/* Total Sessions - Dark Navy */}
+        <div className="rounded-2xl p-6 flex flex-col animate-slide-up" style={{ backgroundColor: "#1a2332", animationDelay: '0.1s' }}>
+          <div className="flex items-start justify-between mb-4">
+            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Sessions</span>
+            <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+              <span className="material-symbols-outlined text-[20px] text-white">calendar_today</span>
             </div>
           </div>
-        ))}
+          <h2 className="text-4xl font-extrabold text-white tabular-nums">{String(totalSessions).padStart(2, '0')}</h2>
+        </div>
+
+        {/* Total Check-ins */}
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 flex flex-col animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          <div className="flex items-start justify-between mb-4">
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Total Check-ins</span>
+            <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
+              <span className="material-symbols-outlined text-[20px] text-slate-600">person</span>
+            </div>
+          </div>
+          <h2 className="text-4xl font-extrabold text-slate-900 tabular-nums">{String(totalCheckIns).padStart(2, '0')}</h2>
+        </div>
+
+        {/* Avg Attendance */}
+        <div className="bg-white rounded-2xl p-6 border border-slate-200 flex flex-col animate-slide-up" style={{ animationDelay: '0.3s' }}>
+          <div className="flex items-start justify-between mb-4">
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Avg. Attendance</span>
+            <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
+              <span className="material-symbols-outlined text-[20px] text-slate-600">groups</span>
+            </div>
+          </div>
+          <h2 className="text-4xl font-extrabold text-slate-900 tabular-nums">{avgAttendance}%</h2>
+        </div>
       </div>
 
       {/* Search + Filter Bar */}
-      <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 p-4">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-slate-600 dark:text-slate-400">search</span>
-            <input type="text" value={searchQuery} onChange={e => handleSearchChange(e.target.value)} placeholder="Search by course, date, venue..." className="w-full pl-9 pr-4 py-2.5 bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded text-xs text-slate-900 dark:text-white placeholder:text-slate-600 focus:outline-none focus:border-primary font-mono transition-colors" />
-          </div>
-          <div className="relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-slate-600 dark:text-slate-400">filter_alt</span>
-            <select value={courseFilter} onChange={e => handleCourseFilterChange(e.target.value)} className="appearance-none pl-9 pr-8 py-2.5 bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded text-xs text-slate-900 dark:text-white focus:outline-none focus:border-primary font-mono transition-colors cursor-pointer">
-              <option value="all">All Courses</option>
-              {courseOptions.map(opt => (
-                <option key={opt.code} value={opt.code}>{opt.code} — {opt.name}</option>
-              ))}
-            </select>
-          </div>
+      <div className="flex flex-col sm:flex-row gap-3 animate-slide-up" style={{ animationDelay: '0.4s' }}>
+        <div className="relative flex-1">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-slate-400">search</span>
+          <input 
+            type="text" 
+            value={searchQuery} 
+            onChange={e => handleSearchChange(e.target.value)} 
+            placeholder="Search by course, date, venue..." 
+            className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-300 transition-colors"
+          />
         </div>
-
-        {(searchQuery || courseFilter !== 'all') && (
-          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-200 dark:border-slate-800">
-            <span className="text-[10px] text-slate-600 dark:text-slate-400 font-mono uppercase">Filters:</span>
-            {courseFilter !== 'all' && (
-              <button onClick={() => handleCourseFilterChange('all')} className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary text-white rounded text-[10px] font-bold uppercase border border-primary hover:bg-primary/90 transition-colors">
-                {courseFilter} <span className="ml-0.5">×</span>
-              </button>
-            )}
-            {searchQuery && (
-              <button onClick={() => handleSearchChange('')} className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary text-white rounded text-[10px] font-bold uppercase border border-primary hover:bg-primary/90 transition-colors">
-                "{searchQuery}" <span className="ml-0.5">×</span>
-              </button>
-            )}
-            <button onClick={() => { handleSearchChange(''); handleCourseFilterChange('all'); }} className="text-[10px] text-slate-600 hover:text-slate-700 dark:text-slate-300 ml-1 transition-colors font-mono uppercase">Clear all</button>
-          </div>
-        )}
+        <div className="relative">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-slate-400">filter_alt</span>
+          <select 
+            value={courseFilter} 
+            onChange={e => handleCourseFilterChange(e.target.value)} 
+            className="appearance-none pl-10 pr-10 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-slate-300 transition-colors cursor-pointer min-w-[200px]"
+          >
+            <option value="all">All Courses</option>
+            {courseOptions.map(opt => (
+              <option key={opt.code} value={opt.code}>{opt.code} — {opt.name}</option>
+            ))}
+          </select>
+          <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-slate-400 pointer-events-none">expand_more</span>
+        </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden animate-slide-up" style={{ animationDelay: '0.5s' }}>
         {filtered.length === 0 ? (
           <div className="py-20 text-center">
-            <div className="w-16 h-16 bg-slate-100 dark:bg-slate-100 dark:bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-300 dark:border-slate-700/50">
-              <span className="material-symbols-outlined text-[24px] text-slate-600 dark:text-slate-400">history</span>
+            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-300">
+              <span className="material-symbols-outlined text-[24px] text-slate-500">history</span>
             </div>
-            <h2 className="text-sm font-bold text-slate-800 dark:text-slate-200 uppercase tracking-widest mb-2">No Archived Data</h2>
-            <p className="text-[10px] text-slate-600 dark:text-slate-400 max-w-sm mx-auto font-mono uppercase leading-relaxed">Try adjusting your search or filter criteria.</p>
+            <h2 className="text-sm font-bold text-slate-800 uppercase tracking-widest mb-2">No Archived Data</h2>
+            <p className="text-[10px] text-slate-500 max-w-sm mx-auto uppercase leading-relaxed">Try adjusting your search or filter criteria.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full">
               <thead>
-                <tr className="bg-primary text-white text-[10px] uppercase font-mono tracking-widest">
-                  <th className="px-5 py-3 font-semibold text-left">Course</th>
-                  <th className="px-5 py-3 font-semibold text-left">Date</th>
-                  <th className="px-5 py-3 font-semibold text-left">Duration</th>
-                  <th className="px-5 py-3 font-semibold text-left">Present/Total</th>
-                  <th className="px-5 py-3 font-semibold text-left">Rate</th>
-                  <th className="px-5 py-3 font-semibold text-right">Actions</th>
+                <tr style={{ backgroundColor: "#1a2332" }}>
+                  <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-300 uppercase tracking-wider">Course</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-300 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-300 uppercase tracking-wider">Duration</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-300 uppercase tracking-wider">Present/Total</th>
+                  <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-300 uppercase tracking-wider">Rate</th>
+                  <th className="px-6 py-4 text-right text-[10px] font-bold text-slate-300 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/50">
-                {paginatedSessions.map(session => {
+              <tbody>
+                {paginatedSessions.map((session, idx) => {
                   const rate = Math.round((session.presentCount / session.totalStudents) * 100);
-                  const rateColor = rate >= 80 ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : rate >= 60 ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-red-400 bg-red-500/10 border-red-500/20';
                   return (
-                    <tr key={session.id} className="hover:bg-primary/5 dark:hover:bg-primary/20 transition-colors group">
-                      <td className="px-5 py-4">
-                        <p className="font-bold text-slate-900 dark:text-white text-xs uppercase">{session.courseCode}</p>
-                        <p className="text-[10px] text-slate-600 dark:text-slate-400 font-mono mt-0.5">{session.courseName}</p>
+                    <tr key={session.id} className={`border-b border-slate-100 hover:bg-slate-50 transition-colors ${idx === paginatedSessions.length - 1 ? 'border-b-0' : ''}`}>
+                      <td className="px-6 py-5">
+                        <p className="font-bold text-slate-900 text-sm">{session.courseCode}</p>
+                        <p className="text-[11px] text-slate-500 mt-0.5">{session.courseName}</p>
                       </td>
-                      <td className="px-5 py-4">
-                        <p className="text-xs text-slate-700 dark:text-slate-300">{session.date}</p>
-                        <p className="text-[10px] text-slate-600 dark:text-slate-400 font-mono mt-0.5">{session.startTime} — {session.endTime}</p>
+                      <td className="px-6 py-5">
+                        <p className="text-sm text-slate-900">{session.date}</p>
+                        <p className="text-[11px] text-slate-500 mt-0.5">{session.startTime} — {session.endTime}</p>
                       </td>
-                      <td className="px-5 py-4">
-                        <div className="inline-flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 font-mono">
-                          <span className="material-symbols-outlined text-[12px]">schedule</span>
-                          {session.duration}
+                      <td className="px-6 py-5">
+                        <div className="inline-flex items-center gap-1.5 text-sm text-slate-600">
+                          <span className="material-symbols-outlined text-[16px]">schedule</span>
+                          <span>{session.duration.replace(' min', '')} min</span>
                         </div>
                       </td>
-                      <td className="px-5 py-4">
-                        <span className="font-bold text-slate-900 dark:text-white text-xs tabular-nums">{session.presentCount}</span>
-                        <span className="text-slate-600 dark:text-slate-400 text-xs font-mono">/{session.totalStudents}</span>
+                      <td className="px-6 py-5">
+                        <span className="font-bold text-slate-900 text-sm tabular-nums">{session.presentCount}/{session.totalStudents}</span>
                       </td>
-                      <td className="px-5 py-4">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${rateColor}`}>{rate}%</span>
+                      <td className="px-6 py-5">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-extrabold uppercase bg-red-50 text-red-600">{rate}%</span>
                       </td>
-                      <td className="px-5 py-4">
+                      <td className="px-6 py-5">
                         <div className="flex items-center justify-end gap-2">
-                          <button onClick={() => navigate('/session/summary', { state: { session } })} className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-bold text-white bg-primary border border-primary hover:bg-primary/90 transition-colors uppercase">
-                            <span className="material-symbols-outlined text-[12px]">visibility</span>
+                          <button 
+                            onClick={() => navigate('/session/summary', { state: { session } })} 
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[11px] font-extrabold text-white uppercase tracking-wide transition-all hover:shadow-md" 
+                            style={{ backgroundColor: "#1a2332" }}
+                          >
+                            <span className="material-symbols-outlined text-[16px]">visibility</span>
                             View
                           </button>
-                          <button onClick={() => handleDownload(session)} disabled={downloadingId === session.id} className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-bold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-700 transition-colors uppercase disabled:opacity-50">
+                          <button 
+                            onClick={() => handleDownload(session)} 
+                            disabled={downloadingId === session.id} 
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[11px] font-extrabold text-slate-600 bg-slate-100 border border-slate-200 uppercase tracking-wide hover:bg-slate-200 transition-colors disabled:opacity-50"
+                          >
                             {downloadingId === session.id ? (
-                              <span className="material-symbols-outlined text-[12px] animate-spin">refresh</span>
+                              <span className="material-symbols-outlined text-[16px] animate-spin">refresh</span>
                             ) : (
-                              <span className="material-symbols-outlined text-[12px]">download</span>
+                              <span className="material-symbols-outlined text-[16px]">download</span>
                             )}
                             CSV
                           </button>
@@ -205,28 +220,6 @@ export default function History() {
                 })}
               </tbody>
             </table>
-          </div>
-        )}
-
-        {/* Pagination */}
-        {filtered.length > 0 && (
-          <div className="flex items-center justify-between px-5 py-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0B0D11]/30">
-            <p className="text-[10px] text-slate-600 dark:text-slate-400 font-mono uppercase">
-              Showing <span className="font-bold text-slate-700 dark:text-slate-300">{(safeCurrentPage - 1) * ROWS_PER_PAGE + 1}</span>–<span className="font-bold text-slate-700 dark:text-slate-300">{Math.min(safeCurrentPage * ROWS_PER_PAGE, filtered.length)}</span> of <span className="font-bold text-slate-700 dark:text-slate-300">{filtered.length}</span> sessions
-            </p>
-            <div className="flex items-center gap-1.5">
-              <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={safeCurrentPage <= 1} className="p-1.5 rounded border border-slate-300 dark:border-slate-700 text-slate-500 hover:bg-slate-100 dark:bg-slate-800 hover:text-slate-900 dark:text-white dark:hover:bg-slate-700/70 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-                <span className="material-symbols-outlined text-[16px]">chevron_left</span>
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                <button key={page} onClick={() => setCurrentPage(page)} className={`w-8 h-8 rounded text-[10px] font-bold transition-all ${page === safeCurrentPage ? 'bg-secondary text-primary' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900 border border-transparent hover:border-slate-300 dark:hover:bg-slate-800 dark:hover:text-white dark:hover:border-slate-700'}`}>
-                  {page}
-                </button>
-              ))}
-              <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={safeCurrentPage >= totalPages} className="p-1.5 rounded border border-slate-300 dark:border-slate-700 text-slate-500 hover:bg-slate-100 dark:bg-slate-800 hover:text-slate-900 dark:text-white dark:hover:bg-slate-700/70 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-                <span className="material-symbols-outlined text-[16px]">chevron_right</span>
-              </button>
-            </div>
           </div>
         )}
       </div>

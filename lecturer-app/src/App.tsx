@@ -5,7 +5,6 @@
 
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
 import Layout from './components/Layout';
@@ -25,13 +24,14 @@ import CreateSession from './pages/CreateSession';
 import ActiveSession from './pages/ActiveSession';
 import LiveMonitor from './pages/LiveMonitor';
 import SessionSummary from './pages/SessionSummary';
+import StudentRoster from './pages/StudentRoster';
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#0B0D11] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
           <p className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">Restoring session...</p>
@@ -49,8 +49,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <ThemeProvider defaultTheme="dark">
-      <BrowserRouter>
+    <BrowserRouter>
       <AuthProvider>
         <DataProvider>
           <Routes>
@@ -62,6 +61,7 @@ export default function App() {
               <Route path="courses" element={<Courses />} />
               <Route path="courses/:id" element={<CourseDetails />} />
               <Route path="courses/:id/students" element={<ManageStudents />} />
+              <Route path="courses/:id/roster" element={<StudentRoster />} />
               <Route path="history" element={<History />} />
               <Route path="reports" element={<Reports />} />
               <Route path="ledger" element={<Ledger />} />
@@ -80,6 +80,5 @@ export default function App() {
         </DataProvider>
       </AuthProvider>
     </BrowserRouter>
-    </ThemeProvider>
   );
 }

@@ -173,7 +173,7 @@ export default function CreateSession() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0D11] flex flex-col pt-20 px-4 sm:px-8 relative overflow-hidden font-sans">
+    <div className="min-h-screen bg-slate-50 flex flex-col pt-20 px-4 sm:px-8 relative overflow-hidden font-sans">
       {/* Topnav */}
       <header className="fixed top-0 left-0 right-0 h-14 border-b border-white/10 px-6 flex items-center justify-between z-40" style={{ backgroundColor: "#081637" }}>
         <div className="flex items-center gap-4">
@@ -191,7 +191,7 @@ export default function CreateSession() {
       </div>
 
       <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col mt-4 relative z-10 pb-12">
-        <div className="bg-white dark:bg-[#15181E] rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col lg:flex-row shadow-2xl">
+        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden flex flex-col lg:flex-row shadow-2xl">
           {/* Left Info Panel */}
           <div className="w-full lg:w-1/3 flex flex-col" style={{ backgroundColor: "#081637" }}>
             <div className="p-6 sm:p-8 border-b border-white/10 flex flex-col items-center text-center">
@@ -245,7 +245,7 @@ export default function CreateSession() {
           </div>
 
           {/* Right Form Panel */}
-          <form onSubmit={handleStart} className="p-6 sm:p-8 w-full lg:w-2/3 flex flex-col justify-between bg-white dark:bg-[#15181E]">
+          <form onSubmit={handleStart} className="p-6 sm:p-8 w-full lg:w-2/3 flex flex-col justify-between bg-white">
             {error && (
               <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded text-[10px] text-red-400 font-mono uppercase text-center">
                 {error}
@@ -259,14 +259,14 @@ export default function CreateSession() {
                   <label className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-3 block">Choose Course</label>
                   <div className="flex flex-col gap-2">
                     {courses.map(course => (
-                      <label key={course.id} className={`relative p-3 rounded border cursor-pointer transition-all flex items-center justify-between ${selectedCourse === course.id ? 'bg-amber-50' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0B0D11]/50 hover:bg-slate-100 dark:hover:bg-slate-800/50'}`} style={selectedCourse === course.id ? { borderColor: "#F5B41C" } : {}}>
+                      <label key={course.id} className={`relative p-3 rounded border cursor-pointer transition-all flex items-center justify-between ${selectedCourse === course.id ? 'bg-amber-50' : 'border-slate-200 bg-slate-50 hover:bg-slate-100'}`} style={selectedCourse === course.id ? { borderColor: "#F5B41C" } : {}}>
                         <input type="radio" name="course" value={course.id} checked={selectedCourse === course.id} onChange={() => setSelectedCourse(course.id)} className="sr-only" />
                         <div className="flex items-center gap-3">
                           <div className={`w-3 h-3 rounded-full border flex items-center justify-center ${selectedCourse === course.id ? 'border-amber-400' : 'border-slate-600'}`}>
                             {selectedCourse === course.id && <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "#F5B41C" }}></div>}
                           </div>
                           <div>
-                            <span className="text-xs font-bold text-slate-900 dark:text-white uppercase block">{course.name}</span>
+                            <span className="text-xs font-bold text-slate-900 uppercase block">{course.name}</span>
                             <span className="text-[10px] text-emerald-400 font-mono">{course.studentCount} students</span>
                           </div>
                         </div>
@@ -278,7 +278,7 @@ export default function CreateSession() {
 
                 <div>
                   <label className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-3 block">Session Length</label>
-                  <select value={duration} onChange={(e) => setDuration(e.target.value)} className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800 rounded px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none font-mono transition-colors appearance-none cursor-pointer" style={{ outlineColor: "#081637" }}>
+                  <select value={duration} onChange={(e) => setDuration(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs text-slate-900 focus:outline-none font-mono transition-colors appearance-none cursor-pointer" style={{ outlineColor: "#081637" }}>
                     <option value="5">5 Minutes</option>
                     <option value="10">10 Minutes</option>
                     <option value="15">15 Minutes</option>
@@ -293,7 +293,7 @@ export default function CreateSession() {
               <div className="flex flex-col gap-6">
                 <div>
                   <label className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-3 block">Location Coordinates</label>
-                  <input type="text" disabled value={latitude !== null && longitude !== null ? `${latitude.toFixed(6)}°, ${longitude.toFixed(6)}°` : 'Acquiring GPS location...'} className="w-full bg-slate-50 dark:bg-[#0B0D11] border border-slate-200 dark:border-slate-800/50 rounded px-3 py-2 text-xs text-slate-500 font-mono cursor-not-allowed" />
+                  <input type="text" disabled value={latitude !== null && longitude !== null ? `${latitude.toFixed(6)}°, ${longitude.toFixed(6)}°` : 'Acquiring GPS location...'} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs text-slate-500 font-mono cursor-not-allowed" />
                   <p className="text-[9px] text-slate-500 font-mono mt-1.5 uppercase">
                     {gpsStatus === 'locked' ? `GPS Locked — ±${gpsAccuracy}m accuracy` : gpsStatus === 'acquiring' ? 'Acquiring from device GPS sensor...' : gpsStatus === 'error' ? 'GPS Error - Click Retry above' : 'Awaiting GPS lock'}
                   </p>
@@ -302,7 +302,7 @@ export default function CreateSession() {
                 <div>
                   <label className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-3 block">Allowed Radius (meters)</label>
                   <div className="flex items-center gap-4">
-                    <input type="range" min="10" max="200" step="10" value={radius} onChange={(e) => setRadius(e.target.value)} className="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer" style={{ accentColor: "#F5B41C" }} />
+                    <input type="range" min="10" max="200" step="10" value={radius} onChange={(e) => setRadius(e.target.value)} className="flex-1 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer" style={{ accentColor: "#F5B41C" }} />
                     <span className="text-xs font-mono font-bold px-2 py-1 rounded" style={{ color: "#081637", backgroundColor: "rgba(245, 180, 28, 0.2)" }}>{radius}m</span>
                   </div>
                 </div>
@@ -310,17 +310,17 @@ export default function CreateSession() {
                 <div>
                   <label className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-3 block">Attendance Checks</label>
                   <div className="flex flex-col gap-2">
-                    <div className="flex flex-col gap-1 p-3 rounded border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0B0D11]/50">
+                    <div className="flex flex-col gap-1 p-3 rounded border border-slate-200 bg-slate-50">
                       <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-slate-900 dark:text-white tracking-widest uppercase">Location Required</span>
+                        <span className="text-[10px] font-bold text-slate-900 tracking-widest uppercase">Location Required</span>
                         <span className="text-[10px] font-mono text-emerald-400 uppercase font-bold">Always On</span>
                       </div>
                       <p className="text-[10px] font-mono text-slate-500 uppercase">Students must be within the geofence to check in</p>
                     </div>
-                    <label className="flex flex-col gap-1 p-3 rounded border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#0B0D11]/50 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800/50 transition-colors relative">
+                    <label className="flex flex-col gap-1 p-3 rounded border border-slate-200 bg-slate-50 cursor-pointer hover:bg-slate-100 transition-colors relative">
                       <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-slate-900 dark:text-white tracking-widest uppercase">Save to Blockchain</span>
-                        <input type="checkbox" defaultChecked className="w-3 h-3 bg-white dark:bg-[#15181E] border-slate-300 dark:border-slate-700 rounded focus:ring-0" style={{ accentColor: "#081637" }} />
+                        <span className="text-[10px] font-bold text-slate-900 tracking-widest uppercase">Save to Blockchain</span>
+                        <input type="checkbox" defaultChecked className="w-3 h-3 bg-white border-slate-300 rounded focus:ring-0" style={{ accentColor: "#081637" }} />
                       </div>
                       <p className="text-[10px] font-mono text-slate-500 uppercase">Save verified attendance to blockchain</p>
                     </label>
@@ -329,8 +329,8 @@ export default function CreateSession() {
               </div>
             </div>
 
-            <div className="pt-6 mt-8 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-3">
-              <button type="button" onClick={() => navigate(-1)} className="px-5 py-2.5 rounded border border-slate-300 dark:border-slate-700 text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700/70 hover:text-slate-900 dark:text-white transition-colors cursor-pointer">
+            <div className="pt-6 mt-8 border-t border-slate-200 flex justify-end gap-3">
+              <button type="button" onClick={() => navigate(-1)} className="px-5 py-2.5 rounded border border-slate-300 text-[10px] font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors cursor-pointer">
                 Cancel
               </button>
               <button type="submit" disabled={gpsStatus !== 'locked' || submitting} className={`px-6 py-2.5 rounded font-bold text-[10px] uppercase tracking-wider flex items-center gap-2 transition-opacity ${gpsStatus !== 'locked' || submitting ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90 cursor-pointer'}`} style={{ backgroundColor: "#F5B41C", color: "#081637" }}>
