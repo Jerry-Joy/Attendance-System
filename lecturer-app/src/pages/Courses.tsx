@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { useAuth } from "../context/AuthContext";
 import { api, mapCourse } from "../lib/api";
@@ -7,6 +7,7 @@ import type { Course } from "../types";
 
 export default function Courses() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { courses, deleteCourse, updateCourse, pastSessions, activeSession } = useData();
   const { lecturer } = useAuth();
 
@@ -117,6 +118,19 @@ export default function Courses() {
     } catch { /* ignore */ }
     setDeleteTarget(null);
   };
+
+  // Check for edit query parameter and open modal automatically
+  useEffect(() => {
+    const editCourseId = searchParams.get('edit');
+    if (editCourseId && courses.length > 0) {
+      const courseToEdit = courses.find(c => c.id === editCourseId);
+      if (courseToEdit) {
+        openEditModal(courseToEdit);
+        // Remove the query parameter to clean up the URL
+        setSearchParams({});
+      }
+    }
+  }, [searchParams, courses]);
 
   const totalStudents = courses.reduce((acc, c) => acc + c.studentCount, 0);
   const totalSessions = pastSessions.length;
@@ -304,18 +318,19 @@ export default function Courses() {
                   {/* Action Buttons */}
                   <div className="flex items-center gap-2">
                     <button 
-                      onClick={() => navigate(`/session/create?course=${course.id}`)}
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-[11px] font-extrabold uppercase tracking-wide transition-all hover:shadow-md hover:-translate-y-0.5"
-                      style={{ backgroundColor: "#F5B41C", color: "#000" }}
+                      onClick={() => navigate(`/courses/${course.id}`)}
+                      className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-[11px] font-extrabold uppercase tracking-wide transition-all hover:shadow-md hover:-translate-y-0.5 bg-slate-900 text-white hover:bg-slate-800"
                     >
-                      <span className="material-symbols-outlined text-[16px]">play_arrow</span>
-                      Start Session
+                      <span className="material-symbols-outlined text-[16px]">visibility</span>
+                      View Details
                     </button>
                     <button 
-                      onClick={() => navigate(`/courses/${course.id}/roster`)}
-                      className="p-2.5 border border-slate-200 rounded-lg text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                      onClick={() => navigate(`/session/create?course=${course.id}`)}
+                      className="p-2.5 rounded-lg transition-all hover:shadow-md hover:-translate-y-0.5"
+                      style={{ backgroundColor: "#F5B41C", color: "#000" }}
+                      title="Start Session"
                     >
-                      <span className="material-symbols-outlined text-[18px]">push_pin</span>
+                      <span className="material-symbols-outlined text-[18px]">play_arrow</span>
                     </button>
                     <button 
                       onClick={(e) => setOpenMenu(openMenu?.id === course.id ? null : { id: course.id, rect: e.currentTarget.getBoundingClientRect() })}
@@ -401,6 +416,13 @@ export default function Courses() {
                     <p className="text-[9px] text-slate-500 font-mono uppercase">Students</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
+                    <button 
+                      onClick={() => navigate(`/courses/${course.id}`)} 
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-white rounded text-[10px] font-bold uppercase transition-all hover:bg-slate-800 hover:shadow-md"
+                    >
+                      <span className="material-symbols-outlined text-[14px]">visibility</span>
+                      View
+                    </button>
                     {isLive ? (
                       <button onClick={() => navigate('/session/active')} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded text-[10px] font-bold uppercase transition-colors hover:bg-emerald-500/20">
                         <span className="material-symbols-outlined text-[14px]">radio_button_checked</span>

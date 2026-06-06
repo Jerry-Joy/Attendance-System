@@ -148,16 +148,23 @@ export default function Dashboard() {
         </div>
 
         {/* Active Courses */}
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 flex flex-col relative overflow-hidden animate-slide-up" style={{ animationDelay: '0.2s' }}>
+        <Link 
+          to="/courses"
+          className="bg-white rounded-2xl p-6 border border-slate-200 flex flex-col relative overflow-hidden animate-slide-up transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-slate-300 cursor-pointer group" 
+          style={{ animationDelay: '0.2s' }}
+        >
           <div className="flex items-start justify-between mb-4">
             <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Active Courses</span>
-            <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center group-hover:scale-110 transition-transform">
               <span className="material-symbols-outlined text-[20px] text-slate-600">school</span>
             </div>
           </div>
-          <h2 className="text-4xl font-extrabold text-slate-900 tabular-nums mb-1">{String(courses.length).padStart(2, '0')}</h2>
+          <h2 className="text-4xl font-extrabold text-slate-900 tabular-nums mb-1 group-hover:scale-105 transition-transform">{String(courses.length).padStart(2, '0')}</h2>
           <p className="text-[10px] text-slate-500 uppercase tracking-wide">F26 Term</p>
-        </div>
+          <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <span className="material-symbols-outlined text-[16px] text-slate-400">arrow_forward</span>
+          </div>
+        </Link>
 
         {/* Total Students */}
         <div className="bg-white rounded-2xl p-6 border border-slate-200 flex flex-col relative overflow-hidden animate-slide-up" style={{ animationDelay: '0.3s' }}>
@@ -174,7 +181,11 @@ export default function Dashboard() {
         </div>
 
         {/* Next Class / Current Class */}
-        <div className={`rounded-2xl p-6 border-2 flex flex-col relative overflow-hidden animate-slide-up ${currentClass ? 'bg-emerald-50' : 'bg-white'}`} style={{ borderColor: currentClass ? "#10B981" : "#F5B41C", animationDelay: '0.4s' }}>
+        <Link
+          to={currentClass ? `/courses/${currentClass.id}` : nextClass ? `/courses/${nextClass.id}` : '/courses'}
+          className={`rounded-2xl p-6 border-2 flex flex-col relative overflow-hidden animate-slide-up transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer group ${currentClass ? 'bg-emerald-50 hover:bg-emerald-100' : 'bg-white hover:bg-slate-50'}`} 
+          style={{ borderColor: currentClass ? "#10B981" : "#F5B41C", animationDelay: '0.4s' }}
+        >
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-2">
               <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
@@ -194,7 +205,7 @@ export default function Dashboard() {
           {currentClass ? (
             // Show current in-progress class
             <>
-              <h2 className="text-2xl font-extrabold text-slate-900 mb-1">{currentClass.code}</h2>
+              <h2 className="text-2xl font-extrabold text-slate-900 mb-1 group-hover:scale-105 transition-transform">{currentClass.code}</h2>
               <div className="flex flex-col gap-1">
                 <span className="text-[10px] text-slate-600 font-semibold">{currentClass.venueName || 'TBA'}</span>
                 <div className="flex items-center justify-between">
@@ -213,7 +224,7 @@ export default function Dashboard() {
           ) : (
             // Show next upcoming class
             <>
-              <h2 className="text-2xl font-extrabold text-slate-900 mb-1">{nextClass?.code || '—'}</h2>
+              <h2 className="text-2xl font-extrabold text-slate-900 mb-1 group-hover:scale-105 transition-transform">{nextClass?.code || '—'}</h2>
               <div className="flex items-center justify-between">
                 <span className="text-[10px] text-slate-600 font-semibold">{nextClass?.venueName || 'TBA'}</span>
                 <span className="text-[9px] text-slate-500 font-semibold uppercase">
@@ -222,7 +233,10 @@ export default function Dashboard() {
               </div>
             </>
           )}
-        </div>
+          <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <span className="material-symbols-outlined text-[16px] text-slate-400">arrow_forward</span>
+          </div>
+        </Link>
       </div>
 
       {/* Main Content: Recent Activity + Active Schedule */}
@@ -251,10 +265,10 @@ export default function Dashboard() {
                   <button
                     key={session.id}
                     onClick={() => navigate('/session/summary', { state: { session } })}
-                    className="flex items-center gap-4 px-4 py-4 hover:bg-slate-50 transition-colors cursor-pointer rounded-lg group relative"
+                    className="flex items-center gap-4 px-4 py-4 hover:bg-slate-50 transition-all duration-200 cursor-pointer rounded-lg group relative hover:shadow-md hover:-translate-x-1"
                   >
                     {/* Timeline dot */}
-                    <div className={`w-10 h-10 rounded-full border-2 shrink-0 flex items-center justify-center ${idx === 0 ? 'bg-amber-50 border-amber-400' : 'bg-slate-50 border-slate-200'}`}>
+                    <div className={`w-10 h-10 rounded-full border-2 shrink-0 flex items-center justify-center transition-transform group-hover:scale-110 ${idx === 0 ? 'bg-amber-50 border-amber-400' : 'bg-slate-50 border-slate-200'}`}>
                       <span className="material-symbols-outlined text-[18px]" style={{ color: idx === 0 ? "#F5B41C" : "#64748b" }}>
                         {idx === 0 ? 'radio_button_checked' : 'radio_button_unchecked'}
                       </span>
@@ -263,8 +277,8 @@ export default function Dashboard() {
                     {/* Content */}
                     <div className="flex-1 min-w-0 text-left">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wide" style={{ backgroundColor: "#F5F5F5", color: "#1a2332" }}>{session.courseCode}</span>
-                        <span className="text-xs font-semibold text-slate-900 truncate">{session.courseName}</span>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wide transition-colors group-hover:bg-amber-100" style={{ backgroundColor: "#F5F5F5", color: "#1a2332" }}>{session.courseCode}</span>
+                        <span className="text-xs font-semibold text-slate-900 truncate group-hover:text-slate-950 transition-colors">{session.courseName}</span>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="text-[10px] text-slate-500 font-mono flex items-center gap-1">
@@ -277,8 +291,13 @@ export default function Dashboard() {
 
                     {/* Rate badge */}
                     <div className="shrink-0 text-right">
-                      <p className="text-sm font-extrabold text-slate-900 tabular-nums">{session.presentCount}/{session.totalStudents}</p>
+                      <p className="text-sm font-extrabold text-slate-900 tabular-nums group-hover:scale-110 transition-transform">{session.presentCount}/{session.totalStudents}</p>
                       <p className="text-[10px] font-bold text-slate-500">{rate}%</p>
+                    </div>
+                    
+                    {/* Hover arrow */}
+                    <div className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="material-symbols-outlined text-[16px] text-slate-400">arrow_forward</span>
                     </div>
                   </button>
                 );
@@ -310,16 +329,18 @@ export default function Dashboard() {
                 const isUpcoming = timeInfo && !isPast && !isInProgress;
                 
                 return (
-                  <div key={course.id} className={`border rounded-xl overflow-hidden transition-colors ${
-                    isInProgress ? 'bg-emerald-50/50 border-emerald-200' : 
+                  <div key={course.id} className={`border rounded-xl overflow-hidden transition-all duration-300 hover:shadow-md group cursor-pointer ${
+                    isInProgress ? 'bg-emerald-50/50 border-emerald-200 hover:bg-emerald-50' : 
                     isPast ? 'bg-slate-100/50 border-slate-200/50 opacity-60' : 
-                    'bg-slate-50/50 border-slate-200 hover:bg-slate-50'
-                  }`}>
+                    'bg-slate-50/50 border-slate-200 hover:bg-white hover:border-slate-300'
+                  }`}
+                  onClick={() => navigate(`/courses/${course.id}`)}
+                  >
                     {/* Course Header */}
                     <div className="p-4 flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wide" style={{ 
+                          <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wide transition-all group-hover:scale-105" style={{ 
                             backgroundColor: isInProgress ? "#D1FAE5" : isUpcoming && !isPast ? "#FFF9E6" : "#F5F5F5", 
                             color: isInProgress ? "#059669" : isUpcoming && !isPast ? "#F5B41C" : "#1a2332" 
                           }}>{course.code}</span>
@@ -335,16 +356,16 @@ export default function Dashboard() {
                             </span>
                           )}
                         </div>
-                        <h3 className="font-bold text-sm text-slate-900 mb-1">{course.name}</h3>
+                        <h3 className="font-bold text-sm text-slate-900 mb-1 group-hover:text-slate-950 transition-colors">{course.name}</h3>
                         <div className="flex flex-col gap-1">
                           {course.schedule && (
-                            <p className="text-[10px] text-slate-600 flex items-center gap-1">
+                            <p className="text-[10px] text-slate-600 flex items-center gap-1 group-hover:text-slate-700 transition-colors">
                               <span className="material-symbols-outlined text-[12px]">schedule</span>
                               {course.schedule}
                             </p>
                           )}
                           {course.venueName && (
-                            <p className="text-[10px] text-slate-600 flex items-center gap-1">
+                            <p className="text-[10px] text-slate-600 flex items-center gap-1 group-hover:text-slate-700 transition-colors">
                               <span className="material-symbols-outlined text-[12px]">meeting_room</span>
                               {course.venueName}
                             </p>
@@ -356,8 +377,11 @@ export default function Dashboard() {
                     {isUpcoming && timeInfo?.canSetup && !isPast && (
                       <div className="px-4 pb-4">
                         <button 
-                          onClick={() => navigate(`/session/create?course=${course.id}`)} 
-                          className="w-full flex justify-center items-center gap-2 py-2.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wide transition-all hover:shadow-md" 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/session/create?course=${course.id}`);
+                          }} 
+                          className="w-full flex justify-center items-center gap-2 py-2.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wide transition-all hover:shadow-md hover:scale-105 hover:brightness-110" 
                           style={{ backgroundColor: "#F5B41C", color: "#000" }}
                         >
                           <span className="material-symbols-outlined text-[16px]">play_arrow</span>

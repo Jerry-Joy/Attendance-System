@@ -49,20 +49,21 @@ export default function StudentRoster() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
+    <div className="min-h-screen bg-slate-50 p-6 animate-fade-in">
       <div className="max-w-7xl mx-auto">
         {/* Go Back Button */}
         <button 
           onClick={() => navigate('/courses')}
-          className="flex items-center gap-2 mb-6 text-slate-600 hover:text-slate-900 transition-colors animate-slide-in"
+          className="flex items-center gap-2 mb-6 text-slate-600 hover:text-slate-900 transition-all duration-200 animate-slide-up hover:gap-3 active:scale-95"
+          style={{ animationDelay: "0.05s" }}
         >
-          <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+          <span className="material-symbols-outlined text-[18px] transition-transform duration-200">arrow_back</span>
           <span className="text-[11px] font-bold uppercase tracking-wider">GO BACK</span>
         </button>
 
         {/* Course Code Badge */}
         <div className="mb-2 animate-slide-up" style={{ animationDelay: "0.1s" }}>
-          <div className="inline-block px-3 py-1 rounded text-[11px] font-bold uppercase tracking-wide" style={{ backgroundColor: "#1a2332", color: "#F5B41C" }}>
+          <div className="inline-block px-3 py-1 rounded text-[11px] font-bold uppercase tracking-wide hover:shadow-md hover:scale-105 transition-all duration-300 cursor-pointer" style={{ backgroundColor: "#1a2332", color: "#F5B41C" }}>
             {course.code}
           </div>
         </div>
@@ -76,7 +77,7 @@ export default function StudentRoster() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Enrollment Access */}
           <div className="lg:col-span-1 animate-slide-up" style={{ animationDelay: "0.3s" }}>
-            <div className="bg-white rounded-lg border border-slate-200 p-6">
+            <div className="bg-white rounded-lg border border-slate-200 p-6 hover:shadow-lg hover:border-slate-300 transition-all duration-300">
               <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-6">
                 Enrollment Access
               </h2>
@@ -86,15 +87,18 @@ export default function StudentRoster() {
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
                   Join Code
                 </label>
-                <div className="bg-slate-50 rounded-lg p-4 text-center border border-slate-200">
+                <div className="bg-slate-50 rounded-lg p-4 text-center border border-slate-200 hover:bg-slate-100 transition-all duration-300">
                   <div className="text-2xl font-bold text-slate-900 mb-3 tracking-wide">
                     {course.joinCode}
                   </div>
                   <button 
                     onClick={handleCopyJoinCode}
-                    className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-white border border-slate-300 rounded-lg text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:bg-slate-50 transition-colors"
+                    className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-white border border-slate-300 rounded-lg text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:bg-slate-50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 active:scale-95 group"
+                    style={{ color: copiedJoinCode ? "#10b981" : undefined }}
                   >
-                    <span className="material-symbols-outlined text-[16px]">content_copy</span>
+                    <span className="material-symbols-outlined text-[16px] transition-transform duration-200 group-hover:scale-110">
+                      {copiedJoinCode ? 'check_circle' : 'content_copy'}
+                    </span>
                     {copiedJoinCode ? 'COPIED!' : 'COPY'}
                   </button>
                 </div>
@@ -102,27 +106,27 @@ export default function StudentRoster() {
 
               {/* Schedule */}
               {course.schedule && (
-                <div className="mb-4 pb-4 border-b border-slate-200">
+                <div className="mb-4 pb-4 border-b border-slate-200 group hover:bg-slate-50 -mx-2 px-2 py-2 rounded-lg transition-all duration-200">
                   <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
                     Schedule
                   </label>
                   <div className="flex items-center gap-2 text-sm text-slate-700">
-                    <span className="material-symbols-outlined text-[16px] text-slate-400">schedule</span>
+                    <span className="material-symbols-outlined text-[16px] text-slate-400 group-hover:text-slate-600 transition-colors">schedule</span>
                     <span className="font-semibold">{course.schedule}</span>
                   </div>
                 </div>
               )}
 
               {/* Total Enrolled */}
-              <div className="mb-4 pb-4 border-b border-slate-200">
+              <div className="mb-4 pb-4 border-b border-slate-200 group hover:bg-slate-50 -mx-2 px-2 py-2 rounded-lg transition-all duration-200">
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
                   Total Enrolled
                 </label>
-                <div className="text-3xl font-bold text-slate-900">{course.studentCount}</div>
+                <div className="text-3xl font-bold text-slate-900 group-hover:scale-110 transition-transform duration-300">{course.studentCount}</div>
               </div>
 
               {/* Course Level */}
-              <div>
+              <div className="group hover:bg-slate-50 -mx-2 px-2 py-2 rounded-lg transition-all duration-200">
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
                   Course Level
                 </label>
@@ -133,7 +137,7 @@ export default function StudentRoster() {
 
           {/* Right Column - Student Table */}
           <div className="lg:col-span-2 animate-slide-up" style={{ animationDelay: "0.4s" }}>
-            <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+            <div className="bg-white rounded-lg border border-slate-200 overflow-hidden hover:shadow-lg hover:border-slate-300 transition-all duration-300">
               {/* Table Header */}
               <div className="px-6 py-4 border-b border-slate-200">
                 <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
@@ -155,12 +159,12 @@ export default function StudentRoster() {
                   </thead>
                   <tbody className="divide-y divide-slate-200">
                     {students.map((student, index) => (
-                      <tr key={student.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-6 py-4 text-sm text-slate-900">{index + 1}</td>
+                      <tr key={student.id} className="hover:bg-slate-50 transition-all duration-200 animate-slide-up group" style={{ animationDelay: `${index * 0.03 + 0.45}s` }}>
+                        <td className="px-6 py-4 text-sm text-slate-900 font-semibold">{index + 1}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div 
-                              className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white" 
+                              className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white group-hover:scale-110 transition-transform duration-200" 
                               style={{ backgroundColor: "#1a2332" }}
                             >
                               {student.initials}
@@ -168,24 +172,24 @@ export default function StudentRoster() {
                             <span className="text-sm font-semibold text-slate-900">{student.name}</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-slate-600">{student.studentId}</td>
+                        <td className="px-6 py-4 text-sm text-slate-600 font-mono">{student.studentId}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className="flex-1">
-                              <div className="h-2 bg-slate-100 rounded-full overflow-hidden" style={{ minWidth: '100px' }}>
+                              <div className="h-2 bg-slate-100 rounded-full overflow-hidden group-hover:h-2.5 transition-all duration-300" style={{ minWidth: '100px' }}>
                                 <div 
-                                  className="h-full rounded-full transition-all" 
+                                  className="h-full rounded-full transition-all duration-700" 
                                   style={{ width: `${student.attendanceRate}%`, backgroundColor: "#1a2332" }}
                                 />
                               </div>
                             </div>
-                            <span className="text-sm font-bold text-slate-900 tabular-nums w-10 text-right">
+                            <span className="text-sm font-bold text-slate-900 tabular-nums w-10 text-right group-hover:scale-110 transition-transform duration-200">
                               {student.attendanceRate}%
                             </span>
                           </div>
                         </td>
                         <td className="px-6 py-4 text-center">
-                          <button className="p-1 text-slate-400 hover:text-slate-600 transition-colors">
+                          <button className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-all duration-200 hover:scale-110 active:scale-95">
                             <span className="material-symbols-outlined text-[20px]">more_vert</span>
                           </button>
                         </td>
@@ -197,8 +201,8 @@ export default function StudentRoster() {
 
               {/* Empty State */}
               {students.length === 0 && (
-                <div className="px-6 py-12 text-center">
-                  <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="px-6 py-12 text-center animate-slide-up" style={{ animationDelay: "0.5s" }}>
+                  <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 hover:scale-110 transition-transform duration-300">
                     <span className="material-symbols-outlined text-[32px] text-slate-400">groups</span>
                   </div>
                   <p className="text-sm font-semibold text-slate-600 mb-1">No Students Enrolled</p>
