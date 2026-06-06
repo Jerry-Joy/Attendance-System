@@ -107,3 +107,25 @@ export interface LecturerPreferences {
   notifications: boolean;
   blockchainWrite: boolean;
 }
+
+export type NotificationType = 'session_reminder' | 'low_attendance' | 'session_summary';
+export type NotificationPriority = 'high' | 'medium' | 'low';
+
+export interface Notification {
+  id: string;
+  type: NotificationType;
+  priority: NotificationPriority;
+  title: string;
+  message: string;
+  timestamp: number;
+  read: boolean;
+  courseId?: string;
+  courseCode?: string;
+  sessionId?: string;
+  metadata?: {
+    attendanceRate?: number;
+    presentCount?: number;
+    totalStudents?: number;
+    scheduledTime?: string;
+  };
+}

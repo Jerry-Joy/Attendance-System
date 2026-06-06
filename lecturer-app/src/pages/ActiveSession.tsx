@@ -3,12 +3,14 @@ import { useNavigate, Link } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { io, type Socket } from "socket.io-client";
 import { useData } from "../context/DataContext";
+import { useNotifications } from "../context/NotificationContext";
 import { api, WS_BASE, getToken, mapAttendance } from "../lib/api";
 import type { AttendingStudent } from "../types";
 
 export default function ActiveSession() {
   const navigate = useNavigate();
   const { activeSession, addAttendee, endActiveSession, addPastSession, courses } = useData();
+  const { addNotification } = useNotifications();
 
   const [qrToken, setQrToken] = useState(() => activeSession?.qrToken || `SA-${Math.floor(Date.now()/1000)}-${Math.random().toString(16).substring(2,8)}`);
   const [elapsed, setElapsed] = useState(0);
@@ -132,6 +134,46 @@ export default function ActiveSession() {
 
     const attendeesData = [...activeSession.attendees];
 
+    // Calculate attendance rate
+    const attendanceRate = sessionData.totalStudents > 0 
+      ? Math.round((sessionData.presentCount / sessionData.totalStudents) * 100)
+      : 0;
+
+    // Trigger appropriate notification
+    if (attendanceRate < 70) {
+      // Low attendance alert
+      addNotification({
+        type: 'low_attendance',
+        priority: 'high',
+        title: '⚠️ Low Attendance Alert',
+        message: `${activeSession.courseCode} session ended with low attendance`,
+        courseId: activeSession.courseId,
+        courseCode: activeSession.courseCode,
+        sessionId: activeSession.sessionId,
+        metadata: {
+          attendanceRate,
+          presentCount: sessionData.presentCount,
+          totalStudents: sessionData.totalStudents,
+        },
+      });
+    } else {
+      // Session end summary
+      addNotification({
+        type: 'session_summary',
+        priority: 'low',
+        title: '✅ Session Completed',
+        message: `${activeSession.courseCode} - ${activeSession.courseName} ended successfully`,
+        courseId: activeSession.courseId,
+        courseCode: activeSession.courseCode,
+        sessionId: activeSession.sessionId,
+        metadata: {
+          attendanceRate,
+          presentCount: sessionData.presentCount,
+          totalStudents: sessionData.totalStudents,
+        },
+      });
+    }
+
     addPastSession({
       id: activeSession.sessionId || `past_${Date.now()}`,
       courseCode: activeSession.courseCode,
@@ -169,7 +211,7 @@ export default function ActiveSession() {
     } catch {
       // Continue even if API call fails
     }
-  }, [activeSession, elapsed, navigate, endActiveSession, addPastSession, courses, ending]);
+  }, [activeSession, elapsed, navigate, endActiveSession, addPastSession, courses, ending, addNotification]);
 
   if (!activeSession) return null;
 

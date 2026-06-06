@@ -7,6 +7,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
+import { NotificationProvider } from './context/NotificationContext';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Courses from './pages/Courses';
@@ -52,31 +53,33 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <DataProvider>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/setup" element={<Setup />} />
-            <Route path="/" element={<AuthGate><Layout /></AuthGate>}>
-              <Route index element={<Dashboard />} />
-              <Route path="courses" element={<Courses />} />
-              <Route path="courses/:id" element={<CourseDetails />} />
-              <Route path="courses/:id/students" element={<ManageStudents />} />
-              <Route path="courses/:id/roster" element={<StudentRoster />} />
-              <Route path="history" element={<History />} />
-              <Route path="reports" element={<Reports />} />
-              <Route path="ledger" element={<Ledger />} />
-              <Route path="settings" element={<Settings />} />
-            </Route>
-            
-            {/* Session flow — outside regular layout but require auth */}
-            <Route path="/courses/create" element={<AuthGate><CreateCourse /></AuthGate>} />
-            <Route path="/session/create" element={<AuthGate><CreateSession /></AuthGate>} />
-            <Route path="/session/active" element={<AuthGate><ActiveSession /></AuthGate>} />
-            <Route path="/session/live-monitor" element={<AuthGate><LiveMonitor /></AuthGate>} />
-            <Route path="/session/summary" element={<AuthGate><SessionSummary /></AuthGate>} />
-            
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <NotificationProvider>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/setup" element={<Setup />} />
+              <Route path="/" element={<AuthGate><Layout /></AuthGate>}>
+                <Route index element={<Dashboard />} />
+                <Route path="courses" element={<Courses />} />
+                <Route path="courses/:id" element={<CourseDetails />} />
+                <Route path="courses/:id/students" element={<ManageStudents />} />
+                <Route path="courses/:id/roster" element={<StudentRoster />} />
+                <Route path="history" element={<History />} />
+                <Route path="reports" element={<Reports />} />
+                <Route path="ledger" element={<Ledger />} />
+                <Route path="settings" element={<Settings />} />
+              </Route>
+              
+              {/* Session flow — outside regular layout but require auth */}
+              <Route path="/courses/create" element={<AuthGate><CreateCourse /></AuthGate>} />
+              <Route path="/session/create" element={<AuthGate><CreateSession /></AuthGate>} />
+              <Route path="/session/active" element={<AuthGate><ActiveSession /></AuthGate>} />
+              <Route path="/session/live-monitor" element={<AuthGate><LiveMonitor /></AuthGate>} />
+              <Route path="/session/summary" element={<AuthGate><SessionSummary /></AuthGate>} />
+              
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </NotificationProvider>
         </DataProvider>
       </AuthProvider>
     </BrowserRouter>
