@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(npx expo install expo-camera)",
+      "PowerShell(npx expo install expo-location)",
+      "PowerShell(npm install *)",
+      "PowerShell(npx expo install --fix)",
+      "PowerShell(npx expo install react-native-reanimated)"
+    ]
+  }
+}

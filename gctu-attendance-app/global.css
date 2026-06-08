@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── GCTU Official Brand Colors ── */
+:root {
+  --gctu-navy: #081637;
+  --gctu-navy-deep: #0D2A66;
+  --gctu-navy-tint: #DAE1FF;
+  --gctu-gold: #F5B41C;
+  --gctu-gold-dark: #CAA10B;
+  --gctu-gold-muted: #FDE68A;
+  
+  --primary: #081637;
+  --secondary: #F5B41C;
+  --background: #FFFFFF;
+  --surface: #F8FAFC;
+}
