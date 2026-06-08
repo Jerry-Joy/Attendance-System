@@ -18,6 +18,7 @@ import { useRouter } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
 import { useTheme } from '@/hooks/useTheme';
 import { Spacing, Typography, BorderRadius, Shadows } from '@/constants/Layout';
+import { Palette } from '@/constants/Colors';
 import { PrimaryButton, Card, Avatar } from '@/components/ui';
 import { useAuth } from '@/context/AuthContext';
 import { useLiveSessions } from '@/context/LiveSessionContext';
@@ -269,7 +270,7 @@ const styles = StyleSheet.create({
   },
   gctuBadgeText: {
     fontSize: 10,
-    color: '#C5960C',
+    color: Palette.gctuGold,
     letterSpacing: 1.5,
     textTransform: 'uppercase',
     fontWeight: '600',

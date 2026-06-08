@@ -50,16 +50,16 @@ export default function SignUpScreen() {
 
   const getPasswordStrength = (): { label: string; color: string; width: string } => {
     if (password.length === 0) return { label: '', color: 'transparent', width: '0%' };
-    if (password.length < 6) return { label: 'Too short', color: '#EF4444', width: '25%' };
+    if (password.length < 6) return { label: 'Too short', color: theme.error, width: '25%' };
     const hasUpper = /[A-Z]/.test(password);
     const hasLower = /[a-z]/.test(password);
     const hasNumber = /[0-9]/.test(password);
     const hasSpecial = /[^A-Za-z0-9]/.test(password);
     const score = [hasUpper, hasLower, hasNumber, hasSpecial].filter(Boolean).length;
-    if (score <= 1) return { label: 'Weak', color: '#EF4444', width: '33%' };
-    if (score <= 2) return { label: 'Fair', color: '#F59E0B', width: '50%' };
-    if (score === 3) return { label: 'Good', color: '#3B82F6', width: '75%' };
-    return { label: 'Strong', color: '#10B981', width: '100%' };
+    if (score <= 1) return { label: 'Weak', color: theme.error, width: '33%' };
+    if (score <= 2) return { label: 'Fair', color: theme.warning, width: '50%' };
+    if (score === 3) return { label: 'Good', color: theme.info, width: '75%' };
+    return { label: 'Strong', color: theme.success, width: '100%' };
   };
 
   const handleNext = () => {
@@ -112,10 +112,10 @@ export default function SignUpScreen() {
         {/* Header */}
         <Animated.View entering={FadeInDown.duration(500).delay(100)}>
           <View style={styles.logoSection}>
-            <View style={[styles.logoCircle, { backgroundColor: '#003366' }]}>
+            <View style={[styles.logoCircle, { backgroundColor: theme.primary }]}>
               <Image source={require('@/assets/images/gctu-crest.png')} style={{ width: 52, height: 52 }} resizeMode="contain" />
             </View>
-            <Text style={{ fontSize: 9, color: '#C5960C', letterSpacing: 2, textTransform: 'uppercase', marginTop: Spacing.md }}>
+            <Text style={{ fontSize: 9, color: theme.accent, letterSpacing: 2, textTransform: 'uppercase', marginTop: Spacing.md }}>
               Ghana Communication Technology University
             </Text>
             <Text style={[Typography.h1, { color: theme.text, marginTop: Spacing.xs }]}>
@@ -182,10 +182,10 @@ export default function SignUpScreen() {
         {error ? (
           <Animated.View
             entering={FadeInDown.duration(300)}
-            style={[styles.errorBox, { backgroundColor: '#FEE2E2', borderColor: '#FECACA' }]}
+            style={[styles.errorBox, { backgroundColor: theme.error + '15', borderColor: theme.error + '30' }]}
           >
-            <FontAwesome name="exclamation-circle" size={16} color="#EF4444" />
-            <Text style={[Typography.bodySmall, { color: '#DC2626', marginLeft: 8, flex: 1 }]}>
+            <FontAwesome name="exclamation-circle" size={16} color={theme.error} />
+            <Text style={[Typography.bodySmall, { color: theme.error, marginLeft: 8, flex: 1 }]}>
               {error}
             </Text>
           </Animated.View>
@@ -276,7 +276,7 @@ export default function SignUpScreen() {
 
             {/* Mismatch warning */}
             {confirmPassword.length > 0 && !passwordsMatch && (
-              <Text style={[Typography.caption, { color: '#EF4444', marginTop: 4 }]}>
+              <Text style={[Typography.caption, { color: theme.error, marginTop: 4 }]}>
                 Passwords do not match
               </Text>
             )}

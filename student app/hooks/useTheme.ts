@@ -8,6 +8,9 @@ export type ThemeColors = {
     primary: string;
     primaryDark: string;
     primaryLight: string;
+    accent: string;
+    accentDark: string;
+    accentLight: string;
     surface: string;
     background: string;
     surfaceElevated: string;

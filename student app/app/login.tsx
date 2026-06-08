@@ -48,10 +48,10 @@ export default function LoginScreen() {
         <Animated.View entering={FadeInDown.duration(500).delay(100)}>
           {/* Logo */}
           <View style={styles.logoSection}>
-            <View style={[styles.logoCircle, { backgroundColor: '#003366' }]}>
+            <View style={[styles.logoCircle, { backgroundColor: theme.primary }]}>
               <Image source={require('@/assets/images/gctu-crest.png')} style={{ width: 52, height: 52 }} resizeMode="contain" />
             </View>
-            <Text style={{ fontSize: 9, color: '#C5960C', letterSpacing: 2, textTransform: 'uppercase', marginTop: Spacing.md }}>
+            <Text style={{ fontSize: 9, color: theme.accent, letterSpacing: 2, textTransform: 'uppercase', marginTop: Spacing.md }}>
               Ghana Communication Technology University
             </Text>
             <Text style={[Typography.h1, { color: theme.text, marginTop: Spacing.xs }]}>
@@ -65,9 +65,9 @@ export default function LoginScreen() {
           {/* Form */}
           <View style={styles.form}>
             {error ? (
-              <View style={[styles.errorBox, { backgroundColor: '#FEE2E2', borderColor: '#FECACA' }]}>
-                <FontAwesome name="exclamation-circle" size={16} color="#EF4444" />
-                <Text style={[Typography.bodySmall, { color: '#DC2626', marginLeft: 8, flex: 1 }]}>
+              <View style={[styles.errorBox, { backgroundColor: theme.error + '15', borderColor: theme.error + '30' }]}>
+                <FontAwesome name="exclamation-circle" size={16} color={theme.error} />
+                <Text style={[Typography.bodySmall, { color: theme.error, marginLeft: 8, flex: 1 }]}>
                   {error}
                 </Text>
               </View>

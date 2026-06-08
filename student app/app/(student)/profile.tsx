@@ -177,7 +177,7 @@ export default function StudentProfileScreen() {
           <Text style={[Typography.caption, { color: theme.textTertiary, textAlign: 'center', marginTop: 2, fontSize: 10 }]}>
             QR + GPS Geofencing + Blockchain
           </Text>
-          <Text style={{ fontSize: 9, color: '#C5960C', textAlign: 'center', marginTop: 4, letterSpacing: 1, textTransform: 'uppercase' }}>
+          <Text style={{ fontSize: 9, color: theme.accent, textAlign: 'center', marginTop: 4, letterSpacing: 1, textTransform: 'uppercase' }}>
             Ghana Communication Technology University
           </Text>
         </View>

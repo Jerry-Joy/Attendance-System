@@ -152,8 +152,8 @@ export default function ScannerScreen() {
           <View style={{ width: 80 }} />
         </View>
         <View style={styles.centered}>
-          <FontAwesome name="exclamation-triangle" size={64} color="#F87171" />
-          <Text style={[styles.permissionText, { color: '#F87171', marginTop: Spacing.lg }]}>
+          <FontAwesome name="exclamation-triangle" size={64} color={theme.error} />
+          <Text style={[styles.permissionText, { color: theme.error, marginTop: Spacing.lg }]}>
             {error}
           </Text>
           <PrimaryButton
@@ -199,10 +199,10 @@ export default function ScannerScreen() {
             <View style={styles.overlaySide} />
             <View style={styles.scanFrame}>
               {/* Corner markers */}
-              <View style={[styles.corner, styles.topLeft]} />
-              <View style={[styles.corner, styles.topRight]} />
-              <View style={[styles.corner, styles.bottomLeft]} />
-              <View style={[styles.corner, styles.bottomRight]} />
+              <View style={[styles.corner, styles.topLeft, { borderColor: theme.primary }]} />
+              <View style={[styles.corner, styles.topRight, { borderColor: theme.primary }]} />
+              <View style={[styles.corner, styles.bottomLeft, { borderColor: theme.primary }]} />
+              <View style={[styles.corner, styles.bottomRight, { borderColor: theme.primary }]} />
             </View>
             <View style={styles.overlaySide} />
           </View>
@@ -214,8 +214,8 @@ export default function ScannerScreen() {
       <View style={styles.statusArea}>
         {scanned ? (
           <>
-            <FontAwesome name="check-circle" size={24} color="#4ADE80" />
-            <Text style={[styles.statusText, { color: '#4ADE80' }]}>
+            <FontAwesome name="check-circle" size={24} color={theme.success} />
+            <Text style={[styles.statusText, { color: theme.success }]}>
               QR Code Scanned — Verifying GPS Location...
             </Text>
           </>
@@ -310,7 +310,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 40,
     height: 40,
-    borderColor: '#1565C0',
     borderWidth: 3,
   },
   topLeft: {

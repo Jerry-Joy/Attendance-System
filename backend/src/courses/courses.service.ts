@@ -60,7 +60,10 @@ export class CoursesService {
     if (role === Role.LECTURER) {
       return this.prisma.course.findMany({
         where: { lecturerId: userId },
-        include: { _count: { select: { enrollments: true } } },
+        include: {
+          _count: { select: { enrollments: true } },
+          lecturer: { select: { fullName: true } },
+        },
         orderBy: { createdAt: 'desc' },
       });
     }
@@ -69,7 +72,10 @@ export class CoursesService {
       where: { studentId: userId },
       include: {
         course: {
-          include: { _count: { select: { enrollments: true } } },
+          include: {
+            _count: { select: { enrollments: true } },
+            lecturer: { select: { fullName: true } },
+          },
         },
       },
       orderBy: { enrolledAt: 'desc' },
@@ -124,7 +130,10 @@ export class CoursesService {
 
     const course = await this.prisma.course.findUnique({
       where: { joinCode: normalizedJoinCode },
-      include: { _count: { select: { enrollments: true } } },
+      include: {
+        _count: { select: { enrollments: true } },
+        lecturer: { select: { fullName: true } },
+      },
     });
     if (!course) throw new NotFoundException('Invalid join code');
 
@@ -159,7 +168,10 @@ export class CoursesService {
 
     return this.prisma.course.findUnique({
       where: { id: course.id },
-      include: { _count: { select: { enrollments: true } } },
+      include: {
+        _count: { select: { enrollments: true } },
+        lecturer: { select: { fullName: true } },
+      },
     });
   }
 
