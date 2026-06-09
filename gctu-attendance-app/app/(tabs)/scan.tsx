@@ -1,7 +1,7 @@
 import { View, Text, Pressable, ScrollView, Animated, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { QrCode, MapPin, CheckCircle, ArrowRight, Camera, Sparkles, Shield } from 'lucide-react-native';
+import { QrCode, MapPin, CheckCircle, ArrowRight, Camera, Shield } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useRef } from 'react';
 
@@ -60,7 +60,6 @@ export default function ScanTab() {
         style={[styles.header, { paddingTop: insets.top + 16 }]}
       >
         <View className="items-center px-5 pb-5">
-          <Text className="text-xs text-white/70 font-medium tracking-wide uppercase">GCTU Connect</Text>
           <Text className="text-2xl font-bold text-white tracking-tight mt-1">Mark Attendance</Text>
         </View>
       </LinearGradient>
@@ -135,12 +134,9 @@ export default function ScanTab() {
 
         {/* Title and description */}
         <View className="items-center px-4">
-          <View className="flex-row items-center gap-2 mb-2">
-            <Sparkles size={20} color="#F5B41C" />
-            <Text className="text-3xl font-bold text-primary tracking-tight text-center">
-              Scan to Check In
-            </Text>
-          </View>
+          <Text className="text-3xl font-bold text-primary tracking-tight text-center">
+            Scan to Check In
+          </Text>
           <Text className="text-base text-on-surface-variant text-center leading-relaxed">
             Scan the dynamic QR code displayed by your lecturer to securely mark your attendance.
           </Text>

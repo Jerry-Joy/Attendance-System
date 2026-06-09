@@ -3,7 +3,7 @@ import {
   View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform, Alert, Image, StyleSheet
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield, Sparkles } from 'lucide-react-native';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/src/contexts/AuthContext';
 
@@ -55,10 +55,7 @@ export default function Login() {
             </View>
             <View className="items-center gap-2">
               <Text className="text-4xl font-bold text-white tracking-tight">Welcome Back</Text>
-              <View className="flex-row items-center gap-2">
-                <Sparkles size={16} color="#F5B41C" />
-                <Text className="text-base text-white/80 font-medium">GCTU Smart Attendance</Text>
-              </View>
+              <Text className="text-base text-white/80 font-medium">GCTU Smart Attendance</Text>
               <Text className="text-sm text-white/60 mt-2">Sign in to mark your attendance</Text>
             </View>
           </View>

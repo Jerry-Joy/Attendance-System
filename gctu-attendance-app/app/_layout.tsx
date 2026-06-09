@@ -4,6 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from '@/src/contexts/AuthContext';
 import { AppProvider } from '@/src/contexts/AppContext';
 import { LiveSessionProvider } from '@/src/contexts/LiveSessionContext';
+import { NotificationProvider } from '@/src/contexts/NotificationContext';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
@@ -22,6 +23,7 @@ function RootLayoutNav() {
       <Stack.Screen name="gps-verify" />
       <Stack.Screen name="attendance-confirmed" />
       <Stack.Screen name="join-course" />
+      <Stack.Screen name="notifications" options={{ animation: 'slide_from_right' }} />
     </Stack>
   );
 }
@@ -58,12 +60,14 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <AuthProvider>
-        <AppProvider>
-          <LiveSessionProvider>
-            <StatusBar style="light" backgroundColor="#081637" translucent={false} />
-            <RootLayoutNav />
-          </LiveSessionProvider>
-        </AppProvider>
+        <NotificationProvider>
+          <AppProvider>
+            <LiveSessionProvider>
+              <StatusBar style="light" backgroundColor="#081637" translucent={false} />
+              <RootLayoutNav />
+            </LiveSessionProvider>
+          </AppProvider>
+        </NotificationProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

@@ -17,6 +17,7 @@ import * as Notifications from 'expo-notifications';
 import { io, Socket } from 'socket.io-client';
 import { api, getToken, API_ORIGIN, MappedLiveSession } from '../lib/api';
 import { useAuth } from './AuthContext';
+import { useNotifications } from './NotificationContext';
 
 // ── Configure notification handler (show even when app is foregrounded) ──
 Notifications.setNotificationHandler({
@@ -41,6 +42,7 @@ const LiveSessionContext = createContext<LiveSessionState | undefined>(undefined
 
 export function LiveSessionProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated } = useAuth();
+  const { addNotification } = useNotifications();
   const [liveSessions, setLiveSessions] = useState<MappedLiveSession[]>([]);
   const [loading, setLoading] = useState(false);
   const [connected, setConnected] = useState(false);
@@ -199,6 +201,19 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
       // Send notification if not already notified
       if (!notifiedSessionIdsRef.current.has(newSession.sessionId)) {
         notifiedSessionIdsRef.current.add(newSession.sessionId);
+        
+        // Add to in-app notification center
+        addNotification({
+          type: 'session_start',
+          title: `${eventData.courseCode} Session Started`,
+          message: `Attendance is now open for ${eventData.courseName}${eventData.venue ? ` at ${eventData.venue}` : ''}`,
+          courseCode: eventData.courseCode,
+          courseName: eventData.courseName,
+          actionable: true,
+          actionData: { sessionId: newSession.sessionId }
+        });
+        
+        // Also send push notification
         sendLocalNotification({
           sessionId: newSession.sessionId,
           courseCode: eventData.courseCode,

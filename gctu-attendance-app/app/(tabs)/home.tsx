@@ -2,11 +2,12 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { ScrollView, View, Text, Pressable, RefreshControl, Image, StyleSheet, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { School, Library, QrCode, BookMarked, Terminal, Database, Calculator, Plus, TrendingUp, Calendar, Clock } from 'lucide-react-native';
+import { School, Library, QrCode, BookMarked, Terminal, Database, Calculator, Plus, TrendingUp, Calendar, Clock, Bell } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { useAppContext } from '@/src/contexts/AppContext';
 import { useLiveSessions } from '@/src/contexts/LiveSessionContext';
+import { useNotifications } from '@/src/contexts/NotificationContext';
 import { computeGreeting } from '@/src/utils/greetingHelper';
 
 const COURSE_ICONS = [Database, Terminal, Calculator];
@@ -16,6 +17,7 @@ export default function Home() {
   const { student, refreshProfile } = useAuth();
   const { courses, fetchCourses } = useAppContext();
   const { liveSessions, refresh: refreshLiveSessions } = useLiveSessions();
+  const { unreadCount } = useNotifications();
   const insets = useSafeAreaInsets();
 
   const [refreshing, setRefreshing] = useState(false);
@@ -57,61 +59,62 @@ export default function Home() {
   }, [refreshProfile, fetchCourses, refreshLiveSessions]);
 
   // Calculate overall attendance
-  const overallAttendance = courses.length > 0
-    ? Math.round(courses.reduce((sum, c) => sum + (c.attendanceRate || 0), 0) / courses.length)
-    : 0;
+  // const overallAttendance = courses.length > 0
+  //   ? Math.round(courses.reduce((sum, c) => sum + (c.attendanceRate || 0), 0) / courses.length)
+  //   : 0;
 
   return (
     <View className="flex-1 bg-surface">
-      {/* Enhanced Header with Gradient */}
+      {/* Compact Header with Gradient */}
       <LinearGradient
         colors={['#081637', '#0A1F4D']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={[styles.header, { paddingTop: insets.top + 16 }]}
+        style={[styles.header, { paddingTop: insets.top + 12 }]}
       >
-        <View className="flex-row justify-between items-center px-5 pb-4">
+        {/* Top Bar */}
+        <View className="flex-row justify-between items-center px-5 pb-3">
           <View className="flex-row items-center gap-3">
-            <View className="w-10 h-10 rounded-full bg-white/10 items-center justify-center border border-secondary/30">
-              <Image source={require('@/assets/images/gctu-crest.png')} style={{ width: 24, height: 24 }} resizeMode="contain" />
+            <View className="w-9 h-9 rounded-full bg-white/10 items-center justify-center border border-secondary/30">
+              <Image source={require('@/assets/images/gctu-crest.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />
             </View>
             <View>
-              <Text className="text-xs text-white/70 font-medium tracking-wide">GCTU Connect</Text>
-              <Text className="text-base font-bold text-white tracking-tight">Smart Attendance</Text>
+              <Text className="text-xs text-white/70 font-medium">{computeGreeting()}</Text>
+              <Text className="text-base font-bold text-white tracking-tight">
+                {student?.name.split(' ')[0] || student?.name}
+              </Text>
             </View>
           </View>
           <Pressable
-            className="w-12 h-12 rounded-full bg-secondary items-center justify-center active:opacity-80"
-            style={styles.avatarShadow}
+            onPress={() => router.push('/notifications')}
+            className="w-10 h-10 rounded-full bg-white/10 items-center justify-center active:opacity-80 border border-white/20"
+            style={styles.notificationButton}
           >
-            <Text className="text-base font-bold text-primary">{student?.avatarInitials}</Text>
+            <Bell size={20} color="#FFFFFF" strokeWidth={2} />
+            {unreadCount > 0 && (
+              <View className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-secondary items-center justify-center border-2 border-primary">
+                <Text className="text-[10px] font-bold text-primary">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </Text>
+              </View>
+            )}
           </Pressable>
         </View>
 
-        {/* Greeting Card - overlaps header */}
-        <View className="px-5 pb-6">
-          <View className="bg-white/10 backdrop-blur-lg rounded-2xl p-5 border border-white/20" style={styles.greetingCard}>
-            <Text className="text-sm text-white/80 font-medium">{computeGreeting()}</Text>
-            <Text className="text-2xl font-bold text-white mt-1 tracking-tight">
-              {student?.name.split(' ')[0] || student?.name}
-            </Text>
-            
-            {/* Mini stats */}
-            <View className="flex-row gap-4 mt-4">
-              <View className="flex-1">
-                <Text className="text-white/60 text-xs font-medium uppercase tracking-wider">Courses</Text>
-                <Text className="text-white text-2xl font-bold mt-1">{courses.length}</Text>
-              </View>
-              <View className="w-px bg-white/20" />
-              <View className="flex-1">
-                <Text className="text-white/60 text-xs font-medium uppercase tracking-wider">Attendance</Text>
-                <Text className="text-secondary text-2xl font-bold mt-1">{overallAttendance}%</Text>
-              </View>
-              <View className="w-px bg-white/20" />
-              <View className="flex-1">
-                <Text className="text-white/60 text-xs font-medium uppercase tracking-wider">Live Now</Text>
-                <Text className="text-white text-2xl font-bold mt-1">{liveSessions.length}</Text>
-              </View>
+        {/* Compact Stats Bar */}
+        <View className="flex-row mx-5 mb-4 bg-white/10 backdrop-blur-lg rounded-xl p-3 border border-white/20" style={styles.statsBar}>
+          <View className="flex-1 items-center">
+            <Text className="text-white/60 text-xs font-medium">Courses</Text>
+            <Text className="text-white text-xl font-bold mt-0.5">{courses.length}</Text>
+          </View>
+          <View className="w-px bg-white/20" />
+          <View className="flex-1 items-center">
+            <Text className="text-white/60 text-xs font-medium">Live Now</Text>
+            <View className="flex-row items-center gap-1.5 mt-0.5">
+              <Animated.View style={{ opacity: pulseAnim }}>
+                <View className="w-1.5 h-1.5 rounded-full bg-secondary" />
+              </Animated.View>
+              <Text className="text-secondary text-xl font-bold">{liveSessions.length}</Text>
             </View>
           </View>
         </View>
@@ -312,19 +315,19 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 8,
   },
-  greetingCard: {
+  statsBar: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
-  },
-  avatarShadow: {
-    shadowColor: '#F5B41C',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 4,
+    elevation: 3,
+  },
+  notificationButton: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
   },
   scanButton: {
     borderRadius: 16,

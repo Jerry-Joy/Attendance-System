@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
-import { View, Text, Pressable, ScrollView, Modal, Switch, StyleSheet } from 'react-native';
+import { View, Text, Pressable, ScrollView, Modal, Switch, StyleSheet, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Mail, MapPin, Navigation, Bell, Smartphone, Info, LogOut, User, Shield, Award, ChevronRight } from 'lucide-react-native';
+import { Mail, Bell, Smartphone, LogOut, Shield, Award, ChevronRight } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { useNotifications } from '@/src/contexts/NotificationContext';
+import * as Device from 'expo-device';
 
 export default function ProfileTab() {
   const { student, logout } = useAuth();
+  const { unreadCount } = useNotifications();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [showConfirm, setShowConfirm] = useState(false);
@@ -30,7 +33,7 @@ export default function ProfileTab() {
             </View>
             <Text className="text-2xl font-bold text-primary mb-2">Log Out?</Text>
             <Text className="text-sm text-on-surface-variant text-center mb-8 leading-relaxed">
-              Are you sure you want to log out of your GCTU Connect account?
+              Are you sure you want to log out of your account?
             </Text>
             <View className="flex-row gap-3 w-full">
               <Pressable
@@ -61,13 +64,23 @@ export default function ProfileTab() {
       >
         <View className="px-5 pb-5">
           <View className="flex-row items-center justify-between">
-            <View>
-              <Text className="text-xs text-white/70 font-medium tracking-wide uppercase">GCTU Connect</Text>
+            <View className="flex-1">
               <Text className="text-2xl font-bold text-white tracking-tight mt-1">My Profile</Text>
             </View>
-            <View className="w-12 h-12 rounded-full bg-secondary items-center justify-center" style={styles.iconCircle}>
-              <User size={24} color="#081637" strokeWidth={2} />
-            </View>
+            <Pressable
+              onPress={() => router.push('/notifications')}
+              className="w-10 h-10 rounded-full bg-white/10 items-center justify-center active:opacity-80 border border-white/20 ml-3"
+              style={styles.notificationButton}
+            >
+              <Bell size={20} color="#FFFFFF" strokeWidth={2} />
+              {unreadCount > 0 && (
+                <View className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-secondary items-center justify-center border-2 border-primary">
+                  <Text className="text-[10px] font-bold text-primary">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </Text>
+                </View>
+              )}
+            </Pressable>
           </View>
         </View>
       </LinearGradient>
@@ -126,34 +139,8 @@ export default function ProfileTab() {
             </View>
           </View>
         </View>
-        {/* Location Settings */}
-        <View className="gap-3">
-          <View className="flex-row items-center gap-2">
-            <MapPin size={16} color="#081637" />
-            <Text className="text-sm font-bold text-primary uppercase tracking-wider">
-              Location Services
-            </Text>
-          </View>
-          <View className="bg-white rounded-2xl overflow-hidden" style={styles.settingCard}>
-            <SettingRow
-              icon={<MapPin size={22} color="#081637" />}
-              iconBg="#E0E7FF"
-              title="Location Services"
-              subtitle="Required for attendance verification"
-              defaultChecked
-            />
-            <View className="h-px bg-outline-variant mx-4" />
-            <SettingRow
-              icon={<Navigation size={22} color="#F5B41C" />}
-              iconBg="#FEF3C7"
-              title="High Accuracy Mode"
-              subtitle="Uses GPS for precise location"
-              defaultChecked
-            />
-          </View>
-        </View>
-
-        {/* App Settings */}
+        
+        {/* Push Notifications */}
         <View className="gap-3">
           <View className="flex-row items-center gap-2">
             <Bell size={16} color="#081637" />
@@ -180,18 +167,31 @@ export default function ProfileTab() {
               Device Information
             </Text>
           </View>
-          <Pressable className="bg-white rounded-2xl p-4 flex-row justify-between items-center active:opacity-80" style={styles.settingCard}>
-            <View className="flex-row items-center gap-3 flex-1">
+          <View className="bg-white rounded-2xl p-4" style={styles.settingCard}>
+            <View className="flex-row items-center gap-3 mb-3">
               <View className="w-12 h-12 rounded-xl items-center justify-center" style={{ backgroundColor: '#E0E7FF' }}>
                 <Smartphone size={22} color="#081637" />
               </View>
               <View className="flex-1">
                 <Text className="text-base text-primary font-bold">Registered Device</Text>
-                <Text className="text-sm text-on-surface-variant mt-0.5">Current device in use</Text>
+                <Text className="text-sm text-on-surface-variant mt-0.5">Current device details</Text>
               </View>
             </View>
-            <ChevronRight size={20} color="#CBD5E1" />
-          </Pressable>
+            <View className="bg-surface rounded-xl p-3 gap-2">
+              <View className="flex-row justify-between">
+                <Text className="text-xs text-on-surface-variant font-medium">Device</Text>
+                <Text className="text-xs text-primary font-bold">{Device.modelName || 'Unknown'}</Text>
+              </View>
+              <View className="flex-row justify-between">
+                <Text className="text-xs text-on-surface-variant font-medium">OS</Text>
+                <Text className="text-xs text-primary font-bold">{Platform.OS === 'ios' ? 'iOS' : 'Android'} {Device.osVersion}</Text>
+              </View>
+              <View className="flex-row justify-between">
+                <Text className="text-xs text-on-surface-variant font-medium">Brand</Text>
+                <Text className="text-xs text-primary font-bold">{Device.brand || 'Unknown'}</Text>
+              </View>
+            </View>
+          </View>
         </View>
 
         {/* Security Badge */}
@@ -296,12 +296,12 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 8,
   },
-  iconCircle: {
-    shadowColor: '#F5B41C',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 5,
+  notificationButton: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
   },
   profileCard: {
     shadowColor: '#081637',

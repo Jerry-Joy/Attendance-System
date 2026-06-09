@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, Text, Pressable, Animated, Alert } from 'react-native';
+import { View, Text, Pressable, Animated, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import {
-  ArrowLeft, Navigation, MapPin, Check, CircleSlash, ScanLine, AlertTriangle
+  Navigation, MapPin, Check, CircleSlash, ScanLine, AlertTriangle, Target
 } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
 import { useAppContext } from '@/src/contexts/AppContext';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { useNotifications } from '@/src/contexts/NotificationContext';
 import {
   calculateDistance,
   calculateEffectiveRadius,
@@ -16,13 +18,13 @@ import {
   validateVenueGPS,
   getGeofenceStatusMessage
 } from '@/src/utils/geofence';
-import { api } from '@/src/lib/api';
 
 export default function GPSVerify() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { student } = useAuth();
   const { markAttendance } = useAppContext();
+  const { addNotification } = useNotifications();
 
   // Params passed from Scanner
   const params = useLocalSearchParams<{
@@ -54,6 +56,9 @@ export default function GPSVerify() {
   const pulse2 = useRef(new Animated.Value(0)).current;
   const pulse3 = useRef(new Animated.Value(0)).current;
 
+  // Progress bar animation
+  const progressAnim = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
     const anim = (val: Animated.Value, delay: number) =>
       Animated.loop(
@@ -65,6 +70,21 @@ export default function GPSVerify() {
       );
     Animated.parallel([anim(pulse1, 0), anim(pulse2, 800), anim(pulse3, 1600)]).start();
   }, []);
+
+  // Animate progress bar smoothly
+  useEffect(() => {
+    let targetProgress = 0;
+    if (step === 1) targetProgress = 0.25;
+    else if (step === 2) targetProgress = 0.5;
+    else if (step === 3) targetProgress = 0.75;
+    else if (step === 4) targetProgress = 1;
+
+    Animated.timing(progressAnim, {
+      toValue: targetProgress,
+      duration: 600,
+      useNativeDriver: false,
+    }).start();
+  }, [step]);
 
   const pulseStyle = (anim: Animated.Value) => ({
     opacity: anim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.3, 0.15, 0] }),
@@ -103,8 +123,7 @@ export default function GPSVerify() {
           return;
         }
 
-        // Get actual location (High accuracy for precise geofence verification)
-        // console.log('📍 Getting student location...');
+        // Get actual location
         let location = await Location.getCurrentPositionAsync({
           accuracy: Location.Accuracy.High
         });
@@ -112,11 +131,10 @@ export default function GPSVerify() {
         if (!mounted) return;
         const studentAcc = location.coords.accuracy || 10;
         setAccuracy(Math.round(studentAcc));
-        // console.log(`📍 Student accuracy: ±${Math.round(studentAcc)}m`);
         
         setStep(3); // Distance Calculation
 
-        // Calculate Haversine Distance using utility
+        // Calculate Haversine Distance
         const dist = calculateDistance(
           location.coords.latitude,
           location.coords.longitude,
@@ -124,22 +142,19 @@ export default function GPSVerify() {
           venueLng!
         );
         setDistance(Math.round(dist));
-        // console.log(`📏 Distance from venue: ${Math.round(dist)}m`);
 
-        await new Promise(resolve => setTimeout(resolve, 1000)); // UI pacing
+        await new Promise(resolve => setTimeout(resolve, 1000));
         if (!mounted) return;
 
-        // Calculate Effective Radius using utility
+        // Calculate Effective Radius
         const effectiveRad = calculateEffectiveRadius(baseRadius, lecturerAcc, studentAcc);
         setEffectiveRadius(Math.round(effectiveRad));
-        // console.log(`🎯 Effective geofence radius: ${Math.round(effectiveRad)}m`);
 
-        // Check if within geofence using utility
+        // Check if within geofence
         if (isWithinGeofence(dist, effectiveRad)) {
-          // console.log('✅ Student is within geofence!');
           setStep(4); // Geofence Confirmed
           
-          // Mark attendance via Context API
+          // Mark attendance
           setIsMarking(true);
           try {
             await markAttendance({
@@ -149,7 +164,16 @@ export default function GPSVerify() {
               longitude: location.coords.longitude,
               accuracy: studentAcc
             });
-            // console.log('✅ Attendance marked successfully');
+            
+            // Add success notification
+            addNotification({
+              type: 'attendance_success',
+              title: 'Attendance Marked!',
+              message: `Your attendance for ${courseName} has been successfully recorded`,
+              courseCode,
+              courseName,
+              actionable: false
+            });
             
             setTimeout(() => {
               if (!mounted) return;
@@ -165,7 +189,6 @@ export default function GPSVerify() {
             setIsMarking(false);
           }
         } else {
-          // console.log('❌ Student is outside geofence');
           const statusMessage = getGeofenceStatusMessage(dist, effectiveRad);
           setErrorMsg(statusMessage);
         }
@@ -189,30 +212,16 @@ export default function GPSVerify() {
     router.replace('/(tabs)/home');
   };
 
-  return (
-    <View className="flex-1 bg-surface" style={{ paddingBottom: 24 }}>
-      {/* Header */}
-      <View
-        className="bg-surface flex-row justify-between items-center px-5 py-4 border-b border-outline-variant"
-        style={{ paddingTop: insets.top + 12 }}
-      >
-        <View className="flex-row items-center gap-2">
-          <Pressable
-            onPress={() => router.replace('/(tabs)/home')}
-            className="p-1 -ml-1 rounded-full active:bg-surface-container"
-          >
-            <ArrowLeft size={24} color="#081637" />
-          </Pressable>
-          <Text className="text-xl font-bold text-primary tracking-tight">GPS Verification</Text>
-        </View>
-        <View className="w-8 h-8 rounded-full bg-surface-container-high items-center justify-center border border-outline-variant">
-          <Text className="text-xs font-bold text-primary">{student?.avatarInitials || 'JD'}</Text>
-        </View>
-      </View>
+  const progressWidth = progressAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0%', '100%'],
+  });
 
-      <View className="flex-1 px-5 pt-8 items-center max-w-md w-full self-center">
-        {/* Radar */}
-        <View className="w-48 h-48 items-center justify-center mb-8">
+  return (
+    <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
+      <View className="flex-1 px-5 pt-6 items-center justify-center max-w-md w-full self-center">
+        {/* Animated Radar Pulse */}
+        <View className="w-48 h-48 items-center justify-center mb-6" style={styles.radarContainer}>
           {[pulse1, pulse2, pulse3].map((anim, i) => (
             <Animated.View
               key={i}
@@ -223,96 +232,193 @@ export default function GPSVerify() {
                   width: 192,
                   height: 192,
                   borderRadius: 96,
-                  borderWidth: 2,
+                  borderWidth: 3,
                   borderColor: '#F5B41C',
                 },
               ]}
             />
           ))}
-          <View className="w-20 h-20 bg-primary rounded-full items-center justify-center z-10">
-            <Navigation size={40} color="#FFFFFF" fill="#FFFFFF" />
-          </View>
+          <LinearGradient
+            colors={['#F5B41C', '#D49A15']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.radarCenter}
+          >
+            <View className="w-20 h-20 bg-primary rounded-full items-center justify-center">
+              <Navigation size={36} color="#FFFFFF" fill="#FFFFFF" />
+            </View>
+          </LinearGradient>
         </View>
 
-        {/* Title */}
-        <View className="text-center items-center mb-8">
+        {/* Status Title */}
+        <View className="text-center items-center mb-4">
           <Text className="text-2xl font-bold text-primary mb-1">
             {errorMsg ? 'Verification Failed' : 'Verifying Location'}
           </Text>
-          <Text className="text-sm text-on-surface-variant text-center">
+          <Text className="text-sm text-on-surface-variant text-center px-4">
             {errorMsg || 'Please remain stationary while we confirm your geofence status.'}
           </Text>
         </View>
 
-        {/* Venue card */}
-        <View className={`w-full bg-surface-container-lowest rounded-xl p-4 border-l-4 mb-8 ${errorMsg ? 'border-error' : 'border-secondary-container'}`}>
-          <View className="flex-row justify-between items-start mb-3">
-            <View>
-              <Text className="text-lg font-bold text-primary">{venue}</Text>
-              <Text className="text-sm text-on-surface-variant mt-0.5">{courseCode}</Text>
+        {/* Enhanced Venue Card */}
+        <View className="w-full bg-white rounded-2xl p-5 mb-4" style={styles.venueCard}>
+          <View className="flex-row justify-between items-start mb-4">
+            <View className="flex-1">
+              <View className="flex-row items-center gap-2 mb-1">
+                <View className="w-9 h-9 rounded-full bg-primary items-center justify-center">
+                  <MapPin size={18} color="#FFFFFF" fill="#FFFFFF" strokeWidth={2} />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-lg font-bold text-primary">{venue}</Text>
+                  <Text className="text-xs font-bold tracking-wider mt-0.5" style={{ color: '#F5B41C' }}>
+                    {courseCode}
+                  </Text>
+                </View>
+              </View>
             </View>
-            <View className="flex-row items-center gap-1 bg-surface-container px-2.5 py-1 rounded-full">
-              <MapPin size={12} strokeWidth={3} color="#F5B41C" />
-              <Text className="text-xs font-bold text-on-surface-variant tracking-wider">Geofenced</Text>
-            </View>
-          </View>
-          <View className="flex-row items-center gap-4 border-t border-outline-variant pt-3">
-            <View className="flex-row items-center gap-1.5">
-              <MapPin size={16} color="#475569" />
-              <Text className="text-sm font-medium text-on-surface-variant">
-                {effectiveRadius ? `Effective: ${formatDistance(effectiveRadius)}` : `Base: ${baseRadius}m`}
-              </Text>
-            </View>
-            <View className="flex-row items-center gap-1.5">
-              <Navigation size={16} color="#475569" />
-              <Text className="text-sm font-medium text-on-surface-variant">
-                Acc: {accuracy ? `±${accuracy}m` : 'Measuring...'}
+            <View className="px-3 py-1.5 rounded-full" style={{ backgroundColor: errorMsg ? '#FEE2E2' : '#ECFDF5' }}>
+              <Text className="text-xs font-bold tracking-wider" style={{ color: errorMsg ? '#DC2626' : '#16A34A' }}>
+                {errorMsg ? 'OUT OF RANGE' : 'GEOFENCED'}
               </Text>
             </View>
           </View>
+
+          {/* Metrics Grid */}
+          <View className="flex-row gap-3 mb-4">
+            <View className="flex-1 bg-surface rounded-xl p-3 border-2 border-outline">
+              <View className="flex-row items-center gap-2 mb-1">
+                <Target size={14} color="#F5B41C" strokeWidth={2.5} />
+                <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Radius</Text>
+              </View>
+              <Text className="text-base font-bold text-primary">
+                {effectiveRadius ? formatDistance(effectiveRadius) : `${baseRadius}m`}
+              </Text>
+              <Text className="text-xs text-on-surface-variant mt-0.5">
+                {effectiveRadius ? 'Effective' : 'Base'}
+              </Text>
+            </View>
+
+            <View className="flex-1 bg-surface rounded-xl p-3 border-2 border-outline">
+              <View className="flex-row items-center gap-2 mb-1">
+                <Navigation size={14} color="#F5B41C" strokeWidth={2.5} />
+                <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Accuracy</Text>
+              </View>
+              <Text className="text-base font-bold text-primary">
+                {accuracy ? `±${accuracy}m` : '...'}
+              </Text>
+              <Text className="text-xs text-on-surface-variant mt-0.5">Your GPS</Text>
+            </View>
+          </View>
+
+          {/* Distance Display */}
           {distance !== null && (
-            <View className="mt-3 pt-3 border-t border-outline-variant">
-              <Text className={`text-sm font-bold ${errorMsg ? 'text-error' : 'text-primary'}`}>
-                📍 Distance: {formatDistance(distance)}
-              </Text>
+            <View className={`rounded-xl p-3 border-2 ${errorMsg ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'}`}>
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center gap-2">
+                  <View className={`w-8 h-8 rounded-full items-center justify-center ${errorMsg ? 'bg-red-100' : 'bg-green-100'}`}>
+                    <MapPin size={16} color={errorMsg ? '#DC2626' : '#16A34A'} strokeWidth={2.5} />
+                  </View>
+                  <View>
+                    <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Distance</Text>
+                    <Text className={`text-lg font-bold ${errorMsg ? 'text-red-700' : 'text-green-700'}`}>
+                      {formatDistance(distance)}
+                    </Text>
+                  </View>
+                </View>
+                {!errorMsg && effectiveRadius && (
+                  <View className="bg-green-600 px-3 py-1.5 rounded-full">
+                    <Text className="text-xs font-bold text-white">WITHIN RANGE</Text>
+                  </View>
+                )}
+              </View>
             </View>
           )}
         </View>
 
-        {/* Step indicators or Error Retry */}
+        {/* Verification Progress with Dots */}
         {errorMsg ? (
           <View className="w-full gap-3">
-            <View className="bg-error/10 border border-error rounded-xl p-4">
-              <View className="flex-row items-start gap-2">
-                <AlertTriangle size={20} color="#DC2626" />
-                <Text className="flex-1 text-sm text-error font-medium">{errorMsg}</Text>
+            <View className="bg-red-50 border-2 border-red-200 rounded-2xl p-4" style={styles.errorCard}>
+              <View className="flex-row items-start gap-3">
+                <View className="w-10 h-10 rounded-full bg-red-100 items-center justify-center">
+                  <AlertTriangle size={20} color="#DC2626" strokeWidth={2.5} />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-sm font-bold text-red-900 mb-1">Location Verification Failed</Text>
+                  <Text className="text-sm text-red-700 leading-5">{errorMsg}</Text>
+                </View>
               </View>
             </View>
+
             <View className="flex-row gap-3">
-              <Pressable
-                onPress={handleRetry}
-                className="flex-1 bg-primary rounded-xl p-4 active:opacity-80"
-              >
-                <Text className="text-white font-bold text-center">Retry Scan</Text>
+              <Pressable onPress={handleRetry} className="flex-1 active:opacity-90">
+                <LinearGradient
+                  colors={['#F5B41C', '#D49A15']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={[styles.button, { height: 54, borderRadius: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }]}
+                >
+                  <ScanLine size={20} color="#081637" strokeWidth={2.5} />
+                  <Text className="text-primary font-bold text-base">Retry Scan</Text>
+                </LinearGradient>
               </Pressable>
               <Pressable
                 onPress={handleCancel}
-                className="flex-1 bg-surface-container border border-outline-variant rounded-xl p-4 active:opacity-80"
+                className="px-6 border-2 border-outline rounded-xl items-center justify-center active:opacity-70"
+                style={{ height: 54 }}
               >
-                <Text className="text-on-surface font-bold text-center">Cancel</Text>
+                <Text className="text-on-surface font-bold text-base">Cancel</Text>
               </Pressable>
             </View>
           </View>
         ) : (
-          <View className="w-full bg-surface-container-lowest rounded-xl p-5 border border-outline-variant">
-            <View style={{ gap: 0 }}>
-              <StepRow active={step >= 1} loading={false} icon="check" label="QR Scanned" step={step} stepNum={1} />
-              <View style={{ width: 2, height: 24, marginLeft: 15, backgroundColor: step >= 2 ? '#081637' : '#E2E8F0' }} />
-              <StepRow active={step >= 2} loading={step === 2} icon={step > 2 ? 'check' : step === 2 ? 'loading' : 'map'} label="GPS Located" step={step} stepNum={2} />
-              <View style={{ width: 2, height: 24, marginLeft: 15, backgroundColor: step >= 3 ? '#081637' : '#E2E8F0' }} />
-              <StepRow active={step >= 3} loading={step === 3} icon={step > 3 ? 'check' : step === 3 ? 'loading' : 'slash'} label={distance !== null ? `Checking Geofence (${formatDistance(distance)})` : "Geofence Verification"} step={step} stepNum={3} />
-              <View style={{ width: 2, height: 24, marginLeft: 15, backgroundColor: step >= 4 ? '#081637' : '#E2E8F0' }} />
-              <StepRow active={step >= 4} loading={isMarking} icon={step >= 4 ? 'check' : 'scan'} label={isMarking ? "Marking Attendance..." : "Confirmed"} step={step} stepNum={4} />
+          <View className="w-full bg-white rounded-2xl p-5 border-2 border-outline" style={styles.stepsCard}>
+            <View className="flex-row items-center gap-2 mb-4 pb-3 border-b border-outline-variant">
+              <View className="w-8 h-8 rounded-full items-center justify-center" style={{ backgroundColor: '#F5B41C20' }}>
+                <Check size={16} color="#F5B41C" strokeWidth={3} />
+              </View>
+              <Text className="text-sm font-bold text-primary">Verification Progress</Text>
+            </View>
+            
+            {/* Progress Bar */}
+            <View style={styles.progressTrack}>
+              <Animated.View
+                style={[
+                  styles.progressFill,
+                  { width: progressWidth }
+                ]}
+              />
+            </View>
+
+            {/* Progress Dots */}
+            <View className="flex-row justify-between mt-4">
+              <StepDot 
+                active={step >= 1} 
+                completed={step > 1}
+                label="QR Scanned"
+                icon="check"
+              />
+              <StepDot 
+                active={step >= 2}
+                completed={step > 2}
+                label="GPS Located"
+                icon="map"
+                loading={step === 2}
+              />
+              <StepDot 
+                active={step >= 3}
+                completed={step > 3}
+                label="Geofence"
+                icon="target"
+                loading={step === 3}
+              />
+              <StepDot 
+                active={step >= 4}
+                completed={false}
+                label="Confirmed"
+                icon="scan"
+                loading={isMarking}
+              />
             </View>
           </View>
         )}
@@ -321,37 +427,112 @@ export default function GPSVerify() {
   );
 }
 
-function StepRow({ active, loading, icon, label }: {
-  active: boolean; loading: boolean; icon: string; label: string; step: number; stepNum: number;
+function StepDot({ active, completed, label, icon, loading }: {
+  active: boolean; completed: boolean; label: string; icon: string; loading?: boolean;
 }) {
-  const bgColor = loading ? '#F5B41C' : active ? '#081637' : 'transparent';
-  const borderColor = active || loading ? 'transparent' : '#E2E8F0';
-  const iconColor = loading ? '#081637' : '#FFFFFF';
-  const labelColor = active && !loading ? '#081637' : '#475569';
+  const bgColor = completed ? '#16A34A' : loading ? '#F5B41C' : active ? '#F5B41C' : '#F5F5F5';
+  const iconColor = (completed || loading || active) ? '#FFFFFF' : '#94A3B8';
 
-  const IconComp = icon === 'check' ? Check
+  const IconComp = icon === 'check' || completed ? Check
     : icon === 'map' ? MapPin
-    : icon === 'slash' ? CircleSlash
+    : icon === 'target' ? Target
     : ScanLine;
 
   return (
-    <View className="flex-row items-center gap-3" style={{ opacity: active ? 1 : 0.4 }}>
+    <View className="items-center flex-1">
       <View
         style={{
           width: 32,
           height: 32,
           borderRadius: 16,
           backgroundColor: bgColor,
-          borderWidth: 2,
-          borderColor,
           alignItems: 'center',
           justifyContent: 'center',
-          zIndex: 10,
+          borderWidth: (completed || loading || active) ? 0 : 2,
+          borderColor: '#E2E8F0',
+          marginBottom: 6,
+          shadowColor: completed ? '#16A34A' : loading ? '#F5B41C' : 'transparent',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+          elevation: (completed || loading) ? 4 : 0,
         }}
       >
-        <IconComp size={16} strokeWidth={3} color={iconColor} />
+        <IconComp size={16} strokeWidth={2.5} color={iconColor} />
       </View>
-      <Text style={{ fontSize: 14, fontWeight: '700', color: labelColor }}>{label}</Text>
+      <Text 
+        style={{ 
+          fontSize: 11, 
+          fontWeight: '700', 
+          color: active ? '#081637' : '#94A3B8',
+          textAlign: 'center',
+        }}
+      >
+        {label}
+      </Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  radarContainer: {
+    shadowColor: '#F5B41C',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+  radarCenter: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#F5B41C',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  venueCard: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 6,
+    borderLeftWidth: 6,
+    borderLeftColor: '#F5B41C',
+  },
+  errorCard: {
+    shadowColor: '#DC2626',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  stepsCard: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  progressTrack: {
+    height: 6,
+    backgroundColor: '#E2E8F0',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#F5B41C',
+    borderRadius: 3,
+  },
+  button: {
+    shadowColor: '#F5B41C',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+});

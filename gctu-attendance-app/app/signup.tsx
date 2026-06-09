@@ -3,7 +3,7 @@ import {
   View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform, Alert, Image, StyleSheet
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { User, Mail, Lock, Eye, EyeOff, CheckCircle, ArrowRight, CreditCard, Sparkles, Shield } from 'lucide-react-native';
+import { User, Mail, Lock, Eye, EyeOff, CheckCircle, ArrowRight, CreditCard, Shield } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/src/contexts/AuthContext';
 
@@ -115,10 +115,7 @@ export default function Signup() {
             </View>
             <View className="items-center gap-2">
               <Text className="text-3xl font-bold text-white tracking-tight">Join GCTU</Text>
-              <View className="flex-row items-center gap-2">
-                <Sparkles size={16} color="#F5B41C" />
-                <Text className="text-base text-white/80 font-medium">Smart Attendance System</Text>
-              </View>
+              <Text className="text-base text-white/80 font-medium">Smart Attendance System</Text>
               <Text className="text-sm text-white/60 mt-1">Create your student account</Text>
             </View>
           </View>

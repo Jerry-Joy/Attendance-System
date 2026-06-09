@@ -137,20 +137,6 @@ export default function Scanner() {
         }}
       />
 
-      {/* Header */}
-      <View
-        className="absolute left-0 right-0 z-50 flex-row justify-between items-center px-5 py-4"
-        style={{ top: insets.top }}
-      >
-        <View className="flex-row items-center gap-2">
-          <School size={24} color="#FFFFFF" />
-          <Text className="text-xl font-bold text-white tracking-tight">GCTU Connect</Text>
-        </View>
-        <View className="w-8 h-8 rounded-full bg-black/40 border border-white/20 items-center justify-center">
-          <User size={18} color="#FFFFFF" />
-        </View>
-      </View>
-
       {/* Viewfinder area */}
       <View className="flex-1 items-center justify-center">
         {/* Top overlay */}
