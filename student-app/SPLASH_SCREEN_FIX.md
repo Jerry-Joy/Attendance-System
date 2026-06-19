@@ -21,7 +21,7 @@ The `expo-splash-screen` package was not installed, which is required to properl
 
 ## Installation Steps
 
-Run these commands in the `gctu-attendance-app` directory:
+Run these commands in the `student-app` directory:
 
 ```bash
 # Install the new dependency

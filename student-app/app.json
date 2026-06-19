@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "GCTU Connect Smart Attendance",
-    "slug": "gctu-attendance-app",
+    "slug": "student-app",
     "scheme": "gctuattendance",
     "version": "1.1.0",
     "orientation": "portrait",
