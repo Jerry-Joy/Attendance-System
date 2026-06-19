@@ -22,6 +22,12 @@ enum VerificationMethod {
   QR_GPS
 }
 
+enum BlockchainStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+}
+
 // ─── Models ───
 
 model User {
@@ -99,10 +105,16 @@ model Session {
 }
 
 model Attendance {
-  id        String             @id @default(uuid())
-  method    VerificationMethod
-  distance  Float?             // meters from session location
-  markedAt  DateTime           @default(now())
+  id               String            @id @default(uuid())
+  method           VerificationMethod
+  distance         Float?             // meters from session location
+  markedAt         DateTime          @default(now())
+
+  // Blockchain audit fields
+  attendanceHash   String?
+  transactionHash  String?
+  blockNumber      Int?
+  blockchainStatus BlockchainStatus  @default(PENDING)
 
   // Relations
   session   Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)

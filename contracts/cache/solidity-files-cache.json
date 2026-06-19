@@ -1,0 +1,41 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "C:\\Users\\jerry\\Desktop\\Attendance system\\contracts\\contracts\\AttendanceLedger.sol": {
+      "lastModificationDate": 1781884002788,
+      "contentHash": "190107695b53076a81e7ca4626e7a3a6",
+      "sourceName": "contracts/AttendanceLedger.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.24"
+      ],
+      "artifacts": [
+        "AttendanceLedger"
+      ]
+    }
+  }
+}

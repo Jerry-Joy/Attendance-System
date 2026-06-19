@@ -4,18 +4,23 @@ import {
   ConflictException,
   ForbiddenException,
   NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { MarkAttendanceDto } from './dto/mark-attendance.dto';
-import { SessionStatus, VerificationMethod } from '@prisma/client';
+import { BlockchainStatus, SessionStatus, VerificationMethod } from '@prisma/client';
 import { haversineDistance } from './utils/haversine';
 import { EventsGateway } from '../events/events.gateway';
+import { BlockchainService, buildAttendanceHash } from '../blockchain/blockchain.service';
 
 @Injectable()
 export class AttendanceService {
+  private readonly logger = new Logger(AttendanceService.name);
+
   constructor(
     private prisma: PrismaService,
     private events: EventsGateway,
+    private blockchain: BlockchainService,
   ) { }
 
   async mark(studentId: string, dto: MarkAttendanceDto) {
@@ -113,20 +118,35 @@ export class AttendanceService {
     }
 
     const method = VerificationMethod.QR_GPS;
+    const roundedDistance = Math.round(distance * 100) / 100;
 
-    // 6. Create attendance record
+    // 6. Create attendance record (hash computed after create — needs the real UUID)
     const attendance = await this.prisma.attendance.create({
       data: {
         sessionId: session.id,
         studentId,
         method,
-        distance: Math.round(distance * 100) / 100,
+        distance: roundedDistance,
+        blockchainStatus: BlockchainStatus.PENDING,
       },
       include: {
         student: {
           select: { id: true, fullName: true, studentId: true },
         },
       },
+    });
+
+    // Compute canonical hash now that we have the real attendanceId and markedAt
+    const attendanceHash = buildAttendanceHash(
+      attendance.id,
+      session.id,
+      studentId,
+      attendance.markedAt,
+      attendance.distance,
+    );
+    await this.prisma.attendance.update({
+      where: { id: attendance.id },
+      data: { attendanceHash },
     });
 
     const result = {
@@ -140,6 +160,37 @@ export class AttendanceService {
 
     // Emit real-time event to the session room
     this.events.emitNewAttendance(session.id, result);
+
+    // ── Async blockchain anchoring ─────────────────────────────────────────
+    // This runs AFTER the student already received their success response.
+    // Any failure here must NOT propagate to the student.
+    this.blockchain
+      .enqueueAnchor(
+        attendance.id,
+        session.id,
+        studentId,
+        attendance.markedAt,
+        attendance.distance,
+      )
+      .then(async ({ transactionHash, blockNumber }) => {
+        await this.prisma.attendance.update({
+          where: { id: attendance.id },
+          data: {
+            transactionHash,
+            blockNumber,
+            blockchainStatus: BlockchainStatus.CONFIRMED,
+          },
+        });
+      })
+      .catch(async (err) => {
+        this.logger.error(
+          `Blockchain anchoring failed for attendance ${attendance.id}: ${err?.message}`,
+        );
+        await this.prisma.attendance.update({
+          where: { id: attendance.id },
+          data: { blockchainStatus: BlockchainStatus.FAILED },
+        });
+      });
 
     return result;
   }
@@ -247,6 +298,38 @@ export class AttendanceService {
       },
       orderBy: { markedAt: 'asc' },
     });
+  }
+
+  async verifyRecord(attendanceId: string, requestingUserId: string) {
+    const record = await this.prisma.attendance.findUnique({
+      where: { id: attendanceId },
+      include: {
+        session: { select: { lecturerId: true } },
+      },
+    });
+    if (!record) throw new NotFoundException('Attendance record not found');
+    if (record.session.lecturerId !== requestingUserId)
+      throw new ForbiddenException('You do not own this session');
+
+    const verification = await this.blockchain.verifyRecord(
+      record.id,
+      record.sessionId,
+      record.studentId,
+      record.markedAt,
+      record.distance,
+    );
+
+    return {
+      attendanceId: record.id,
+      blockchainStatus: record.blockchainStatus,
+      transactionHash: record.transactionHash,
+      blockNumber: record.blockNumber,
+      storedHash: record.attendanceHash,
+      recomputedHash: verification.attendanceHash,
+      onChain: verification.onChain,
+      hashMatch: verification.hashMatch,
+      tampered: verification.onChain && !verification.hashMatch,
+    };
   }
 
   private async createAbsencesForSession(

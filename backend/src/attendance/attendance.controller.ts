@@ -36,4 +36,10 @@ export class AttendanceController {
   sessionAttendance(@Param('id') id: string, @CurrentUser() user: any) {
     return this.attendanceService.getSessionAttendance(id, user.id);
   }
+
+  @Roles(Role.LECTURER)
+  @Get('attendance/:id/verify')
+  verify(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.attendanceService.verifyRecord(id, user.id);
+  }
 }
