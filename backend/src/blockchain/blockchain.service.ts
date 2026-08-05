@@ -4,8 +4,8 @@ import { ethers } from 'ethers';
 import * as crypto from 'crypto';
 
 export interface AnchorResult {
-  transactionHash: string;
-  blockNumber: number;
+  transactionHash: string | null;
+  blockNumber: number | null;
 }
 
 // Minimal ABI — only the functions the backend calls
@@ -14,6 +14,8 @@ const LEDGER_ABI = [
   'function verifyAttendance(string attendanceId, bytes32 hashToCheck) external view returns (bool matches, bool exists)',
   'function getAttendanceProof(string attendanceId) external view returns (string, string, bytes32, uint256)',
   'event AttendanceRecorded(string indexed attendanceId, string indexed sessionId, bytes32 attendanceHash, uint256 timestamp)',
+  'error NotOwner()',
+  'error AlreadyRecorded(string attendanceId)'
 ];
 
 /**
@@ -111,22 +113,46 @@ export class BlockchainService implements OnModuleInit {
       item.distance,
     );
 
-    const tx = await this.contract.recordAttendance(
-      item.attendanceId,
-      item.sessionId,
-      hash as `0x${string}`,
-    );
+    try {
+      const tx = await this.contract.recordAttendance(
+        item.attendanceId,
+        item.sessionId,
+        hash as `0x${string}`,
+      );
 
-    const receipt = await tx.wait(1); // wait for 1 confirmation
+      const receipt = await tx.wait(1); // wait for 1 confirmation
 
-    this.logger.log(
-      `Anchored attendance ${item.attendanceId} | tx: ${receipt.hash} | block: ${receipt.blockNumber}`,
-    );
+      this.logger.log(
+        `Anchored attendance ${item.attendanceId} | tx: ${receipt.hash} | block: ${receipt.blockNumber}`,
+      );
 
-    return {
-      transactionHash: receipt.hash,
-      blockNumber: receipt.blockNumber,
-    };
+      return {
+        transactionHash: receipt.hash,
+        blockNumber: receipt.blockNumber,
+      };
+    } catch (err: any) {
+      if (err.revert?.name === 'AlreadyRecorded' || err.reason?.includes('AlreadyRecorded')) {
+        const verification = await this.verifyRecord(
+          item.attendanceId,
+          item.sessionId,
+          item.studentId,
+          item.markedAt,
+          item.distance,
+        );
+
+        if (verification.hashMatch) {
+          this.logger.warn(`Attendance ${item.attendanceId} already recorded and matches. Marking as confirmed.`);
+          return {
+            transactionHash: null,
+            blockNumber: null,
+          };
+        } else {
+          this.logger.error(`Attendance ${item.attendanceId} already recorded BUT HASH MISMATCH. Tampering detected.`);
+          throw new Error('AlreadyRecorded with hash mismatch');
+        }
+      }
+      throw err;
+    }
   }
 
   /**

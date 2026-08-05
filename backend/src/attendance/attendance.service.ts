@@ -173,13 +173,15 @@ export class AttendanceService {
         attendance.distance,
       )
       .then(async ({ transactionHash, blockNumber }) => {
+        const updateData: any = {
+          blockchainStatus: BlockchainStatus.CONFIRMED,
+        };
+        if (transactionHash !== null) updateData.transactionHash = transactionHash;
+        if (blockNumber !== null) updateData.blockNumber = blockNumber;
+
         await this.prisma.attendance.update({
           where: { id: attendance.id },
-          data: {
-            transactionHash,
-            blockNumber,
-            blockchainStatus: BlockchainStatus.CONFIRMED,
-          },
+          data: updateData,
         });
       })
       .catch(async (err) => {
@@ -297,6 +299,26 @@ export class AttendanceService {
         },
       },
       orderBy: { markedAt: 'asc' },
+    });
+  }
+
+  async getLedgerRecords(lecturerId: string) {
+    return this.prisma.attendance.findMany({
+      where: {
+        session: { lecturerId },
+      },
+      include: {
+        student: {
+          select: { fullName: true, studentId: true },
+        },
+        session: {
+          include: {
+            course: { select: { courseCode: true } }
+          }
+        }
+      },
+      orderBy: { markedAt: 'desc' },
+      take: 100,
     });
   }
 

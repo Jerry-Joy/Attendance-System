@@ -129,6 +129,33 @@ interface BackendAttendanceRecord {
   sessionId: string;
 }
 
+export interface BackendLedgerRecord {
+  id: string;
+  method: string;
+  distance: number | null;
+  markedAt: string;
+  attendanceHash: string | null;
+  transactionHash: string | null;
+  blockNumber: number | null;
+  blockchainStatus: 'PENDING' | 'CONFIRMED' | 'FAILED';
+  student: { fullName: string; studentId: string | null };
+  session: {
+    course: { courseCode: string };
+  };
+}
+
+export interface VerificationResult {
+  attendanceId: string;
+  blockchainStatus: string;
+  transactionHash: string | null;
+  blockNumber: number | null;
+  storedHash: string | null;
+  recomputedHash: string;
+  onChain: boolean;
+  hashMatch: boolean;
+  tampered: boolean;
+}
+
 // ─── Mapper helpers ─────────────────────────────────────────
 
 function initials(name: string): string {
@@ -336,6 +363,12 @@ export const api = {
 
   getSessionAttendance: (sessionId: string) =>
     request<BackendAttendanceRecord[]>(`/sessions/${sessionId}/attendance`),
+
+  getLedgerRecords: () =>
+    request<BackendLedgerRecord[]>('/attendance/ledger'),
+
+  verifyAttendanceRecord: (id: string) =>
+    request<VerificationResult>(`/attendance/${id}/verify`),
 
   getActiveSessionForCourse: async (
     courseId: string,

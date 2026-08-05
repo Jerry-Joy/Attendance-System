@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { View, Text, Pressable, Animated, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { CheckCircle2, ShieldCheck, Home, Calendar, Clock, MapPin, Sparkles } from 'lucide-react-native';
+import { Check, ShieldCheck, Home, Calendar, Clock, MapPin, Sparkles } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function Success() {
@@ -16,9 +16,7 @@ export default function Success() {
 
   const mountAnim = useRef(new Animated.Value(0)).current;
   const checkScale = useRef(new Animated.Value(0)).current;
-  const ping1 = useRef(new Animated.Value(0)).current;
-  const ping2 = useRef(new Animated.Value(0)).current;
-  const ping3 = useRef(new Animated.Value(0)).current;
+  const successPulse = useRef(new Animated.Value(0)).current;
   const sparkle1 = useRef(new Animated.Value(0)).current;
   const sparkle2 = useRef(new Animated.Value(0)).current;
 
@@ -30,54 +28,53 @@ export default function Success() {
       useNativeDriver: true 
     }).start();
 
-    // Check icon pop animation
+    // Check icon bouncy pop animation
     Animated.spring(checkScale, {
       toValue: 1,
-      friction: 5,
-      tension: 80,
+      friction: 4.5,
+      tension: 90,
+      delay: 150,
+      useNativeDriver: true,
+    }).start();
+
+    // Single success pulse halo (runs once)
+    Animated.timing(successPulse, {
+      toValue: 1,
+      duration: 1000,
       delay: 200,
       useNativeDriver: true,
     }).start();
 
-    // Ping animations
-    const createPing = (anim: Animated.Value, delay: number) =>
-      Animated.loop(
-        Animated.sequence([
-          Animated.delay(delay),
-          Animated.timing(anim, { toValue: 1, duration: 2000, useNativeDriver: true }),
-          Animated.timing(anim, { toValue: 0, duration: 0, useNativeDriver: true }),
-        ])
-      );
+    // Sparkle animations — fade in and stay
+    Animated.timing(sparkle1, {
+      toValue: 1,
+      duration: 850,
+      delay: 400,
+      useNativeDriver: true,
+    }).start();
 
-    Animated.parallel([
-      createPing(ping1, 0),
-      createPing(ping2, 600),
-      createPing(ping3, 1200),
-    ]).start();
-
-    // Sparkle animations
-    const sparkleAnim = (anim: Animated.Value, delay: number) =>
-      Animated.loop(
-        Animated.sequence([
-          Animated.delay(delay),
-          Animated.timing(anim, { toValue: 1, duration: 1500, useNativeDriver: true }),
-          Animated.timing(anim, { toValue: 0, duration: 0, useNativeDriver: true }),
-        ])
-      );
-
-    Animated.parallel([
-      sparkleAnim(sparkle1, 300),
-      sparkleAnim(sparkle2, 900),
-    ]).start();
+    Animated.timing(sparkle2, {
+      toValue: 1,
+      duration: 850,
+      delay: 600,
+      useNativeDriver: true,
+    }).start();
   }, []);
 
-  const pingStyle = (anim: Animated.Value) => ({
-    opacity: anim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.5, 0.2, 0] }),
-    transform: [{ scale: anim.interpolate({ inputRange: [0, 1], outputRange: [1, 2] }) }],
-  });
-
-  const sparkleOpacity = (anim: Animated.Value) =>
-    anim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0, 1, 0] });
+  const pulseStyle = {
+    opacity: successPulse.interpolate({
+      inputRange: [0, 0.7, 1],
+      outputRange: [0.6, 0.3, 0],
+    }),
+    transform: [
+      {
+        scale: successPulse.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0.9, 1.8],
+        }),
+      },
+    ],
+  };
 
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -87,25 +84,22 @@ export default function Success() {
     <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
       <View className="flex-1 items-center justify-center px-5 w-full max-w-md self-center">
 
-        {/* Animated Success Icon with Pings */}
+        {/* Animated Success Icon with Single Pulse */}
         <View className="mb-8 items-center">
-          {/* Ping rings */}
-          {[ping1, ping2, ping3].map((anim, i) => (
-            <Animated.View
-              key={i}
-              style={[
-                pingStyle(anim),
-                {
-                  position: 'absolute',
-                  width: 140,
-                  height: 140,
-                  borderRadius: 70,
-                  borderWidth: 3,
-                  borderColor: '#16A34A',
-                },
-              ]}
-            />
-          ))}
+          {/* Single Pulse Ring */}
+          <Animated.View
+            style={[
+              pulseStyle,
+              {
+                position: 'absolute',
+                width: 120,
+                height: 120,
+                borderRadius: 60,
+                borderWidth: 3,
+                borderColor: '#16A34A',
+              },
+            ]}
+          />
 
           {/* Success check circle */}
           <Animated.View
@@ -120,7 +114,7 @@ export default function Success() {
               end={{ x: 1, y: 1 }}
               style={styles.successCircle}
             >
-              <CheckCircle2 size={56} color="#FFFFFF" strokeWidth={2.5} fill="#FFFFFF" />
+              <Check size={64} color="#FFFFFF" strokeWidth={4} />
             </LinearGradient>
           </Animated.View>
 
@@ -130,7 +124,7 @@ export default function Success() {
               position: 'absolute',
               top: -10,
               right: -10,
-              opacity: sparkleOpacity(sparkle1),
+              opacity: sparkle1,
             }}
           >
             <Sparkles size={24} color="#F5B41C" fill="#F5B41C" />
@@ -140,7 +134,7 @@ export default function Success() {
               position: 'absolute',
               bottom: -10,
               left: -10,
-              opacity: sparkleOpacity(sparkle2),
+              opacity: sparkle2,
             }}
           >
             <Sparkles size={20} color="#F5B41C" fill="#F5B41C" />

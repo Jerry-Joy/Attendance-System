@@ -5,9 +5,9 @@
   "scripts": {
     "dev": "concurrently -n backend,webapp,mobile -c blue,green,magenta \"npm run dev:backend\" \"npm run dev:webapp\" \"npm run dev:mobile\"",
     "dev:backend": "npm --prefix backend run start:dev",
-    "dev:webapp": "npm --prefix \"lecturer webapp\" run dev",
-    "dev:mobile": "npm --prefix \"student app\" start",
-    "install:all": "npm --prefix backend install && npm --prefix \"lecturer webapp\" install && npm --prefix \"student app\" install"
+    "dev:webapp": "npm --prefix lecturer-app run dev",
+    "dev:mobile": "npm --prefix student-app start",
+    "install:all": "npm --prefix backend install && npm --prefix lecturer-app install && npm --prefix student-app install"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

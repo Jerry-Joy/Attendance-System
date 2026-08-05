@@ -45,13 +45,15 @@ export class BlockchainScheduler {
           record.distance,
         )
         .then(async ({ transactionHash, blockNumber }) => {
+          const updateData: any = {
+            blockchainStatus: BlockchainStatus.CONFIRMED,
+          };
+          if (transactionHash !== null) updateData.transactionHash = transactionHash;
+          if (blockNumber !== null) updateData.blockNumber = blockNumber;
+
           await this.prisma.attendance.update({
             where: { id: record.id },
-            data: {
-              transactionHash,
-              blockNumber,
-              blockchainStatus: BlockchainStatus.CONFIRMED,
-            },
+            data: updateData,
           });
           this.logger.log(`Retry confirmed for attendance ${record.id}`);
         })
