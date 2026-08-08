@@ -13,9 +13,29 @@ export default function Ledger() {
   const [verifyError, setVerifyError] = useState<string | null>(null);
   const [selectedRecordId, setSelectedRecordId] = useState<string | null>(null);
 
+  const [connectionStatus, setConnectionStatus] = useState<{
+    connected: boolean;
+    blockNumber?: number;
+    networkName?: string;
+    walletAddress?: string;
+    balance?: string;
+    contractAddress?: string;
+    error?: string;
+  } | null>(null);
+
   useEffect(() => {
     loadLedger();
+    loadBlockchainStatus();
   }, []);
+
+  const loadBlockchainStatus = async () => {
+    try {
+      const status = await api.getBlockchainStatus();
+      setConnectionStatus(status);
+    } catch (err: any) {
+      setConnectionStatus({ connected: false, error: err.message || "Failed to load status" });
+    }
+  };
 
   const loadLedger = async () => {
     try {
@@ -60,9 +80,32 @@ export default function Ledger() {
           <h1 className="text-3xl font-extrabold tracking-tight uppercase text-slate-900">Blockchain Records</h1>
           <p className="text-[10px] text-slate-400 uppercase tracking-widest font-semibold mt-1">Tamper-proof blockchain records</p>
         </div>
-        <div className="px-4 py-2 border-2 rounded-lg flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-wide" style={{ backgroundColor: "rgba(245, 180, 28, 0.1)", borderColor: "#F5B41C", color: "#F5B41C" }}>
-          <span className="material-symbols-outlined text-[16px]">link</span>
-          Blockchain Synced
+        <div className="flex items-center gap-3">
+          <a
+            href={connectionStatus?.contractAddress ? `https://sepolia.etherscan.io/address/${connectionStatus.contractAddress}` : "https://sepolia.etherscan.io/address/0x027B0CDdE905F29170E41bF706253ea5fbaa36B5"}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 border border-slate-200 rounded-xl bg-white hover:bg-slate-50 transition-all flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wide text-slate-600 hover:shadow-sm"
+          >
+            <span className="material-symbols-outlined text-[16px]">open_in_new</span>
+            View Contract
+          </a>
+          {connectionStatus === null ? (
+            <div className="px-4 py-2 border border-slate-200 rounded-xl bg-white text-slate-500 flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wide hover:shadow-sm">
+              <span className="material-symbols-outlined text-[16px] animate-spin">refresh</span>
+              Checking...
+            </div>
+          ) : connectionStatus.connected ? (
+            <div className="px-4 py-2 border-2 rounded-lg flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-wide" style={{ backgroundColor: "rgba(16, 185, 129, 0.1)", borderColor: "#10B981", color: "#10B981" }}>
+              <span className="material-symbols-outlined text-[16px] animate-pulse">link</span>
+              Blockchain Connected
+            </div>
+          ) : (
+            <div className="px-4 py-2 border-2 rounded-lg flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-wide text-red-500 bg-red-50 border-red-500/20">
+              <span className="material-symbols-outlined text-[16px]">link_off</span>
+              Blockchain Offline
+            </div>
+          )}
         </div>
       </div>
 
@@ -77,7 +120,10 @@ export default function Ledger() {
           />
         </div>
         <button
-          onClick={loadLedger}
+          onClick={() => {
+            loadLedger();
+            loadBlockchainStatus();
+          }}
           disabled={loading}
           className="flex items-center gap-2 font-extrabold uppercase tracking-wide text-[11px] px-6 py-3 border border-slate-200 rounded-xl bg-white hover:bg-slate-50 transition-colors disabled:opacity-50">
           <span className="material-symbols-outlined text-[18px]">refresh</span>
@@ -115,9 +161,19 @@ export default function Ledger() {
                       <tr key={record.id} className={`hover:bg-slate-50 transition-colors group ${i !== records.length - 1 ? 'border-b border-slate-100' : ''}`}>
                         <td className="px-6 py-5">
                           <div className="flex items-center gap-2">
-                            <span className="font-mono text-sm text-slate-900">
-                              {record.transactionHash ? `${record.transactionHash.slice(0, 6)}...${record.transactionHash.slice(-4)}` : 'N/A'}
-                            </span>
+                            {record.transactionHash ? (
+                              <a
+                                href={`https://sepolia.etherscan.io/tx/${record.transactionHash}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-mono text-sm text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-0.5"
+                              >
+                                <span>{`${record.transactionHash.slice(0, 6)}...${record.transactionHash.slice(-4)}`}</span>
+                                <span className="material-symbols-outlined text-[12px]">open_in_new</span>
+                              </a>
+                            ) : (
+                              <span className="font-mono text-sm text-slate-400">N/A</span>
+                            )}
                           </div>
                         </td>
                         <td className="px-6 py-5 font-mono text-sm text-slate-600">
@@ -219,7 +275,19 @@ export default function Ledger() {
                   <div className="space-y-3 mt-2">
                     <div className="bg-slate-50 p-3 rounded-lg flex flex-col gap-1 border border-slate-100">
                       <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Transaction Hash</span>
-                      <span className="font-mono text-xs text-slate-800 break-all">{verifyResult.transactionHash || 'N/A'}</span>
+                      {verifyResult.transactionHash ? (
+                        <a
+                          href={`https://sepolia.etherscan.io/tx/${verifyResult.transactionHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-mono text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-0.5 break-all"
+                        >
+                          <span>{verifyResult.transactionHash}</span>
+                          <span className="material-symbols-outlined text-[10px]">open_in_new</span>
+                        </a>
+                      ) : (
+                        <span className="font-mono text-xs text-slate-800">N/A</span>
+                      )}
                     </div>
 
                     <div className="bg-slate-50 p-3 rounded-lg flex flex-col gap-1 border border-slate-100">

@@ -58,7 +58,7 @@ export default function Login() {
           </h1>
           
           {/* Status badge representing live connection */}
-          <div className="mt-4 flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1 rounded-full animate-pulse">
+          <div className="mt-4 flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
             <p className="text-secondary font-mono tracking-[0.2em] uppercase text-[10px] font-bold">
               Lecturer Portal
@@ -108,13 +108,10 @@ export default function Login() {
               )}
 
               <div>
-                <label htmlFor="email" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
+                <label htmlFor="email" className="block text-[10px] uppercase font-mono tracking-widest text-slate-700 font-bold mb-1.5">
                   Email Address
                 </label>
-                <div className="relative mt-1 group">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="material-symbols-outlined text-[18px] text-slate-400 group-focus-within:text-amber-500 transition-colors">mail</span>
-                  </div>
+                <div className="relative mt-1">
                   <input
                     id="email"
                     name="email"
@@ -123,20 +120,17 @@ export default function Login() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="appearance-none block w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
+                    className="appearance-none block w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
                     placeholder="adeyemi@university.edu"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
+                <label htmlFor="password" className="block text-[10px] uppercase font-mono tracking-widest text-slate-700 font-bold mb-1.5">
                   Password
                 </label>
-                <div className="relative mt-1 group">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="material-symbols-outlined text-[18px] text-slate-400 group-focus-within:text-amber-500 transition-colors">lock</span>
-                  </div>
+                <div className="relative mt-1">
                   <input
                     id="password"
                     name="password"
@@ -145,7 +139,7 @@ export default function Login() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="appearance-none block w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
+                    className="appearance-none block w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
                     placeholder="••••••••"
                   />
                 </div>

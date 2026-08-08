@@ -76,7 +76,7 @@ export default function Register() {
           </h1>
           
           {/* Status badge representing live connection */}
-          <div className="mt-4 flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1 rounded-full animate-pulse">
+          <div className="mt-4 flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1 rounded-full">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
             <p className="text-secondary font-mono tracking-[0.2em] uppercase text-[10px] font-bold">
               Lecturer Portal
@@ -126,13 +126,10 @@ export default function Register() {
               )}
 
               <div>
-                <label htmlFor="name" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
+                <label htmlFor="name" className="block text-[10px] uppercase font-mono tracking-widest text-slate-700 font-bold mb-1.5">
                   Full Name
                 </label>
-                <div className="relative mt-1 group">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="material-symbols-outlined text-[16px] text-slate-400 group-focus-within:text-amber-500 transition-colors">person</span>
-                  </div>
+                <div className="relative mt-1">
                   <input
                     id="name"
                     name="name"
@@ -140,20 +137,17 @@ export default function Register() {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
+                    className="appearance-none block w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
                     placeholder="Prof. John Doe"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
+                <label htmlFor="email" className="block text-[10px] uppercase font-mono tracking-widest text-slate-700 font-bold mb-1.5">
                   Official Email
                 </label>
-                <div className="relative mt-1 group">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="material-symbols-outlined text-[16px] text-slate-400 group-focus-within:text-amber-500 transition-colors">mail</span>
-                  </div>
+                <div className="relative mt-1">
                   <input
                     id="email"
                     name="email"
@@ -162,7 +156,7 @@ export default function Register() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
+                    className="appearance-none block w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
                     placeholder="jdoe@gctu.edu.gh"
                   />
                 </div>
@@ -170,13 +164,10 @@ export default function Register() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="department" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
+                  <label htmlFor="department" className="block text-[10px] uppercase font-mono tracking-widest text-slate-700 font-bold mb-1.5">
                     Department
                   </label>
-                  <div className="relative mt-1 group">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span className="material-symbols-outlined text-[16px] text-slate-400 group-focus-within:text-amber-500 transition-colors">domain</span>
-                    </div>
+                  <div className="relative mt-1">
                     <input
                       id="department"
                       name="department"
@@ -184,20 +175,17 @@ export default function Register() {
                       required
                       value={department}
                       onChange={(e) => setDepartment(e.target.value)}
-                      className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
+                      className="appearance-none block w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
                       placeholder="Computer Science"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="staffId" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
+                  <label htmlFor="staffId" className="block text-[10px] uppercase font-mono tracking-widest text-slate-700 font-bold mb-1.5">
                     Staff ID
                   </label>
-                  <div className="relative mt-1 group">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span className="material-symbols-outlined text-[16px] text-slate-400 group-focus-within:text-amber-500 transition-colors">badge</span>
-                    </div>
+                  <div className="relative mt-1">
                     <input
                       id="staffId"
                       name="staffId"
@@ -205,7 +193,7 @@ export default function Register() {
                       required
                       value={staffId}
                       onChange={(e) => setStaffId(e.target.value)}
-                      className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
+                      className="appearance-none block w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
                       placeholder="GCTU-2026-XX"
                     />
                   </div>
@@ -214,13 +202,10 @@ export default function Register() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="password" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
+                  <label htmlFor="password" className="block text-[10px] uppercase font-mono tracking-widest text-slate-700 font-bold mb-1.5">
                     Password
                   </label>
-                  <div className="relative mt-1 group">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span className="material-symbols-outlined text-[16px] text-slate-400 group-focus-within:text-amber-500 transition-colors">lock</span>
-                    </div>
+                  <div className="relative mt-1">
                     <input
                       id="password"
                       name="password"
@@ -229,20 +214,17 @@ export default function Register() {
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
+                      className="appearance-none block w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
                       placeholder="••••••••"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label htmlFor="confirmPassword" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
+                  <label htmlFor="confirmPassword" className="block text-[10px] uppercase font-mono tracking-widest text-slate-700 font-bold mb-1.5">
                     Confirm Password
                   </label>
-                  <div className="relative mt-1 group">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span className="material-symbols-outlined text-[16px] text-slate-400 group-focus-within:text-amber-500 transition-colors">lock_reset</span>
-                    </div>
+                  <div className="relative mt-1">
                     <input
                       id="confirmPassword"
                       name="confirmPassword"
@@ -251,7 +233,7 @@ export default function Register() {
                       required
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
+                      className="appearance-none block w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
                       placeholder="••••••••"
                     />
                   </div>
