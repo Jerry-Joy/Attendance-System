@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from 'react';
 import type { Course, PastSession, EnrolledStudent, AttendingStudent, ActiveSessionType, LecturerPreferences } from '../types';
 import { api, mapCourse, mapStudent, mapSession, getToken, type BackendSession } from '../lib/api';
 import { useAuth } from './AuthContext';
@@ -51,6 +51,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [activeSession, setActiveSession] = useState<ActiveSessionType | null>(null);
   const [preferences, setPreferences] = useState<LecturerPreferences>(loadPrefs);
 
+  const activeSessionRef = useRef<ActiveSessionType | null>(null);
+  useEffect(() => {
+    activeSessionRef.current = activeSession;
+  }, [activeSession]);
+
   /* ── Fetch courses from API ─────────────────────────────── */
   const refreshCourses = useCallback(async () => {
     if (!getToken()) return;
@@ -102,25 +107,50 @@ export function DataProvider({ children }: { children: ReactNode }) {
     if (!getToken()) return;
     try {
       const rawCourses = await api.getCourses();
+      let foundSession = false;
       for (const c of rawCourses) {
         const session = await api.getActiveSessionForCourse(c.id);
         if (session) {
-          setActiveSession({
-            courseId: c.id,
-            courseCode: c.courseCode,
-            courseName: c.courseName,
-            radius: session.geofenceRadius,
-            duration: `${session.duration}`,
-            latitude: session.latitude ?? undefined,
-            longitude: session.longitude ?? undefined,
-            lecturerAccuracy: session.lecturerAccuracy ?? undefined,
-            startedAt: new Date(session.startedAt).getTime(),
-            attendees: [],
-            sessionId: session.id,
-            qrToken: session.qrToken,
-          });
+          foundSession = true;
+          const current = activeSessionRef.current;
+          
+          if (current && current.sessionId === session.id) {
+            // Session is already loaded. Update qrToken if it changed, but preserve everything else.
+            if (current.qrToken !== session.qrToken) {
+              setActiveSession(prev => prev ? { ...prev, qrToken: session.qrToken } : null);
+            }
+          } else {
+            // New active session detected or page refreshed. Fetch actual attendees from backend.
+            let attendees: AttendingStudent[] = [];
+            try {
+              const rawAttendees = await api.getSessionAttendance(session.id);
+              attendees = rawAttendees.map(mapAttendance);
+            } catch (e) {
+              console.error("Failed to fetch session attendance during recovery:", e);
+            }
+
+            setActiveSession({
+              courseId: c.id,
+              courseCode: c.courseCode,
+              courseName: c.courseName,
+              radius: session.geofenceRadius,
+              duration: `${session.duration}`,
+              latitude: session.latitude ?? undefined,
+              longitude: session.longitude ?? undefined,
+              lecturerAccuracy: session.lecturerAccuracy ?? undefined,
+              startedAt: new Date(session.startedAt).getTime(),
+              attendees: attendees,
+              sessionId: session.id,
+              qrToken: session.qrToken,
+            });
+          }
           break;
         }
+      }
+      
+      if (!foundSession && activeSessionRef.current !== null) {
+        // Session ended on backend, clear it locally
+        setActiveSession(null);
       }
     } catch { /* ignore */ }
   }, []);
@@ -143,8 +173,14 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
     loadDashboardData();
 
+    // Poll for active sessions every 15 seconds so the dashboard updates automatically
+    const pollInterval = setInterval(() => {
+      if (!cancelled) recoverActiveSession();
+    }, 15000);
+
     return () => {
       cancelled = true;
+      clearInterval(pollInterval);
     };
   }, [isAuthenticated, isLoading, refreshCourses, refreshSessions, recoverActiveSession]);
 

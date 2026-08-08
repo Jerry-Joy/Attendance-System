@@ -51,31 +51,45 @@ export default function Register() {
     <div className="min-h-screen flex bg-white">
 
       {/* Left Panel - Brand Anchor (Hidden on mobile) */}
-      <div className="hidden lg:flex lg:w-5/12 bg-primary relative flex-col justify-center items-center p-12 overflow-hidden">
-        {/* Decorative background elements */}
-        <div className="absolute inset-0 z-0">
-          <div className="absolute top-[10%] left-[10%] w-[60%] h-[60%] rounded-full bg-secondary/10 blur-[100px]"></div>
-          <div className="absolute bottom-[10%] -right-[10%] w-[70%] h-[70%] rounded-full bg-blue-400/10 blur-[120px]"></div>
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 mix-blend-overlay"></div>
+      <div 
+        className="hidden lg:flex lg:w-5/12 relative flex-col justify-center items-center p-12 overflow-hidden bg-cover bg-center border-r border-white/10"
+        style={{ backgroundImage: "url('/gctu-building.jpg')" }}
+      >
+        {/* Dark brand-aligned gradient scrim */}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/90 to-primary/80 mix-blend-multiply z-0"></div>
+        
+        {/* Decorative background glow elements */}
+        <div className="absolute inset-0 z-0 opacity-45">
+          <div className="absolute top-[10%] left-[10%] w-[60%] h-[60%] rounded-full bg-secondary/20 blur-[100px]"></div>
+          <div className="absolute bottom-[10%] -right-[10%] w-[70%] h-[70%] rounded-full bg-blue-400/20 blur-[120px]"></div>
         </div>
 
         <div className="relative z-10 flex flex-col items-center text-center animate-fade-in">
-          <div className="w-48 h-48 bg-white rounded-3xl flex items-center justify-center p-6 shadow-2xl mb-8 transform hover:scale-105 transition-transform duration-500">
-            <img src="/gctu-crest.png" alt="GCTU Crest" className="w-full h-full object-contain" />
+          {/* Glassmorphic GCTU Crest Card */}
+          <div className="w-36 h-36 bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl flex items-center justify-center p-5 shadow-2xl mb-8 transform hover:scale-105 transition-all duration-500">
+            <img src="/gctu-crest.png" alt="GCTU Crest" className="w-full h-full object-contain filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.3)]" />
           </div>
-          <h1 className="text-3xl xl:text-4xl font-bold text-white tracking-tight uppercase leading-tight" style={{ fontFamily: "var(--font-display)" }}>
-            Join Smart<br/>Attendance
+          
+          {/* Typographic brand heading with golden color gradient */}
+          <h1 className="text-3xl xl:text-4xl font-extrabold text-white tracking-tight uppercase leading-tight" style={{ fontFamily: "var(--font-display)" }}>
+            Join <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-200">Smart Attendance</span>
           </h1>
-          <p className="mt-4 text-secondary font-mono tracking-[0.2em] uppercase text-xs font-bold">
-            Lecturer Portal
-          </p>
-          <p className="mt-6 text-primary-fixed-dim max-w-sm text-sm leading-relaxed">
+          
+          {/* Status badge representing live connection */}
+          <div className="mt-4 flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1 rounded-full animate-pulse">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <p className="text-secondary font-mono tracking-[0.2em] uppercase text-[10px] font-bold">
+              Lecturer Portal
+            </p>
+          </div>
+          
+          <p className="mt-6 text-slate-200 max-w-sm text-sm leading-relaxed">
             Create an account to streamline your classroom management. Modern, secure, and fully integrated with the GCTU academic ecosystem.
           </p>
         </div>
 
         <div className="absolute bottom-8 left-0 right-0 text-center z-10">
-          <p className="text-[10px] text-primary-fixed-dim font-mono uppercase tracking-wider">
+          <p className="text-[10px] text-slate-300 font-mono uppercase tracking-wider">
             © 2026 Ghana Communication Technology University
           </p>
         </div>
@@ -115,9 +129,9 @@ export default function Register() {
                 <label htmlFor="name" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
                   Full Name
                 </label>
-                <div className="relative mt-1">
+                <div className="relative mt-1 group">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="material-symbols-outlined text-[16px] text-slate-400">person</span>
+                    <span className="material-symbols-outlined text-[16px] text-slate-400 group-focus-within:text-amber-500 transition-colors">person</span>
                   </div>
                   <input
                     id="name"
@@ -126,7 +140,7 @@ export default function Register() {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all font-mono"
+                    className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
                     placeholder="Prof. John Doe"
                   />
                 </div>
@@ -136,9 +150,9 @@ export default function Register() {
                 <label htmlFor="email" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
                   Official Email
                 </label>
-                <div className="relative mt-1">
+                <div className="relative mt-1 group">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="material-symbols-outlined text-[16px] text-slate-400">mail</span>
+                    <span className="material-symbols-outlined text-[16px] text-slate-400 group-focus-within:text-amber-500 transition-colors">mail</span>
                   </div>
                   <input
                     id="email"
@@ -148,7 +162,7 @@ export default function Register() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all font-mono"
+                    className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
                     placeholder="jdoe@gctu.edu.gh"
                   />
                 </div>
@@ -159,9 +173,9 @@ export default function Register() {
                   <label htmlFor="department" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
                     Department
                   </label>
-                  <div className="relative mt-1">
+                  <div className="relative mt-1 group">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span className="material-symbols-outlined text-[16px] text-slate-400">domain</span>
+                      <span className="material-symbols-outlined text-[16px] text-slate-400 group-focus-within:text-amber-500 transition-colors">domain</span>
                     </div>
                     <input
                       id="department"
@@ -170,7 +184,7 @@ export default function Register() {
                       required
                       value={department}
                       onChange={(e) => setDepartment(e.target.value)}
-                      className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all font-mono"
+                      className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
                       placeholder="Computer Science"
                     />
                   </div>
@@ -180,9 +194,9 @@ export default function Register() {
                   <label htmlFor="staffId" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
                     Staff ID
                   </label>
-                  <div className="relative mt-1">
+                  <div className="relative mt-1 group">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span className="material-symbols-outlined text-[16px] text-slate-400">badge</span>
+                      <span className="material-symbols-outlined text-[16px] text-slate-400 group-focus-within:text-amber-500 transition-colors">badge</span>
                     </div>
                     <input
                       id="staffId"
@@ -191,7 +205,7 @@ export default function Register() {
                       required
                       value={staffId}
                       onChange={(e) => setStaffId(e.target.value)}
-                      className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all font-mono"
+                      className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
                       placeholder="GCTU-2026-XX"
                     />
                   </div>
@@ -203,9 +217,9 @@ export default function Register() {
                   <label htmlFor="password" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
                     Password
                   </label>
-                  <div className="relative mt-1">
+                  <div className="relative mt-1 group">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span className="material-symbols-outlined text-[16px] text-slate-400">lock</span>
+                      <span className="material-symbols-outlined text-[16px] text-slate-400 group-focus-within:text-amber-500 transition-colors">lock</span>
                     </div>
                     <input
                       id="password"
@@ -215,7 +229,7 @@ export default function Register() {
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all font-mono"
+                      className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
                       placeholder="••••••••"
                     />
                   </div>
@@ -225,9 +239,9 @@ export default function Register() {
                   <label htmlFor="confirmPassword" className="block text-[10px] uppercase font-mono tracking-widest text-slate-500 mb-1.5">
                     Confirm Password
                   </label>
-                  <div className="relative mt-1">
+                  <div className="relative mt-1 group">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span className="material-symbols-outlined text-[16px] text-slate-400">lock_reset</span>
+                      <span className="material-symbols-outlined text-[16px] text-slate-400 group-focus-within:text-amber-500 transition-colors">lock_reset</span>
                     </div>
                     <input
                       id="confirmPassword"
@@ -237,7 +251,7 @@ export default function Register() {
                       required
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary transition-all font-mono"
+                      className="appearance-none block w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all font-mono"
                       placeholder="••••••••"
                     />
                   </div>
@@ -248,7 +262,7 @@ export default function Register() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className={`w-full flex justify-center items-center gap-2 py-3 px-4 rounded text-[12px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-0.5 ${submitting ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-90'}`}
+                  className={`w-full flex justify-center items-center gap-2 py-3 px-4 rounded-lg text-[12px] font-bold uppercase tracking-wider transition-all active:scale-[0.98] cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-0.5 ${submitting ? 'opacity-70 cursor-not-allowed' : 'hover:opacity-95'}`}
                   style={{ backgroundColor: "#F5B41C", color: "#081637" }}
                 >
                   {submitting ? (

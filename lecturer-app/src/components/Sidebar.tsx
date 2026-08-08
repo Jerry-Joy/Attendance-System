@@ -1,9 +1,21 @@
 import { NavLink } from "react-router-dom";
 import { cn } from "../lib/utils";
 import { useData } from "../context/DataContext";
+import { useAuth } from "../context/AuthContext";
 
 export default function Sidebar() {
   const { activeSession } = useData();
+  const { lecturer, logout } = useAuth();
+
+  const getInitials = (name: string) => {
+    if (!name) return "U";
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
+  };
 
   const navItems = [
     { name: "Dashboard", path: "/", icon: "dashboard", detail: "Today overview" },
@@ -95,17 +107,21 @@ export default function Sidebar() {
 
       {/* User */}
       <div className="p-4 border-t border-white/10 animate-slide-up" style={{ animationDelay: "0.6s" }}>
-        <div className="flex items-center gap-3 group hover:bg-white/5 -mx-2 px-2 py-2 rounded-lg transition-all duration-200 cursor-pointer">
+        <div className="flex items-center gap-3 group hover:bg-white/5 -mx-2 px-2 py-2 rounded-lg transition-all duration-200">
           <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 group-hover:scale-110 transition-transform duration-300" style={{ backgroundColor: "#F5B41C", color: "#081637" }}>
-            JV
+            {lecturer ? getInitials(lecturer.name) : "JV"}
           </div>
           <div className="overflow-hidden flex-1">
-            <p className="text-xs font-bold truncate text-white group-hover:text-white transition-colors">Dr. Julian Vance</p>
-            <p className="text-[10px] text-white/40 uppercase font-mono group-hover:text-white/60 transition-colors">Staff: #7721</p>
+            <p className="text-xs font-bold truncate text-white group-hover:text-white transition-colors">{lecturer?.name || "Dr. Julian Vance"}</p>
+            <p className="text-[10px] text-white/40 uppercase font-mono group-hover:text-white/60 transition-colors">{lecturer?.staffId ? `Staff: #${lecturer.staffId}` : "Lecturer"}</p>
           </div>
-          <span className="material-symbols-outlined text-[14px] text-white/0 group-hover:text-white/30 transition-all duration-200">
-            more_vert
-          </span>
+          <button 
+            onClick={logout}
+            className="material-symbols-outlined text-[18px] text-white/40 hover:text-red-400 transition-all duration-200 cursor-pointer p-1 rounded-md hover:bg-white/5"
+            title="Log out"
+          >
+            logout
+          </button>
         </div>
       </div>
     </aside>

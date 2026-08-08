@@ -236,47 +236,49 @@ export default function SessionSummary() {
                   Student Attendance Log ({attendees.length})
                 </h3>
               </div>
-              <table className="w-full">
-                <thead>
-                  <tr style={{ backgroundColor: "#1a2332" }}>
-                    <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-300 uppercase tracking-wider">#</th>
-                    <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-300 uppercase tracking-wider">Student</th>
-                    <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-300 uppercase tracking-wider">Index</th>
-                    <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-300 uppercase tracking-wider">Time</th>
-                    <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-300 uppercase tracking-wider">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {attendees.map((student, idx) => (
-                    <tr key={student.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors duration-200">
-                      <td className="px-6 py-5 text-[12px] text-slate-500 font-medium">{idx + 1}</td>
-                      <td className="px-6 py-5">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[11px] font-bold transition-transform hover:scale-110" style={{ backgroundColor: "#1a2332" }}>
-                            {student.avatarInitials}
-                          </div>
-                          <span className="text-[13px] font-semibold text-slate-900">{student.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-5 text-[13px] text-slate-600 font-medium">{student.indexNumber}</td>
-                      <td className="px-6 py-5 text-[13px] text-slate-600 font-medium">{student.time}</td>
-                      <td className="px-6 py-5">
-                        {student.gpsVerified ? (
-                          <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-900">
-                            <span className="material-symbols-outlined text-[16px]">location_on</span>
-                            QR + GPS
-                          </div>
-                        ) : (
-                          <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
-                            <span className="material-symbols-outlined text-[16px]">schedule</span>
-                            Verifying
-                          </div>
-                        )}
-                      </td>
+              <div className="max-h-[450px] overflow-y-auto">
+                <table className="w-full">
+                  <thead className="sticky top-0 z-10">
+                    <tr style={{ backgroundColor: "#1a2332" }}>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-300 uppercase tracking-wider">#</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-300 uppercase tracking-wider">Student</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-300 uppercase tracking-wider">Index</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-300 uppercase tracking-wider">Time</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-slate-300 uppercase tracking-wider">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {attendees.map((student, idx) => (
+                      <tr key={student.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors duration-200">
+                        <td className="px-6 py-5 text-[12px] text-slate-500 font-medium">{idx + 1}</td>
+                        <td className="px-6 py-5">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full flex items-center justify-center text-white text-[11px] font-bold transition-transform hover:scale-110" style={{ backgroundColor: "#1a2332" }}>
+                              {student.avatarInitials}
+                            </div>
+                            <span className="text-[13px] font-semibold text-slate-900">{student.name}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-5 text-[13px] text-slate-600 font-medium">{student.indexNumber}</td>
+                        <td className="px-6 py-5 text-[13px] text-slate-600 font-medium">{student.time}</td>
+                        <td className="px-6 py-5">
+                          {student.gpsVerified ? (
+                            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-900">
+                              <span className="material-symbols-outlined text-[16px]">location_on</span>
+                              QR + GPS
+                            </div>
+                          ) : (
+                            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
+                              <span className="material-symbols-outlined text-[16px]">schedule</span>
+                              Verifying
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 

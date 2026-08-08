@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { api, mapCourse, mapHistoryRecord, MappedCourse, MappedHistoryRecord, ApiError } from '../lib/api';
 import { useAuth } from './AuthContext';
+import * as Notifications from 'expo-notifications';
+import { useNotifications } from './NotificationContext';
 
 export interface ScannerPayload {
   token: string;
@@ -129,6 +131,117 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return { alreadyMarked: false };
     }
   };
+
+  const { addNotification } = useNotifications();
+
+  // Check for upcoming/starting sessions and send notifications
+  useEffect(() => {
+    if (!isAuthenticated || courses.length === 0) return;
+
+    const checkInterval = setInterval(async () => {
+      const now = new Date();
+      const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' });
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+      for (const course of courses) {
+        if (!course.schedule) continue;
+
+        try {
+          // Parse schedule: "Monday, 09:00 - 10:30"
+          const parts = course.schedule.split(',');
+          if (parts.length < 2) continue;
+
+          const dayName = parts[0].trim();
+          const timeRange = parts[1].trim();
+          const [startTime] = timeRange.split('-').map(t => t.trim());
+
+          // Check if it's the right day
+          if (dayName !== currentDay) continue;
+
+          // Parse start time
+          const [hours, minutes] = startTime.split(':').map(Number);
+          const scheduledMinutes = hours * 60 + minutes;
+
+          // Check if it's exactly the start time
+          const minutesUntilStart = scheduledMinutes - currentMinutes;
+
+          if (minutesUntilStart === 5) {
+            const todayKey = now.toDateString();
+            const reminderKey = `reminder_${course.id}_${todayKey}`;
+            
+            if (!globalThis._notifiedSessions) globalThis._notifiedSessions = new Set();
+            
+            if (!globalThis._notifiedSessions.has(reminderKey)) {
+              globalThis._notifiedSessions.add(reminderKey);
+              
+              addNotification({
+                type: 'session_start', // or 'session_reminder' if supported
+                title: `⏰ Class Starting Soon`,
+                message: `${course.code} starts in 5 minutes.`,
+                courseCode: course.code,
+                courseName: course.name,
+                actionable: false,
+              });
+              
+              try {
+                await Notifications.scheduleNotificationAsync({
+                  content: {
+                    title: `⏰ ${course.code} Starting Soon`,
+                    body: `${course.name} starts in 5 minutes.`,
+                    sound: true,
+                  },
+                  trigger: null,
+                });
+              } catch (e) {
+                console.error("Local notification error", e);
+              }
+            }
+          } else if (minutesUntilStart === 0) {
+            // Check if we already sent a 'class started' notification today
+            const todayKey = now.toDateString();
+            const startedKey = `started_${course.id}_${todayKey}`;
+            
+            // We use AsyncStorage or just in-memory Map? 
+            // In AppContext, we can just use a Set ref. Let's use a simple global set to avoid sending multiple times.
+            if (!globalThis._notifiedSessions) globalThis._notifiedSessions = new Set();
+            
+            if (!globalThis._notifiedSessions.has(startedKey)) {
+              globalThis._notifiedSessions.add(startedKey);
+              
+              addNotification({
+                type: 'session_start',
+                title: `🟢 Class Started`,
+                message: `${course.code} - ${course.name} is scheduled to start now.`,
+                courseCode: course.code,
+                courseName: course.name,
+                actionable: false,
+              });
+              
+              try {
+                await Notifications.scheduleNotificationAsync({
+                  content: {
+                    title: `🟢 ${course.code} Started`,
+                    body: `${course.name} is scheduled to start now.`,
+                    sound: true,
+                  },
+                  trigger: null,
+                });
+              } catch (e) {
+                console.error("Local notification error", e);
+              }
+            }
+          }
+        } catch (error) {
+          // Ignore parsing errors
+        }
+      }
+    }, 60000); // Check every minute
+
+    // Run once immediately
+    // ... we rely on the interval to hit exactly at minute 0
+
+    return () => clearInterval(checkInterval);
+  }, [courses, isAuthenticated, addNotification]);
 
   return (
     <AppContext.Provider value={{ 

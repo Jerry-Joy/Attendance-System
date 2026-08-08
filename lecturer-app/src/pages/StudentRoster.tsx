@@ -1,14 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useData } from "../context/DataContext";
+import { api } from "../lib/api";
 
 export default function StudentRoster() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const { courses } = useData();
+  const { courses, enrolledStudents, fetchStudents, removeStudent } = useData();
 
   const course = courses.find(c => c.id === id);
   const [copiedJoinCode, setCopiedJoinCode] = useState(false);
+
+  // Fetch students from API on mount
+  useEffect(() => {
+    if (id) fetchStudents(id);
+  }, [id, fetchStudents]);
 
   if (!course) {
     return (
@@ -23,24 +29,7 @@ export default function StudentRoster() {
     );
   }
 
-  // Mock student data based on studentCount
-  const students = Array.from({ length: course.studentCount }, (_, i) => {
-    const names = [
-      { first: 'Jerry Joy', last: 'Amehe', initials: 'JJ' },
-      { first: 'Killian', last: '', initials: 'K' },
-      { first: 'Cornel', last: 'Kelly', initials: 'CK' },
-      { first: 'Selly', last: 'Morgan', initials: 'SM' },
-    ];
-    const student = names[i % names.length];
-    const ids = ['4211231471', '4107578875', '4211231492', '4211231213'];
-    return {
-      id: `student-${i + 1}`,
-      name: student.last ? `${student.first} ${student.last}` : student.first,
-      initials: student.initials,
-      studentId: ids[i % ids.length],
-      attendanceRate: 0,
-    };
-  });
+  const students = (id ? enrolledStudents[id] : []) || [];
 
   const handleCopyJoinCode = () => {
     navigator.clipboard.writeText(course.joinCode);
@@ -163,16 +152,16 @@ export default function StudentRoster() {
                         <td className="px-6 py-4 text-sm text-slate-900 font-semibold">{index + 1}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div 
+                             <div 
                               className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white group-hover:scale-110 transition-transform duration-200" 
                               style={{ backgroundColor: "#1a2332" }}
                             >
-                              {student.initials}
+                              {student.avatarInitials}
                             </div>
                             <span className="text-sm font-semibold text-slate-900">{student.name}</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-slate-600 font-mono">{student.studentId}</td>
+                        <td className="px-6 py-4 text-sm text-slate-600 font-mono">{student.indexNumber}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className="flex-1">
@@ -189,8 +178,21 @@ export default function StudentRoster() {
                           </div>
                         </td>
                         <td className="px-6 py-4 text-center">
-                          <button className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-all duration-200 hover:scale-110 active:scale-95">
-                            <span className="material-symbols-outlined text-[20px]">more_vert</span>
+                          <button
+                            onClick={async () => {
+                              if (!id) return;
+                              if (window.confirm(`Are you sure you want to remove ${student.name} from this course?`)) {
+                                try {
+                                  await api.removeStudent(id, student.id);
+                                  removeStudent(id, student.id);
+                                } catch (e) {
+                                  console.error("Failed to remove student", e);
+                                }
+                              }
+                            }}
+                            className="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors"
+                          >
+                            Remove
                           </button>
                         </td>
                       </tr>

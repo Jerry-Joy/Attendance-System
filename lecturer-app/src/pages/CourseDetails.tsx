@@ -1,17 +1,56 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useData } from "../context/DataContext";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 export default function CourseDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { courses, pastSessions, enrolledStudents } = useData();
+  const { courses, pastSessions, enrolledStudents, fetchStudents } = useData();
   const [copied, setCopied] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [downloading, setDownloading] = useState(false);
 
   const course = courses.find((c) => c.id === id) || courses[0];
   const sessions = pastSessions.filter((s) => s.courseCode === course?.code);
   const courseStudents = (enrolledStudents[course?.id || ''] || []).slice(0, 4);
+
+  // Fetch students for the course on mount
+  useEffect(() => {
+    if (course?.id) {
+      fetchStudents(course.id);
+    }
+  }, [course?.id, fetchStudents]);
+
+  const ROWS_PER_PAGE = 4;
+  const totalPages = Math.max(1, Math.ceil(sessions.length / ROWS_PER_PAGE));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const paginatedSessions = sessions.slice((safeCurrentPage - 1) * ROWS_PER_PAGE, safeCurrentPage * ROWS_PER_PAGE);
+
+  const handleDownloadAll = () => {
+    if (!course || sessions.length === 0) return;
+    setDownloading(true);
+    const csvRows = [
+      ['Course Session Records'],
+      ['Course', `${course.code} - ${course.name}`],
+      [],
+      ['Date', 'Time', 'Duration', 'Venue', 'Present', 'Absent', 'Total Students', 'Attendance Rate']
+    ];
+    sessions.forEach(s => {
+      const rate = Math.round((s.presentCount / s.totalStudents) * 100);
+      csvRows.push([s.date, s.startTime, s.duration, s.venue, s.presentCount.toString(), s.absentCount.toString(), s.totalStudents.toString(), `${rate}%`]);
+    });
+    const blob = new Blob([csvRows.map(r => r.join(',')).join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${course.code.replace(/\s/g, '_')}_Records.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    setTimeout(() => setDownloading(false), 1200);
+  };
 
   // Compute pie chart data from actual session stats
   const pieChartData = useMemo(() => {
@@ -263,11 +302,15 @@ export default function CourseDetails() {
             <div className="p-6 border-b border-slate-200 flex items-center justify-between">
               <h2 className="text-base font-bold text-slate-900">Session Records</h2>
               <div className="flex items-center gap-2">
-                <button className="p-1.5 hover:bg-slate-100 rounded transition-all duration-200 hover:scale-110 hover:shadow-sm active:scale-95 group">
-                  <span className="material-symbols-outlined text-[18px] text-slate-600 group-hover:text-slate-900 transition-colors">filter_list</span>
-                </button>
-                <button className="p-1.5 hover:bg-slate-100 rounded transition-all duration-200 hover:scale-110 hover:shadow-sm active:scale-95 group">
-                  <span className="material-symbols-outlined text-[18px] text-slate-600 group-hover:text-slate-900 transition-colors">download</span>
+                <button 
+                  onClick={handleDownloadAll}
+                  disabled={downloading || sessions.length === 0}
+                  title="Download all records as CSV"
+                  className="p-1.5 hover:bg-slate-100 rounded transition-all duration-200 hover:scale-110 hover:shadow-sm active:scale-95 group disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                >
+                  <span className={`material-symbols-outlined text-[18px] text-slate-600 group-hover:text-slate-900 transition-colors ${downloading ? 'animate-spin' : ''}`}>
+                    {downloading ? 'refresh' : 'download'}
+                  </span>
                 </button>
               </div>
             </div>
@@ -284,7 +327,7 @@ export default function CourseDetails() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200">
-                  {sessions.slice(0, 4).map((session, i) => (
+                  {paginatedSessions.map((session, i) => (
                     <tr key={session.id} className="hover:bg-slate-50 transition-all duration-200 animate-slide-up" style={{ animationDelay: `${i * 0.05 + 0.35}s` }}>
                       <td className="px-6 py-4">
                         <div className="text-[11px] text-slate-900 font-mono">{session.date}, {session.startTime}</div>
@@ -299,8 +342,11 @@ export default function CourseDetails() {
                         <span className="text-sm font-semibold text-slate-900 tabular-nums">{session.presentCount} / {session.totalStudents}</span>
                       </td>
                       <td className="px-6 py-4 text-center">
-                        <button className="p-1 hover:bg-slate-100 rounded transition-all duration-200 hover:scale-110 active:scale-95 group">
-                          <span className="material-symbols-outlined text-[18px] text-slate-400 group-hover:text-slate-600 transition-colors">more_vert</span>
+                        <button 
+                          onClick={() => navigate('/session/summary', { state: { session } })}
+                          className="px-3 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider rounded hover:bg-slate-200 transition-colors duration-200"
+                        >
+                          View
                         </button>
                       </td>
                     </tr>
@@ -323,13 +369,21 @@ export default function CourseDetails() {
             {sessions.length > 0 && (
               <div className="px-6 py-4 bg-white border-t border-slate-200 flex items-center justify-between">
                 <span className="text-[11px] text-slate-600">
-                  Showing 4 of {sessions.length} records
+                  Showing {(safeCurrentPage - 1) * ROWS_PER_PAGE + 1} to {Math.min(safeCurrentPage * ROWS_PER_PAGE, sessions.length)} of {sessions.length} records
                 </span>
                 <div className="flex items-center gap-2">
-                  <button className="px-4 py-1.5 border border-slate-300 rounded text-[11px] font-semibold text-slate-600 hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 hover:shadow-sm active:scale-95">
+                  <button 
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={safeCurrentPage === 1}
+                    className="px-4 py-1.5 border border-slate-300 rounded text-[11px] font-semibold text-slate-600 hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 hover:shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
                     Prev
                   </button>
-                  <button className="px-4 py-1.5 border border-slate-300 rounded text-[11px] font-semibold text-slate-600 hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 hover:shadow-sm active:scale-95">
+                  <button 
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={safeCurrentPage === totalPages}
+                    className="px-4 py-1.5 border border-slate-300 rounded text-[11px] font-semibold text-slate-600 hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 hover:shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
                     Next
                   </button>
                 </div>

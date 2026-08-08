@@ -131,7 +131,18 @@ export class BlockchainService implements OnModuleInit {
         blockNumber: receipt.blockNumber,
       };
     } catch (err: any) {
-      if (err.revert?.name === 'AlreadyRecorded' || err.reason?.includes('AlreadyRecorded')) {
+      // Detect AlreadyRecorded custom error via multiple methods:
+      // 1. Ethers decoded revert (works when ethers can parse the ABI error)
+      // 2. Error reason string (fallback for some ethers versions)
+      // 3. Raw error data selector 0x5c7b4c30 (keccak256("AlreadyRecorded(string)") first 4 bytes)
+      //    This is needed because ethers v6 returns revert=null during estimateGas failures
+      const isAlreadyRecorded =
+        err.revert?.name === 'AlreadyRecorded' ||
+        err.reason?.includes('AlreadyRecorded') ||
+        err.data?.startsWith?.('0x5c7b4c30') ||
+        (typeof err.message === 'string' && err.message.includes('0x5c7b4c30'));
+
+      if (isAlreadyRecorded) {
         const verification = await this.verifyRecord(
           item.attendanceId,
           item.sessionId,

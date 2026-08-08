@@ -253,9 +253,10 @@ export default function Home() {
               '#EF4444';
             
             return (
-              <View
+              <Pressable
                 key={course.id}
-                className="bg-white rounded-2xl p-4 flex-row justify-between items-center"
+                onPress={() => router.push(`/course/${course.id}`)}
+                className="bg-white rounded-2xl p-4 flex-row justify-between items-center active:opacity-80"
                 style={styles.courseCard}
               >
                 <View className="flex-row items-center gap-3 flex-1">
@@ -282,7 +283,7 @@ export default function Home() {
                     </Text>
                   </View>
                 )}
-              </View>
+              </Pressable>
             );
           })}
 

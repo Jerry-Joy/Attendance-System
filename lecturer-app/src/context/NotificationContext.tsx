@@ -145,6 +145,25 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
               });
               sessionStorage.setItem(reminderKey, 'sent');
             }
+          } else if (minutesUntilStart === 0) {
+            // Check if we already sent a 'class started' notification today
+            const todayKey = now.toDateString();
+            const startedKey = `started_${course.id}_${todayKey}`;
+            
+            if (!sessionStorage.getItem(startedKey)) {
+              addNotification({
+                type: 'session_start',
+                priority: 'high',
+                title: '🟢 Class Started',
+                message: `${course.code} - ${course.name} is scheduled to start now`,
+                courseId: course.id,
+                courseCode: course.code,
+                metadata: {
+                  scheduledTime: startTime,
+                },
+              });
+              sessionStorage.setItem(startedKey, 'sent');
+            }
           }
         } catch (error) {
           // Ignore parsing errors

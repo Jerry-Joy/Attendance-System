@@ -204,6 +204,7 @@ export interface MappedCourse {
   studentCount: number;
   joinCode: string;
   lecturer: string;
+  schedule?: string;
   attendanceRate?: number;
 }
 
@@ -215,6 +216,11 @@ export function mapCourse(c: BackendCourse): MappedCourse {
     lecturerName = c.lecturer.fullName;
   }
 
+  let schedule: string | undefined;
+  if (c.dayOfWeek && c.startTime && c.endTime) {
+    schedule = `${c.dayOfWeek}, ${c.startTime} - ${c.endTime}`;
+  }
+
   return {
     id: c.id,
     code: c.courseCode,
@@ -222,6 +228,7 @@ export function mapCourse(c: BackendCourse): MappedCourse {
     studentCount: c._count?.enrollments || 0,
     joinCode: c.joinCode,
     lecturer: lecturerName,
+    schedule,
     attendanceRate: undefined, // TODO: Calculate from backend
   };
 }
