@@ -39,6 +39,9 @@ export interface AttendingStudent {
   time: string;
   gpsVerified: boolean;
   avatarInitials: string;
+  studentLatitude?: number | null;
+  studentLongitude?: number | null;
+  distance?: number | null;
 }
 
 export interface SessionSummaryType {
@@ -54,6 +57,8 @@ export interface SessionSummaryType {
   qrGpsVerified: number;
   geofenceRadius: number;
   venueName: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface CourseReport {
@@ -83,6 +88,8 @@ export interface PastSession {
   venue: string;
   qrGpsVerified?: number;
   geofenceRadius?: number;
+  latitude?: number;
+  longitude?: number;
   attendees?: AttendingStudent[];
 }
 

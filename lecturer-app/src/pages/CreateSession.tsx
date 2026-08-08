@@ -3,13 +3,14 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useData } from "../context/DataContext";
 import { api } from "../lib/api";
 import type { ActiveSessionType } from "../types";
+import GeofenceMap from "../components/GeofenceMap";
 
 function readGeoSample(): Promise<GeolocationPosition> {
   return new Promise((resolve, reject) => {
     navigator.geolocation.getCurrentPosition(resolve, reject, {
       enableHighAccuracy: true,
-      timeout: 30000, // Increased to 30 seconds for desktop/laptop GPS
-      maximumAge: 5000, // Allow cached position up to 5 seconds old
+      timeout: 30000,
+      maximumAge: 5000,
     });
   });
 }
@@ -36,7 +37,6 @@ export default function CreateSession() {
   // System status state
   const [systemStatus, setSystemStatus] = useState<'checking' | 'ok' | 'error'>('checking');
 
-  // If there's already an active session, redirect
   useEffect(() => {
     if (activeSession) {
       navigate('/session/active', { replace: true });
@@ -48,34 +48,21 @@ export default function CreateSession() {
     setGpsError(null);
 
     try {
-      // Check if geolocation is supported
       if (!navigator.geolocation) {
         throw new Error('Geolocation is not supported by your browser');
       }
 
-      // Take 3 samples for better accuracy
       const samples: GeolocationPosition[] = [];
       const maxSamples = 3;
-      const minSamples = 1; // At least 1 sample required
+      const minSamples = 1;
 
       for (let i = 0; i < maxSamples; i++) {
         try {
           const pos = await readGeoSample();
           samples.push(pos);
-          console.log(`GPS sample ${i + 1}/${maxSamples}:`, {
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-            accuracy: pos.coords.accuracy
-          });
         } catch (sampleErr) {
-          console.warn(`Failed to get GPS sample ${i + 1}:`, sampleErr);
-          // Continue trying to get remaining samples
-          if (samples.length >= minSamples) {
-            break; // We have enough samples
-          }
-          if (i === maxSamples - 1) {
-            throw sampleErr; // Last attempt failed and we don't have enough samples
-          }
+          if (samples.length >= minSamples) break;
+          if (i === maxSamples - 1) throw sampleErr;
         }
       }
 
@@ -83,7 +70,6 @@ export default function CreateSession() {
         throw new Error('Could not acquire any GPS samples');
       }
 
-      // Average the samples
       const avgLat = samples.reduce((s, p) => s + p.coords.latitude, 0) / samples.length;
       const avgLng = samples.reduce((s, p) => s + p.coords.longitude, 0) / samples.length;
       const bestAccuracy = Math.min(...samples.map(p => p.coords.accuracy));
@@ -92,14 +78,10 @@ export default function CreateSession() {
       setLongitude(avgLng);
       setGpsAccuracy(Number(bestAccuracy.toFixed(1)));
       setGpsStatus('locked');
-      console.log('GPS locked:', { lat: avgLat, lng: avgLng, accuracy: bestAccuracy, samples: samples.length });
     } catch (err: any) {
-      console.error('GPS error:', err);
       setGpsStatus('error');
-      
-      // Provide more specific error messages
+
       let errorMessage = 'Failed to acquire location.';
-      
       if (err.code === 1) {
         errorMessage = 'Location permission denied. Please allow location access in your browser settings.';
       } else if (err.code === 2) {
@@ -109,17 +91,14 @@ export default function CreateSession() {
       } else if (err.message) {
         errorMessage = err.message;
       }
-      
       setGpsError(errorMessage);
     }
   }, []);
 
-  // Start GPS capture on mount
   useEffect(() => {
     captureGps();
   }, [captureGps]);
 
-  // Check backend health on mount
   useEffect(() => {
     api.checkHealth().then((res) => {
       setSystemStatus(res.status === 'ok' ? 'ok' : 'error');
@@ -190,10 +169,10 @@ export default function CreateSession() {
         <div className="absolute bottom-[-10%] right-[-5%] w-[30%] h-[50%] bg-emerald-500/5 blur-[100px] rounded-full"></div>
       </div>
 
-      <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col mt-4 relative z-10 pb-12">
+      <div className="max-w-6xl mx-auto w-full flex-1 flex flex-col mt-4 relative z-10 pb-12">
         <div className="bg-white rounded-lg border border-slate-200 overflow-hidden flex flex-col lg:flex-row shadow-2xl">
           {/* Left Info Panel */}
-          <div className="w-full lg:w-1/3 flex flex-col" style={{ backgroundColor: "#081637" }}>
+          <div className="w-full lg:w-[280px] flex flex-col flex-shrink-0" style={{ backgroundColor: "#081637" }}>
             <div className="p-6 sm:p-8 border-b border-white/10 flex flex-col items-center text-center">
               <div className="w-24 h-24 flex items-center justify-center mb-6">
                 <img src="/gctu-crest.png" alt="GCTU Crest" className="w-full h-full object-contain drop-shadow-md" />
@@ -244,38 +223,38 @@ export default function CreateSession() {
             </div>
           </div>
 
-          {/* Right Form Panel */}
-          <form onSubmit={handleStart} className="p-6 sm:p-8 w-full lg:w-2/3 flex flex-col justify-between bg-white">
+          {/* Right Panel — Form + Map */}
+          <form onSubmit={handleStart} className="p-6 sm:p-8 w-full flex flex-col justify-between bg-white min-w-0">
             {error && (
               <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded text-[10px] text-red-400 font-mono uppercase text-center">
                 {error}
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Column 1 */}
-              <div className="flex flex-col gap-6">
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-3 block">Choose Course</label>
-                  <div className="flex flex-col gap-2">
-                    {courses.map(course => (
-                      <label key={course.id} className={`relative p-3 rounded border cursor-pointer transition-all flex items-center justify-between ${selectedCourse === course.id ? 'bg-amber-50' : 'border-slate-200 bg-slate-50 hover:bg-slate-100'}`} style={selectedCourse === course.id ? { borderColor: "#F5B41C" } : {}}>
-                        <input type="radio" name="course" value={course.id} checked={selectedCourse === course.id} onChange={() => setSelectedCourse(course.id)} className="sr-only" />
-                        <div className="flex items-center gap-3">
-                          <div className={`w-3 h-3 rounded-full border flex items-center justify-center ${selectedCourse === course.id ? 'border-amber-400' : 'border-slate-600'}`}>
-                            {selectedCourse === course.id && <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "#F5B41C" }}></div>}
-                          </div>
-                          <div>
-                            <span className="text-xs font-bold text-slate-900 uppercase block">{course.name}</span>
-                            <span className="text-[10px] text-emerald-400 font-mono">{course.studentCount} students</span>
-                          </div>
+            {/* Row 1: Course + Duration side by side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <label className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-3 block">Choose Course</label>
+                <div className="flex flex-col gap-2">
+                  {courses.map(course => (
+                    <label key={course.id} className={`relative p-3 rounded border cursor-pointer transition-all flex items-center justify-between ${selectedCourse === course.id ? 'bg-amber-50' : 'border-slate-200 bg-slate-50 hover:bg-slate-100'}`} style={selectedCourse === course.id ? { borderColor: "#F5B41C" } : {}}>
+                      <input type="radio" name="course" value={course.id} checked={selectedCourse === course.id} onChange={() => setSelectedCourse(course.id)} className="sr-only" />
+                      <div className="flex items-center gap-3">
+                        <div className={`w-3 h-3 rounded-full border flex items-center justify-center ${selectedCourse === course.id ? 'border-amber-400' : 'border-slate-600'}`}>
+                          {selectedCourse === course.id && <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "#F5B41C" }}></div>}
                         </div>
-                        <span className="text-[10px] font-mono text-slate-500 uppercase">{course.code}</span>
-                      </label>
-                    ))}
-                  </div>
+                        <div>
+                          <span className="text-xs font-bold text-slate-900 uppercase block">{course.name}</span>
+                          <span className="text-[10px] text-emerald-400 font-mono">{course.studentCount} students</span>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono text-slate-500 uppercase">{course.code}</span>
+                    </label>
+                  ))}
                 </div>
+              </div>
 
+              <div className="flex flex-col gap-6">
                 <div>
                   <label className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-3 block">Session Length</label>
                   <select value={duration} onChange={(e) => setDuration(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs text-slate-900 focus:outline-none font-mono transition-colors appearance-none cursor-pointer" style={{ outlineColor: "#081637" }}>
@@ -286,25 +265,6 @@ export default function CreateSession() {
                     <option value="60">60 Minutes</option>
                     <option value="90">90 Minutes</option>
                   </select>
-                </div>
-              </div>
-
-              {/* Column 2 */}
-              <div className="flex flex-col gap-6">
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-3 block">Location Coordinates</label>
-                  <input type="text" disabled value={latitude !== null && longitude !== null ? `${latitude.toFixed(6)}°, ${longitude.toFixed(6)}°` : 'Acquiring GPS location...'} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs text-slate-500 font-mono cursor-not-allowed" />
-                  <p className="text-[9px] text-slate-500 font-mono mt-1.5 uppercase">
-                    {gpsStatus === 'locked' ? `GPS Locked — ±${gpsAccuracy}m accuracy` : gpsStatus === 'acquiring' ? 'Acquiring from device GPS sensor...' : gpsStatus === 'error' ? 'GPS Error - Click Retry above' : 'Awaiting GPS lock'}
-                  </p>
-                </div>
-
-                <div>
-                  <label className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-3 block">Allowed Radius (meters)</label>
-                  <div className="flex items-center gap-4">
-                    <input type="range" min="10" max="200" step="10" value={radius} onChange={(e) => setRadius(e.target.value)} className="flex-1 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer" style={{ accentColor: "#F5B41C" }} />
-                    <span className="text-xs font-mono font-bold px-2 py-1 rounded" style={{ color: "#081637", backgroundColor: "rgba(245, 180, 28, 0.2)" }}>{radius}m</span>
-                  </div>
                 </div>
 
                 <div>
@@ -329,7 +289,46 @@ export default function CreateSession() {
               </div>
             </div>
 
-            <div className="pt-6 mt-8 border-t border-slate-200 flex justify-end gap-3">
+            {/* Row 2: Map + Radius Slider */}
+            <div className="mb-6">
+              <label className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-3 block">
+                <span className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[14px]">map</span>
+                  Geofence Location
+                </span>
+              </label>
+              <div className="h-[300px] rounded-lg overflow-hidden mb-4">
+                <GeofenceMap
+                  latitude={latitude}
+                  longitude={longitude}
+                  radius={Number(radius)}
+                  gpsStatus={gpsStatus}
+                  gpsError={gpsError}
+                  onRetry={captureGps}
+                />
+              </div>
+
+              {/* Radius slider directly below map */}
+              <div className="flex items-center gap-4 bg-slate-50 rounded-lg p-4 border border-slate-200">
+                <label className="text-[10px] font-bold text-slate-500 tracking-widest uppercase whitespace-nowrap">Radius</label>
+                <input
+                  type="range"
+                  min="10"
+                  max="200"
+                  step="10"
+                  value={radius}
+                  onChange={(e) => setRadius(e.target.value)}
+                  className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                  style={{ accentColor: "#F5B41C" }}
+                />
+                <span className="text-xs font-mono font-bold px-3 py-1.5 rounded-md min-w-[60px] text-center" style={{ color: "#081637", backgroundColor: "rgba(245, 180, 28, 0.2)" }}>
+                  {radius}m
+                </span>
+              </div>
+            </div>
+
+            {/* Row 3: Action Buttons */}
+            <div className="pt-4 border-t border-slate-200 flex justify-end gap-3">
               <button type="button" onClick={() => navigate(-1)} className="px-5 py-2.5 rounded border border-slate-300 text-[10px] font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors cursor-pointer">
                 Cancel
               </button>

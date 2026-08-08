@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { api, mapAttendance } from "../lib/api";
 import type { SessionSummaryType, PastSession, AttendingStudent } from "../types";
+import StudentLocationModal from "../components/StudentLocationModal";
 
 const emptySummary: SessionSummaryType = {
   courseCode: '', courseName: '', date: '', startTime: '', endTime: '',
@@ -28,8 +29,21 @@ export default function SessionSummary() {
       totalStudents: ps.totalStudents, presentCount: ps.presentCount,
       absentCount: ps.absentCount, qrGpsVerified: ps.qrGpsVerified ?? ps.presentCount,
       geofenceRadius: ps.geofenceRadius ?? 50, venueName: ps.venue,
+      latitude: ps.latitude, longitude: ps.longitude,
     };
   })();
+
+  // Extract session lat/lng (from ActiveSessionType or PastSession) — use state so we can update via API fallback
+  const [sessionLatitude, setSessionLatitude] = useState<number | undefined>(() => {
+    if (summary.latitude != null) return summary.latitude;
+    const s = passedState?.session as any;
+    return s?.latitude ?? undefined;
+  });
+  const [sessionLongitude, setSessionLongitude] = useState<number | undefined>(() => {
+    if (summary.longitude != null) return summary.longitude;
+    const s = passedState?.session as any;
+    return s?.longitude ?? undefined;
+  });
 
   const [attendees, setAttendees] = useState<AttendingStudent[]>(() => {
     if (passedState?.attendees?.length) return passedState.attendees;
@@ -39,13 +53,28 @@ export default function SessionSummary() {
   });
 
   const [downloading, setDownloading] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<AttendingStudent | null>(null);
 
   // Fetch attendees from API if we don't have them (e.g. navigating from History)
+  // Also fetch full session details if we are missing session coordinates
   useEffect(() => {
     const sessionId = passedState?.session?.id;
-    if (attendees.length === 0 && sessionId) {
+    if (!sessionId) return;
+
+    // Fetch attendees if empty
+    if (attendees.length === 0) {
       api.getSessionAttendance(sessionId)
         .then((records) => setAttendees(records.map(mapAttendance)))
+        .catch(() => { /* ignore */ });
+    }
+
+    // Fetch session details if coordinates are missing (fallback for History navigation)
+    if (sessionLatitude == null || sessionLongitude == null) {
+      api.getSession(sessionId)
+        .then((session: any) => {
+          if (session.latitude != null) setSessionLatitude(session.latitude);
+          if (session.longitude != null) setSessionLongitude(session.longitude);
+        })
         .catch(() => { /* ignore */ });
     }
   }, [passedState?.session?.id]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -54,14 +83,6 @@ export default function SessionSummary() {
   const absentCount = Math.max(summary.totalStudents - summary.presentCount, 0);
   const gpsVerifiedCount = summary.qrGpsVerified;
   const gpsPercent = summary.presentCount > 0 ? Math.min(Math.round((gpsVerifiedCount / summary.presentCount) * 100), 100) : 0;
-
-  // SVG ring params
-  const ringRadius = 58;
-  const ringCircumference = 2 * Math.PI * ringRadius;
-  const ringOffset = ringCircumference - (attendanceRate / 100) * ringCircumference;
-
-  const rateColor = attendanceRate >= 75 ? 'text-emerald-400' : attendanceRate >= 50 ? 'text-amber-400' : 'text-red-400';
-  const rateStroke = attendanceRate >= 75 ? 'stroke-emerald-500' : attendanceRate >= 50 ? 'stroke-amber-500' : 'stroke-red-500';
 
   const handleDownload = () => {
     setDownloading(true);
@@ -86,6 +107,12 @@ export default function SessionSummary() {
     URL.revokeObjectURL(url);
     setTimeout(() => setDownloading(false), 1500);
   };
+
+  const canShowStudentMap = (student: AttendingStudent) =>
+    student.studentLatitude != null &&
+    student.studentLongitude != null &&
+    sessionLatitude != null &&
+    sessionLongitude != null;
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
@@ -119,13 +146,13 @@ export default function SessionSummary() {
               <div className="relative w-[90px] h-[90px] mb-4">
                 <svg className="-rotate-90" viewBox="0 0 100 100">
                   <circle cx="50" cy="50" r="42" fill="none" stroke="#f5f5f5" strokeWidth="12" />
-                  <circle 
-                    cx="50" 
-                    cy="50" 
-                    r="42" 
-                    fill="none" 
-                    stroke="#F5B41C" 
-                    strokeWidth="12" 
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="42"
+                    fill="none"
+                    stroke="#F5B41C"
+                    strokeWidth="12"
                     strokeLinecap="round"
                     strokeDasharray={`${2 * Math.PI * 42}`}
                     strokeDashoffset={`${2 * Math.PI * 42 * (1 - attendanceRate / 100)}`}
@@ -263,13 +290,21 @@ export default function SessionSummary() {
                         <td className="px-6 py-5 text-[13px] text-slate-600 font-medium">{student.time}</td>
                         <td className="px-6 py-5">
                           {student.gpsVerified ? (
-                            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-900">
-                              <span className="material-symbols-outlined text-[16px]">location_on</span>
-                              QR + GPS
-                            </div>
+                            <button
+                              onClick={() => canShowStudentMap(student) && setSelectedStudent(student)}
+                              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${
+                                canShowStudentMap(student)
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 hover:shadow-sm cursor-pointer'
+                                  : 'bg-slate-50 text-slate-500 border border-slate-200 cursor-default'
+                              }`}
+                              title={canShowStudentMap(student) ? 'View student location on map' : 'Location data not available'}
+                            >
+                              <span className="material-symbols-outlined text-[14px]">location_on</span>
+                              GPS
+                            </button>
                           ) : (
-                            <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-500">
-                              <span className="material-symbols-outlined text-[16px]">schedule</span>
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-200 uppercase tracking-wider">
+                              <span className="material-symbols-outlined text-[14px]">schedule</span>
                               Verifying
                             </div>
                           )}
@@ -284,22 +319,22 @@ export default function SessionSummary() {
 
           {/* Action Buttons */}
           <div className="grid grid-cols-3 gap-4 animate-slide-up" style={{ animationDelay: '1s' }}>
-            <button 
-              onClick={handleDownload} 
+            <button
+              onClick={handleDownload}
               disabled={downloading}
               className="flex items-center justify-center gap-2 py-4 bg-white border-2 border-slate-300 text-slate-900 rounded-xl text-[11px] font-extrabold uppercase tracking-wide hover:bg-slate-50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:hover:translate-y-0"
             >
               <span className="material-symbols-outlined text-[20px]">{downloading ? 'refresh' : 'download'}</span>
               {downloading ? 'Downloading...' : 'Download Report'}
             </button>
-            <button 
+            <button
               onClick={() => navigate('/history')}
               className="flex items-center justify-center gap-2 py-4 bg-white border-2 border-slate-300 text-slate-900 rounded-xl text-[11px] font-extrabold uppercase tracking-wide hover:bg-slate-50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
             >
               <span className="material-symbols-outlined text-[20px]">history</span>
               Session History
             </button>
-            <button 
+            <button
               onClick={() => navigate('/')}
               className="flex items-center justify-center gap-2 py-4 rounded-xl text-[11px] font-extrabold uppercase tracking-wide hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
               style={{ backgroundColor: "#F5B41C", color: "#000" }}
@@ -310,6 +345,18 @@ export default function SessionSummary() {
           </div>
         </div>
       </div>
+
+      {/* Student Location Modal */}
+      {selectedStudent && sessionLatitude != null && sessionLongitude != null && (
+        <StudentLocationModal
+          open={true}
+          onClose={() => setSelectedStudent(null)}
+          student={selectedStudent}
+          sessionLatitude={sessionLatitude}
+          sessionLongitude={sessionLongitude}
+          geofenceRadius={summary.geofenceRadius}
+        />
+      )}
     </div>
   );
 }

@@ -130,6 +130,8 @@ export default function ActiveSession() {
       qrGpsVerified: activeSession.attendees.filter(a => a.gpsVerified).length,
       geofenceRadius: activeSession.radius,
       venueName: course?.venueName || 'Unknown',
+      latitude: activeSession.latitude,
+      longitude: activeSession.longitude,
     };
 
     const attendeesData = [...activeSession.attendees];
@@ -188,6 +190,8 @@ export default function ActiveSession() {
       venue: sessionData.venueName,
       qrGpsVerified: sessionData.qrGpsVerified,
       geofenceRadius: sessionData.geofenceRadius,
+      latitude: sessionData.latitude,
+      longitude: sessionData.longitude,
       attendees: attendeesData,
     });
 

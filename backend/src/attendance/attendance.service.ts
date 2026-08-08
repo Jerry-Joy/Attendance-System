@@ -127,6 +127,9 @@ export class AttendanceService {
         studentId,
         method,
         distance: roundedDistance,
+        studentLatitude: dto.latitude,
+        studentLongitude: dto.longitude,
+        studentAccuracy: dto.accuracy,
         blockchainStatus: BlockchainStatus.PENDING,
       },
       include: {
@@ -153,6 +156,8 @@ export class AttendanceService {
       id: attendance.id,
       method: attendance.method,
       distance: attendance.distance,
+      studentLatitude: attendance.studentLatitude,
+      studentLongitude: attendance.studentLongitude,
       markedAt: attendance.markedAt,
       student: attendance.student,
       sessionId: session.id,

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from 'react';
 import type { Course, PastSession, EnrolledStudent, AttendingStudent, ActiveSessionType, LecturerPreferences } from '../types';
-import { api, mapCourse, mapStudent, mapSession, getToken, type BackendSession } from '../lib/api';
+import { api, mapCourse, mapStudent, mapSession, mapAttendance, getToken, type BackendSession } from '../lib/api';
 import { useAuth } from './AuthContext';
 
 const PREFS_KEY = 'corescan_prefs';

@@ -124,6 +124,9 @@ interface BackendAttendanceRecord {
   id: string;
   method: string;
   distance: number | null;
+  studentLatitude: number | null;
+  studentLongitude: number | null;
+  studentAccuracy: number | null;
   markedAt: string;
   student: { id: string; fullName: string; studentId: string | null };
   sessionId: string;
@@ -246,6 +249,8 @@ export function mapSession(s: BackendSession): PastSession {
     absentCount: 0,
     venue: s.course.venue || '',
     geofenceRadius: s.geofenceRadius,
+    latitude: s.latitude ?? undefined,
+    longitude: s.longitude ?? undefined,
   };
 }
 
@@ -257,6 +262,9 @@ export function mapAttendance(a: BackendAttendanceRecord): AttendingStudent {
     time: fmtTime(a.markedAt),
     gpsVerified: a.method === 'QR_GPS',
     avatarInitials: initials(a.student.fullName),
+    studentLatitude: a.studentLatitude ?? null,
+    studentLongitude: a.studentLongitude ?? null,
+    distance: a.distance ?? null,
   };
 }
 

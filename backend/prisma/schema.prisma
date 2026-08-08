@@ -108,6 +108,9 @@ model Attendance {
   id               String            @id @default(uuid())
   method           VerificationMethod
   distance         Float?             // meters from session location
+  studentLatitude  Float?
+  studentLongitude Float?
+  studentAccuracy  Float?
   markedAt         DateTime          @default(now())
 
   // Blockchain audit fields
