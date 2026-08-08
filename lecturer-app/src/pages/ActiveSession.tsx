@@ -9,7 +9,7 @@ import type { AttendingStudent } from "../types";
 
 export default function ActiveSession() {
   const navigate = useNavigate();
-  const { activeSession, addAttendee, endActiveSession, addPastSession, courses } = useData();
+  const { activeSession, addAttendee, endActiveSession, addPastSession, courses, preferences } = useData();
   const { addNotification } = useNotifications();
 
   const [qrToken, setQrToken] = useState(() => activeSession?.qrToken || `SA-${Math.floor(Date.now()/1000)}-${Math.random().toString(16).substring(2,8)}`);
@@ -91,6 +91,7 @@ export default function ActiveSession() {
   // QR auto-refresh countdown — calls backend to rotate token
   useEffect(() => {
     if (!activeSession?.sessionId) return;
+    if (preferences && !preferences.qrAutoRefresh) return;
 
     const timer = setInterval(() => {
       setQrCountdown(prev => {
@@ -108,7 +109,7 @@ export default function ActiveSession() {
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [activeSession?.sessionId]);
+  }, [activeSession?.sessionId, preferences?.qrAutoRefresh]);
 
   const handleEndSession = useCallback(async () => {
     if (!activeSession || ending) return;
@@ -317,11 +318,15 @@ export default function ActiveSession() {
                 <div className="w-full mt-6">
                   <div className="flex items-center justify-between mb-2 px-2">
                     <span className="text-[9px] font-semibold text-white/50 uppercase tracking-[0.15em]">Auto-Refresh</span>
-                    <span className="text-[10px] font-bold text-white tabular-nums">{qrCountdown}s</span>
+                    <span className="text-[10px] font-bold text-white tabular-nums">
+                      {preferences?.qrAutoRefresh ? `${qrCountdown}s` : 'Disabled'}
+                    </span>
                   </div>
-                  <div className="h-1 bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${(qrCountdown / 30) * 100}%`, backgroundColor: "#F5B41C" }} />
-                  </div>
+                  {preferences?.qrAutoRefresh && (
+                    <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${(qrCountdown / 30) * 100}%`, backgroundColor: "#F5B41C" }} />
+                    </div>
+                  )}
                 </div>
 
                 <button onClick={() => setIsFullscreenQr(true)} className="w-full mt-5 px-4 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 border border-white/10 hover:bg-white/5 hover:border-white/20" style={{ color: "#FFFFFF" }}>
@@ -473,7 +478,7 @@ export default function ActiveSession() {
             <div className="flex flex-wrap items-center justify-center gap-4 text-sm font-mono px-6 py-3 rounded-lg" style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "#FFFFFF" }}>
               <span className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-[18px]">timer</span>
-                <strong>Refresh: {qrCountdown}s</strong>
+                <strong>Refresh: {preferences?.qrAutoRefresh ? `${qrCountdown}s` : 'Disabled'}</strong>
               </span>
               <span style={{ color: "rgba(255,255,255,0.4)" }}>•</span>
               <span className="font-bold">{activeSession.courseCode}</span>

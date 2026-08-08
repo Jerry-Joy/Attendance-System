@@ -8,9 +8,16 @@ const PREFS_KEY = 'corescan_prefs';
 function loadPrefs(): LecturerPreferences {
   try {
     const raw = localStorage.getItem(PREFS_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      // Fallback for existing storage that doesn't have defaultRadius yet
+      if (parsed.defaultRadius === undefined) {
+        parsed.defaultRadius = 50;
+      }
+      return parsed;
+    }
   } catch { /* ignore */ }
-  return { qrAutoRefresh: true, gpsRequired: true, notifications: true, blockchainWrite: true };
+  return { qrAutoRefresh: true, gpsRequired: true, notifications: true, blockchainWrite: true, defaultRadius: 50 };
 }
 
 interface DataState {

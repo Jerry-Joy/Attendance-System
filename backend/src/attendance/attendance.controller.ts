@@ -44,6 +44,12 @@ export class AttendanceController {
   }
 
   @Roles(Role.LECTURER)
+  @Get('attendance/blockchain-status')
+  blockchainStatus(@CurrentUser() user: any) {
+    return this.attendanceService.checkBlockchainStatus(user.id);
+  }
+
+  @Roles(Role.LECTURER)
   @Get('attendance/:id/verify')
   verify(@Param('id') id: string, @CurrentUser() user: any) {
     return this.attendanceService.verifyRecord(id, user.id);

@@ -1,6 +1,8 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useData } from "../context/DataContext";
+import { api } from "../lib/api";
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -23,6 +25,37 @@ export default function Settings() {
   const { courses, pastSessions, preferences, updatePreferences } = useData();
 
   const totalStudents = courses.reduce((a, c) => a + c.studentCount, 0);
+
+  const [connectionStatus, setConnectionStatus] = useState<{
+    connected: boolean;
+    blockNumber?: number;
+    networkName?: string;
+    walletAddress?: string;
+    balance?: string;
+    contractAddress?: string;
+    error?: string;
+  } | null>(null);
+  const [testingConnection, setTestingConnection] = useState(false);
+
+  useEffect(() => {
+    // Initial connection health check
+    api.getBlockchainStatus()
+      .then(setConnectionStatus)
+      .catch((err) => setConnectionStatus({ connected: false, error: err.message }));
+  }, []);
+
+  const handleTestConnection = async () => {
+    setTestingConnection(true);
+    setConnectionStatus(null);
+    try {
+      const res = await api.getBlockchainStatus();
+      setConnectionStatus(res);
+    } catch (err: any) {
+      setConnectionStatus({ connected: false, error: err.message || "Failed to connect" });
+    } finally {
+      setTestingConnection(false);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -80,11 +113,63 @@ export default function Settings() {
           {/* Blockchain Status Card */}
           <div className="rounded-lg p-6 animate-slide-up hover:shadow-lg transition-all duration-300" style={{ backgroundColor: "#1a2332", animationDelay: "0.3s" }}>
             <h3 className="text-[11px] font-bold uppercase tracking-widest mb-4 text-white">Blockchain Status</h3>
-            <div className="bg-slate-800/50 rounded-lg p-4 flex items-center gap-3 mb-4 hover:bg-slate-800/70 transition-all duration-200 group">
-              <span className="material-symbols-outlined text-[20px] text-green-500 group-hover:scale-110 transition-transform animate-pulse">link</span>
-              <span className="text-sm font-semibold text-green-500">Node Connected</span>
-            </div>
-            <button className="w-full px-4 py-2.5 rounded-lg text-[11px] uppercase font-bold transition-all duration-300 font-mono border-2 hover:shadow-lg hover:-translate-y-0.5 active:scale-95" style={{ backgroundColor: "transparent", color: "#F5B41C", borderColor: "#F5B41C" }}>
+            
+            {testingConnection ? (
+              <div className="bg-slate-800/50 rounded-lg p-4 flex items-center gap-3 mb-4 hover:bg-slate-800/70 transition-all duration-200">
+                <span className="material-symbols-outlined text-[20px] text-amber-500 animate-spin">refresh</span>
+                <span className="text-sm font-semibold text-amber-500">Testing connection...</span>
+              </div>
+            ) : connectionStatus?.connected ? (
+              <div className="flex flex-col gap-3 mb-4">
+                <div className="bg-slate-800/50 rounded-lg p-4 flex items-center gap-3 hover:bg-slate-800/70 transition-all duration-200 group">
+                  <span className="material-symbols-outlined text-[20px] text-green-500 group-hover:scale-110 transition-transform animate-pulse">link</span>
+                  <span className="text-sm font-semibold text-green-500">Sepolia Connected (Block #{connectionStatus.blockNumber})</span>
+                </div>
+                <div className="bg-slate-800/20 border border-slate-700/50 rounded-lg p-3 text-[10px] font-mono text-slate-300 flex flex-col gap-1.5">
+                  <div className="flex justify-between"><span className="text-slate-500">NETWORK</span><span>{connectionStatus.networkName?.toUpperCase()}</span></div>
+                  <div className="flex justify-between gap-2">
+                    <span className="text-slate-500">WALLET</span>
+                    <a 
+                      href={`https://sepolia.etherscan.io/address/${connectionStatus.walletAddress}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-[#F5B41C]/90 hover:text-[#F5B41C] hover:underline flex items-center gap-0.5 transition-colors"
+                    >
+                      <span className="truncate">{connectionStatus.walletAddress?.slice(0, 6)}...{connectionStatus.walletAddress?.slice(-4)}</span>
+                      <span className="material-symbols-outlined text-[10px]">open_in_new</span>
+                    </a>
+                  </div>
+                  <div className="flex justify-between"><span className="text-slate-500">BALANCE</span><span>{Number(connectionStatus.balance).toFixed(4)} ETH</span></div>
+                  <div className="flex justify-between gap-2">
+                    <span className="text-slate-500">CONTRACT</span>
+                    <a 
+                      href={`https://sepolia.etherscan.io/address/${connectionStatus.contractAddress}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-[#F5B41C]/90 hover:text-[#F5B41C] hover:underline flex items-center gap-0.5 transition-colors"
+                    >
+                      <span className="truncate">{connectionStatus.contractAddress?.slice(0, 6)}...{connectionStatus.contractAddress?.slice(-4)}</span>
+                      <span className="material-symbols-outlined text-[10px]">open_in_new</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-slate-800/50 rounded-lg p-4 flex items-center gap-3 mb-4 hover:bg-slate-800/70 transition-all duration-200 group">
+                <span className="material-symbols-outlined text-[20px] text-red-500">link_off</span>
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold text-red-500">Connection Failed</span>
+                  <span className="text-[9px] text-red-400/80 truncate max-w-[200px]" title={connectionStatus?.error}>{connectionStatus?.error || 'Node unreachable'}</span>
+                </div>
+              </div>
+            )}
+
+            <button 
+              onClick={handleTestConnection}
+              disabled={testingConnection}
+              className="w-full px-4 py-2.5 rounded-lg text-[11px] uppercase font-bold transition-all duration-300 font-mono border-2 hover:shadow-lg hover:-translate-y-0.5 active:scale-95 disabled:opacity-50 disabled:hover:translate-y-0" 
+              style={{ backgroundColor: "transparent", color: "#F5B41C", borderColor: "#F5B41C" }}
+            >
               TEST CONNECTION
             </button>
           </div>
@@ -115,10 +200,14 @@ export default function Settings() {
               {/* Default Radius Dropdown */}
               <div className="pt-1 group hover:bg-slate-50 -mx-2 px-2 py-2 rounded-lg transition-all duration-200">
                 <label className="block text-[13px] font-semibold text-slate-900 mb-2">Default Radius (Meters)</label>
-                <select className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:border-slate-400 focus:shadow-md cursor-pointer hover:border-slate-300 transition-all duration-200" style={{ focusRingColor: "#081637" }}>
-                  <option>25m (High Precision)</option>
-                  <option>50m (Standard)</option>
-                  <option>100m (Large Lecture Hall)</option>
+                <select 
+                  value={preferences.defaultRadius}
+                  onChange={(e) => updatePreferences({ defaultRadius: Number(e.target.value) })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:border-slate-400 focus:shadow-md cursor-pointer hover:border-slate-300 transition-all duration-200"
+                >
+                  <option value={25}>25m (High Precision)</option>
+                  <option value={50}>50m (Standard)</option>
+                  <option value={100}>100m (Large Lecture Hall)</option>
                 </select>
               </div>
 

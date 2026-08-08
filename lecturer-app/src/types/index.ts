@@ -113,6 +113,7 @@ export interface LecturerPreferences {
   gpsRequired: boolean;
   notifications: boolean;
   blockchainWrite: boolean;
+  defaultRadius: number;
 }
 
 export type NotificationType = 'session_reminder' | 'low_attendance' | 'session_summary';

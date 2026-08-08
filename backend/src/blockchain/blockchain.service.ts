@@ -196,4 +196,27 @@ export class BlockchainService implements OnModuleInit {
       attendanceHash: recomputedHash,
     };
   }
+
+  async getStatus() {
+    try {
+      const blockNumber = await this.provider.getBlockNumber();
+      const network = await this.provider.getNetwork();
+      const balance = await this.provider.getBalance(this.wallet.address);
+      const contractAddress = await this.contract.getAddress();
+      return {
+        connected: true,
+        blockNumber,
+        networkName: network.name === 'unknown' ? 'sepolia' : network.name,
+        chainId: Number(network.chainId),
+        walletAddress: this.wallet.address,
+        balance: ethers.formatEther(balance),
+        contractAddress,
+      };
+    } catch (err: any) {
+      return {
+        connected: false,
+        error: err.message || 'Failed to connect to blockchain node',
+      };
+    }
+  }
 }

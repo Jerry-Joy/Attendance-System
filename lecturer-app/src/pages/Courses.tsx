@@ -119,6 +119,15 @@ export default function Courses() {
     setDeleteTarget(null);
   };
 
+  const [blockchainRecordCount, setBlockchainRecordCount] = useState(0);
+
+  // Fetch blockchain record count on mount
+  useEffect(() => {
+    api.getLedgerRecords()
+      .then((records) => setBlockchainRecordCount(records.length))
+      .catch(() => { /* ignore */ });
+  }, []);
+
   // Check for edit query parameter and open modal automatically
   useEffect(() => {
     const editCourseId = searchParams.get('edit');
@@ -203,7 +212,7 @@ export default function Courses() {
           { label: 'Active Courses', value: String(courses.length).padStart(2, '0'), icon: 'school' },
           { label: 'Total Students', value: String(totalStudents).padStart(2, '0'), icon: 'groups' },
           { label: 'Total Sessions', value: String(totalSessions).padStart(2, '0'), icon: 'schedule' },
-          { label: 'Blockchain\nRecords', value: '1.2k', icon: 'link' },
+          { label: 'Blockchain\nRecords', value: String(blockchainRecordCount).padStart(2, '0'), icon: 'link' },
         ].map((stat, i) => (
           <div 
             key={i} 

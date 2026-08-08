@@ -375,6 +375,18 @@ export const api = {
   getLedgerRecords: () =>
     request<BackendLedgerRecord[]>('/attendance/ledger'),
 
+  getBlockchainStatus: () =>
+    request<{
+      connected: boolean;
+      blockNumber?: number;
+      networkName?: string;
+      chainId?: number;
+      walletAddress?: string;
+      balance?: string;
+      contractAddress?: string;
+      error?: string;
+    }>('/attendance/blockchain-status'),
+
   verifyAttendanceRecord: (id: string) =>
     request<VerificationResult>(`/attendance/${id}/verify`),
 

@@ -471,4 +471,8 @@ export class AttendanceService {
       skipDuplicates: true,
     });
   }
+
+  async checkBlockchainStatus(userId: string) {
+    return this.blockchain.getStatus();
+  }
 }

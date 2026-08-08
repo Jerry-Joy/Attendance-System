@@ -18,14 +18,21 @@ function readGeoSample(): Promise<GeolocationPosition> {
 export default function CreateSession() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { courses, startActiveSession, activeSession } = useData();
+  const { courses, startActiveSession, activeSession, preferences } = useData();
 
   const initialCourseId = searchParams.get('course') || courses[0]?.id || '';
   const [selectedCourse, setSelectedCourse] = useState(initialCourseId);
   const [duration, setDuration] = useState("15");
-  const [radius, setRadius] = useState("50");
+  const [radius, setRadius] = useState(() => String(preferences?.defaultRadius ?? 50));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Update radius if default preferences change
+  useEffect(() => {
+    if (preferences?.defaultRadius) {
+      setRadius(String(preferences.defaultRadius));
+    }
+  }, [preferences?.defaultRadius]);
 
   // GPS state
   const [gpsStatus, setGpsStatus] = useState<'idle' | 'acquiring' | 'locked' | 'error'>('idle');

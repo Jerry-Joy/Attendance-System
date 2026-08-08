@@ -26,10 +26,10 @@ export default function History() {
       const matchesCourse = courseFilter === 'all' || session.courseCode === courseFilter;
       const query = searchQuery.toLowerCase();
       const matchesSearch = !query ||
-        session.courseCode.toLowerCase().includes(query) ||
-        session.courseName.toLowerCase().includes(query) ||
-        session.date.toLowerCase().includes(query) ||
-        session.venue.toLowerCase().includes(query);
+        (session.courseCode || '').toLowerCase().includes(query) ||
+        (session.courseName || '').toLowerCase().includes(query) ||
+        (session.date || '').toLowerCase().includes(query) ||
+        (session.venue || '').toLowerCase().includes(query);
       return matchesCourse && matchesSearch;
     });
   }, [searchQuery, courseFilter, pastSessions]);
@@ -220,6 +220,47 @@ export default function History() {
                 })}
               </tbody>
             </table>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100 bg-slate-50/50">
+                <span className="text-[11px] text-slate-500 font-bold uppercase tracking-wider">
+                  Showing {((safeCurrentPage - 1) * ROWS_PER_PAGE) + 1} to {Math.min(safeCurrentPage * ROWS_PER_PAGE, filtered.length)} of {filtered.length} sessions
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={safeCurrentPage === 1}
+                    className="h-8 px-3 rounded-lg border border-slate-200 bg-white text-[11px] font-extrabold text-slate-600 uppercase tracking-wide hover:bg-slate-50 transition-all duration-200 disabled:opacity-50 disabled:hover:bg-white active:scale-95 flex items-center gap-1"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">chevron_left</span>
+                    Prev
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`w-8 h-8 rounded-lg text-xs font-bold transition-all duration-200 ${
+                        safeCurrentPage === pageNum
+                          ? 'text-white'
+                          : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                      }`}
+                      style={safeCurrentPage === pageNum ? { backgroundColor: "#1a2332" } : {}}
+                    >
+                      {pageNum}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={safeCurrentPage === totalPages}
+                    className="h-8 px-3 rounded-lg border border-slate-200 bg-white text-[11px] font-extrabold text-slate-600 uppercase tracking-wide hover:bg-slate-50 transition-all duration-200 disabled:opacity-50 disabled:hover:bg-white active:scale-95 flex items-center gap-1"
+                  >
+                    Next
+                    <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
