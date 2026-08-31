@@ -9,7 +9,12 @@ export class PrismaService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy {
   constructor(config: ConfigService) {
-    const pool = new pg.Pool({ connectionString: config.get<string>('DATABASE_URL') });
+    const dbUrl = config.get<string>('DATABASE_URL');
+    const isLocal = !dbUrl || dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1');
+    const pool = new pg.Pool({
+      connectionString: dbUrl,
+      ssl: isLocal ? false : { rejectUnauthorized: false },
+    });
     const adapter = new PrismaPg(pool);
     super({ adapter });
   }
