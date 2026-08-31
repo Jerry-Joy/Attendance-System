@@ -2,6 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 function buildCorsOrigins(): Array<string | RegExp> {
   const defaults = ['http://localhost:5173', 'http://localhost:8082', 'http://localhost:3000'];
   const configured = (process.env.CORS_ORIGINS ?? '')
