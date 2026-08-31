@@ -13,13 +13,7 @@ import { ConfigService } from '@nestjs/config';
 
 @WebSocketGateway({
   cors: {
-    origin: [
-      'http://localhost:5173',
-      'http://localhost:8082',
-      'http://localhost:3000',
-      /\.ngrok-free\.app$/,
-    ],
-    credentials: true,
+    origin: '*',
   },
 })
 export class EventsGateway

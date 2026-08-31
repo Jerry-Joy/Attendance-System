@@ -28,9 +28,9 @@ async function bootstrap() {
     }),
   );
 
-  // CORS — allow both frontends
+  // CORS — allow frontend clients (Vercel, local dev, Expo mobile)
   app.enableCors({
-    origin: buildCorsOrigins(),
+    origin: true,
     credentials: true,
   });
 
@@ -38,7 +38,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   const port = process.env.PORT ?? 3001;
-  await app.listen(port);
-  console.log(`🚀 Backend running on http://localhost:${port}/api`);
+  await app.listen(port, '0.0.0.0');
+  console.log(`🚀 Backend running on port ${port} (prefix /api)`);
 }
 bootstrap();
