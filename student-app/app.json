@@ -44,6 +44,10 @@
         }
       ],
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "apiBaseUrl": "https://smart-attendance-api-d7qz.onrender.com/api",
+      "apiOrigin": "https://smart-attendance-api-d7qz.onrender.com"
+    }
   }
 }
