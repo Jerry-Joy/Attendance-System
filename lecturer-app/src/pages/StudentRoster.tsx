@@ -1,7 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { api } from "../lib/api";
+import { Search, X } from "lucide-react";
+import { exportExcelCsv, formatStudentIdForExcel } from "../lib/csvExport";
+
+type StatusFilter = 'all' | 'eligible' | 'at_risk';
 
 export default function StudentRoster() {
   const navigate = useNavigate();
@@ -10,18 +14,82 @@ export default function StudentRoster() {
 
   const course = courses.find(c => c.id === id);
   const [copiedJoinCode, setCopiedJoinCode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [downloading, setDownloading] = useState(false);
 
   // Fetch students from API on mount
   useEffect(() => {
     if (id) fetchStudents(id);
   }, [id, fetchStudents]);
 
+  const students = (id ? enrolledStudents[id] : []) || [];
+
+  const eligibleCount = useMemo(() => students.filter(s => s.attendanceRate >= 75).length, [students]);
+  const atRiskCount = useMemo(() => students.filter(s => s.attendanceRate < 75).length, [students]);
+  const classAvgRate = useMemo(() => {
+    if (!students.length) return 0;
+    return Math.round(students.reduce((sum, s) => sum + s.attendanceRate, 0) / students.length);
+  }, [students]);
+
+  const filteredStudents = useMemo(() => {
+    return students.filter(s => {
+      const matchesSearch = 
+        !searchQuery.trim() ||
+        s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        s.indexNumber.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      let matchesStatus = true;
+      if (statusFilter === 'eligible') matchesStatus = s.attendanceRate >= 75;
+      else if (statusFilter === 'at_risk') matchesStatus = s.attendanceRate < 75;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [students, searchQuery, statusFilter]);
+
+  const handleCopyJoinCode = () => {
+    if (!course?.joinCode) return;
+    navigator.clipboard?.writeText(course.joinCode);
+    setCopiedJoinCode(true);
+    setTimeout(() => setCopiedJoinCode(false), 2000);
+  };
+
+  const handleExportCSV = () => {
+    if (!course || students.length === 0) return;
+    setDownloading(true);
+    exportExcelCsv({
+      title: 'Class Enrollment & Exam Eligibility Roster',
+      courseCode: course.code,
+      courseName: course.name,
+      metaSummary: {
+        'Total Enrolled': `${students.length} Students`,
+        'Exam Eligible (≥75%)': `${eligibleCount} (${students.length > 0 ? Math.round((eligibleCount / students.length) * 100) : 0}%)`,
+        'At-Risk (<75%)': `${atRiskCount}`,
+        'Class Average Attendance': `${classAvgRate}%`,
+      },
+      headers: ['#', 'Student Full Name', 'Student ID / Index No.', 'Attendance Rate', 'GCTU Exam Standing'],
+      rows: students.map((s, idx) => [
+        idx + 1,
+        s.name,
+        formatStudentIdForExcel(s.indexNumber),
+        `${s.attendanceRate}%`,
+        s.attendanceRate >= 75 ? 'Good Standing (Eligible)' : s.attendanceRate >= 60 ? 'Warning (Below 75%)' : 'Critical (Barred from Exam)',
+      ]),
+      filename: `${course.code.replace(/\s/g, '_')}_Student_Roster`,
+    });
+    setTimeout(() => setDownloading(false), 800);
+  };
+
   if (!course) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <div className="text-center">
-          <h2 className="text-lg font-bold text-slate-900 mb-2">Course Not Found</h2>
-          <button onClick={() => navigate('/courses')} className="text-sm text-blue-600 hover:underline">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 font-sans">
+        <div className="text-center bg-white p-8 rounded-2xl border border-slate-200 shadow-sm max-w-sm">
+          <span className="material-symbols-outlined text-4xl text-rose-500 mb-2">error</span>
+          <h2 className="text-base font-bold text-slate-900 mb-2">Course Not Found</h2>
+          <button 
+            onClick={() => navigate('/courses')} 
+            className="px-4 py-2 bg-[#081637] text-white rounded-lg text-xs font-bold uppercase tracking-wider"
+          >
             Back to Courses
           </button>
         </div>
@@ -29,190 +97,280 @@ export default function StudentRoster() {
     );
   }
 
-  const students = (id ? enrolledStudents[id] : []) || [];
-
-  const handleCopyJoinCode = () => {
-    navigator.clipboard.writeText(course.joinCode);
-    setCopiedJoinCode(true);
-    setTimeout(() => setCopiedJoinCode(false), 2000);
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50 p-6 animate-fade-in">
-      <div className="max-w-7xl mx-auto">
-        {/* Go Back Button */}
-        <button 
-          onClick={() => navigate('/courses')}
-          className="flex items-center gap-2 mb-6 text-slate-600 hover:text-slate-900 transition-all duration-200 animate-slide-up hover:gap-3 active:scale-95"
-          style={{ animationDelay: "0.05s" }}
-        >
-          <span className="material-symbols-outlined text-[18px] transition-transform duration-200">arrow_back</span>
-          <span className="text-[11px] font-bold uppercase tracking-wider">GO BACK</span>
-        </button>
+    <div className="flex flex-col gap-6 font-sans animate-fade-in">
+      {/* Top Hero Banner */}
+      <div className="bg-[#081637] rounded-2xl p-6 lg:p-8 text-white shadow-md border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div className="space-y-2 flex-1">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button 
+              onClick={() => navigate(`/courses/${course.id}`)} 
+              className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all active:scale-95"
+              title="Back to Course Details"
+            >
+              <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+            </button>
+            <span className="px-3 py-1 bg-secondary text-primary font-black text-xs uppercase tracking-wider rounded-md font-mono">
+              {course.code}
+            </span>
+            <span className="text-xs text-slate-300 font-medium">
+              {course.level || 'Level 300'} · {course.venueName || 'Main Auditorium'}
+            </span>
+          </div>
 
-        {/* Course Code Badge */}
-        <div className="mb-2 animate-slide-up" style={{ animationDelay: "0.1s" }}>
-          <div className="inline-block px-3 py-1 rounded text-[11px] font-bold uppercase tracking-wide hover:shadow-md hover:scale-105 transition-all duration-300 cursor-pointer" style={{ backgroundColor: "#1a2332", color: "#F5B41C" }}>
-            {course.code}
+          <h1 className="text-2xl lg:text-3xl font-black tracking-tight text-white">Student Enrollment Roster</h1>
+          <p className="text-xs text-slate-300 font-medium">
+            Manage registered students, track attendance eligibility, and oversee class participation.
+          </p>
+        </div>
+
+        {/* Action Pills in Header */}
+        <div className="flex flex-wrap sm:flex-col lg:flex-row items-stretch gap-3 shrink-0">
+          {/* Interactive Join Code Badge */}
+          <button
+            onClick={handleCopyJoinCode}
+            className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 px-4 py-2.5 rounded-xl text-xs font-mono font-bold text-white transition-all active:scale-95 cursor-pointer shadow-xs"
+            title="Click to copy join code for students"
+          >
+            <span className="text-slate-400">Join Code:</span>
+            <span className="text-secondary tracking-widest">{course.joinCode}</span>
+            <span className="material-symbols-outlined text-[16px]" style={{ color: copiedJoinCode ? '#10b981' : '#F5B41C' }}>
+              {copiedJoinCode ? 'check_circle' : 'content_copy'}
+            </span>
+            {copiedJoinCode && <span className="text-[10px] text-emerald-400 font-sans uppercase">Copied!</span>}
+          </button>
+
+          {/* Export CSV Button */}
+          <button
+            onClick={handleExportCSV}
+            disabled={downloading || students.length === 0}
+            className="px-4 py-2.5 bg-secondary text-primary font-bold text-xs uppercase tracking-wider rounded-xl flex items-center justify-center gap-2 transition-all hover:brightness-105 active:scale-95 disabled:opacity-50"
+          >
+            <span className="material-symbols-outlined text-[16px]">{downloading ? 'refresh' : 'download'}</span>
+            <span>{downloading ? 'Exporting...' : 'Export Roster'}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 4-KPI Metric Summary Strip */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Total Enrolled */}
+        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Total Enrolled</p>
+            <p className="text-3xl font-black text-slate-900">{students.length}</p>
+            <p className="text-[11px] text-slate-500 font-medium mt-1">Active registered students</p>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700">
+            <span className="material-symbols-outlined text-[24px]">groups</span>
           </div>
         </div>
 
-        {/* Page Title */}
-        <h1 className="text-3xl font-bold text-slate-900 mb-8 animate-slide-up" style={{ animationDelay: "0.2s" }}>
-          STUDENT ROSTER
-        </h1>
+        {/* Exam Eligible (>=75%) */}
+        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Exam Eligible (≥75%)</p>
+            <p className="text-3xl font-black text-emerald-700">{eligibleCount}</p>
+            <p className="text-[11px] text-slate-500 font-medium mt-1">
+              {students.length > 0 ? `${Math.round((eligibleCount / students.length) * 100)}% of class` : '0%'}
+            </p>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+            <span className="material-symbols-outlined text-[24px]">verified</span>
+          </div>
+        </div>
 
-        {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Enrollment Access */}
-          <div className="lg:col-span-1 animate-slide-up" style={{ animationDelay: "0.3s" }}>
-            <div className="bg-white rounded-lg border border-slate-200 p-6 hover:shadow-lg hover:border-slate-300 transition-all duration-300">
-              <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-6">
-                Enrollment Access
-              </h2>
+        {/* At-Risk (<75%) */}
+        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">At-Risk (<span className="normal-case">Below 75%</span>)</p>
+            <p className={`text-3xl font-black ${atRiskCount > 0 ? 'text-rose-600' : 'text-slate-900'}`}>{atRiskCount}</p>
+            <p className="text-[11px] text-slate-500 font-medium mt-1">Action required</p>
+          </div>
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${atRiskCount > 0 ? 'bg-rose-50 text-rose-600' : 'bg-slate-100 text-slate-400'}`}>
+            <span className="material-symbols-outlined text-[24px]">person_alert</span>
+          </div>
+        </div>
 
-              {/* Join Code */}
-              <div className="mb-6">
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-3">
-                  Join Code
-                </label>
-                <div className="bg-slate-50 rounded-lg p-4 text-center border border-slate-200 hover:bg-slate-100 transition-all duration-300">
-                  <div className="text-2xl font-bold text-slate-900 mb-3 tracking-wide">
-                    {course.joinCode}
-                  </div>
-                  <button 
-                    onClick={handleCopyJoinCode}
-                    className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-white border border-slate-300 rounded-lg text-[10px] font-bold uppercase tracking-wider text-slate-700 hover:bg-slate-50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 active:scale-95 group"
-                    style={{ color: copiedJoinCode ? "#10b981" : undefined }}
-                  >
-                    <span className="material-symbols-outlined text-[16px] transition-transform duration-200 group-hover:scale-110">
-                      {copiedJoinCode ? 'check_circle' : 'content_copy'}
-                    </span>
-                    {copiedJoinCode ? 'COPIED!' : 'COPY'}
-                  </button>
-                </div>
-              </div>
+        {/* Class Average Rate */}
+        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">Class Avg Attendance</p>
+            <p className="text-3xl font-black" style={{ color: classAvgRate >= 75 ? '#081637' : '#e11d48' }}>
+              {classAvgRate}%
+            </p>
+            <p className="text-[11px] text-slate-500 font-medium mt-1">Across all lectures</p>
+          </div>
+          <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center">
+            <span className="material-symbols-outlined text-[24px]" style={{ color: classAvgRate >= 75 ? '#10b981' : '#e11d48' }}>
+              trending_up
+            </span>
+          </div>
+        </div>
+      </div>
 
-              {/* Schedule */}
-              {course.schedule && (
-                <div className="mb-4 pb-4 border-b border-slate-200 group hover:bg-slate-50 -mx-2 px-2 py-2 rounded-lg transition-all duration-200">
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
-                    Schedule
-                  </label>
-                  <div className="flex items-center gap-2 text-sm text-slate-700">
-                    <span className="material-symbols-outlined text-[16px] text-slate-400 group-hover:text-slate-600 transition-colors">schedule</span>
-                    <span className="font-semibold">{course.schedule}</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Total Enrolled */}
-              <div className="mb-4 pb-4 border-b border-slate-200 group hover:bg-slate-50 -mx-2 px-2 py-2 rounded-lg transition-all duration-200">
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
-                  Total Enrolled
-                </label>
-                <div className="text-3xl font-bold text-slate-900 group-hover:scale-110 transition-transform duration-300">{course.studentCount}</div>
-              </div>
-
-              {/* Course Level */}
-              <div className="group hover:bg-slate-50 -mx-2 px-2 py-2 rounded-lg transition-all duration-200">
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-2">
-                  Course Level
-                </label>
-                <div className="text-sm font-semibold text-slate-700 uppercase">{course.level}</div>
-              </div>
-            </div>
+      {/* Full-Width Student Table Card */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+        {/* Table Header & Search Filter Bar */}
+        <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          {/* Status Filter Buttons */}
+          <div className="flex flex-wrap items-center gap-1.5 bg-slate-200/60 p-1 rounded-xl border border-slate-200">
+            <button
+              onClick={() => setStatusFilter('all')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                statusFilter === 'all'
+                  ? 'bg-[#081637] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              All Students ({students.length})
+            </button>
+            <button
+              onClick={() => setStatusFilter('eligible')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                statusFilter === 'eligible'
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Eligible ({eligibleCount})
+            </button>
+            <button
+              onClick={() => setStatusFilter('at_risk')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                statusFilter === 'at_risk'
+                  ? 'bg-rose-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              At Risk ({atRiskCount})
+            </button>
           </div>
 
-          {/* Right Column - Student Table */}
-          <div className="lg:col-span-2 animate-slide-up" style={{ animationDelay: "0.4s" }}>
-            <div className="bg-white rounded-lg border border-slate-200 overflow-hidden hover:shadow-lg hover:border-slate-300 transition-all duration-300">
-              {/* Table Header */}
-              <div className="px-6 py-4 border-b border-slate-200">
-                <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                  Enrolled Students ({students.length})
-                </h2>
-              </div>
-
-              {/* Table */}
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr style={{ backgroundColor: "#1a2332" }}>
-                      <th className="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-white">#</th>
-                      <th className="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-white">Student</th>
-                      <th className="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-white">Student ID</th>
-                      <th className="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-white">Attendance Rate</th>
-                      <th className="px-6 py-3 text-center text-[10px] font-bold uppercase tracking-wider text-white">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200">
-                    {students.map((student, index) => (
-                      <tr key={student.id} className="hover:bg-slate-50 transition-all duration-200 animate-slide-up group" style={{ animationDelay: `${index * 0.03 + 0.45}s` }}>
-                        <td className="px-6 py-4 text-sm text-slate-900 font-semibold">{index + 1}</td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                             <div 
-                              className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white group-hover:scale-110 transition-transform duration-200" 
-                              style={{ backgroundColor: "#1a2332" }}
-                            >
-                              {student.avatarInitials}
-                            </div>
-                            <span className="text-sm font-semibold text-slate-900">{student.name}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-sm text-slate-600 font-mono">{student.indexNumber}</td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="flex-1">
-                              <div className="h-2 bg-slate-100 rounded-full overflow-hidden group-hover:h-2.5 transition-all duration-300" style={{ minWidth: '100px' }}>
-                                <div 
-                                  className="h-full rounded-full transition-all duration-700" 
-                                  style={{ width: `${student.attendanceRate}%`, backgroundColor: "#1a2332" }}
-                                />
-                              </div>
-                            </div>
-                            <span className="text-sm font-bold text-slate-900 tabular-nums w-10 text-right group-hover:scale-110 transition-transform duration-200">
-                              {student.attendanceRate}%
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          <button
-                            onClick={async () => {
-                              if (!id) return;
-                              if (window.confirm(`Are you sure you want to remove ${student.name} from this course?`)) {
-                                try {
-                                  await api.removeStudent(id, student.id);
-                                  removeStudent(id, student.id);
-                                } catch (e) {
-                                  console.error("Failed to remove student", e);
-                                }
-                              }
-                            }}
-                            className="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-colors"
-                          >
-                            Remove
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Empty State */}
-              {students.length === 0 && (
-                <div className="px-6 py-12 text-center animate-slide-up" style={{ animationDelay: "0.5s" }}>
-                  <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 hover:scale-110 transition-transform duration-300">
-                    <span className="material-symbols-outlined text-[32px] text-slate-400">groups</span>
-                  </div>
-                  <p className="text-sm font-semibold text-slate-600 mb-1">No Students Enrolled</p>
-                  <p className="text-[11px] text-slate-500">Students can join using the course code above.</p>
-                </div>
-              )}
-            </div>
+          {/* Instant Search Bar */}
+          <div className="flex items-center gap-2 px-3.5 py-2 bg-white border border-slate-300 rounded-xl focus-within:border-[#081637] focus-within:ring-2 focus-within:ring-[#081637]/10 transition-all w-full md:w-80 shadow-xs">
+            <Search className="w-4 h-4 text-slate-400 shrink-0" />
+            <input
+              type="text"
+              placeholder="Search student name or ID..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full text-xs text-slate-900 bg-transparent placeholder:text-slate-400 focus:outline-none"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="text-slate-400 hover:text-slate-600 p-0.5 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
+                title="Clear search"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
+        </div>
+
+        {/* Table Content */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead className="bg-[#081637] text-white">
+              <tr>
+                <th className="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-300">#</th>
+                <th className="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-300">Student Name</th>
+                <th className="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-300">Student ID</th>
+                <th className="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-300">Attendance Rate</th>
+                <th className="px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-300">Status</th>
+                <th className="px-6 py-3.5 text-center text-[10px] font-bold uppercase tracking-wider text-slate-300">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {filteredStudents.map((student, index) => {
+                const isCritical = student.attendanceRate < 60;
+                const isWarning = student.attendanceRate >= 60 && student.attendanceRate < 75;
+                const isGood = student.attendanceRate >= 75;
+
+                return (
+                  <tr key={student.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-4 text-xs font-mono text-slate-400">{index + 1}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-[#081637] text-white flex items-center justify-center text-xs font-bold">
+                          {student.avatarInitials}
+                        </div>
+                        <span className="text-xs font-bold text-slate-900">{student.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-xs font-mono font-medium text-slate-600">{student.indexNumber}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3 min-w-[160px]">
+                        <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${
+                              isGood ? 'bg-emerald-500' : isWarning ? 'bg-amber-500' : 'bg-rose-500'
+                            }`}
+                            style={{ width: `${student.attendanceRate}%` }}
+                          />
+                        </div>
+                        <span className="text-xs font-mono font-bold text-slate-900 w-10 text-right">
+                          {student.attendanceRate}%
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      {isGood ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                          Good Standing
+                        </span>
+                      ) : isWarning ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                          Warning (&lt;75%)
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200">
+                          <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                          Critical Risk
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <button
+                        onClick={async () => {
+                          if (!id) return;
+                          if (window.confirm(`Are you sure you want to remove ${student.name} (${student.indexNumber}) from this course roster?`)) {
+                            try {
+                              await api.removeStudent(id, student.id);
+                              removeStudent(id, student.id);
+                            } catch (e) {
+                              console.error("Failed to remove student", e);
+                            }
+                          }
+                        }}
+                        className="px-3 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all active:scale-95 cursor-pointer border border-rose-200"
+                        title="Remove student from course"
+                      >
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+
+              {filteredStudents.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-6 py-16 text-center text-slate-400">
+                    <span className="material-symbols-outlined text-4xl mb-2 text-slate-300">person_off</span>
+                    <p className="text-sm font-semibold text-slate-700">No students match your filter</p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {students.length === 0
+                        ? "No students have joined this course yet. Share the join code with your class."
+                        : "Try clearing your search query or selecting 'All Students'."}
+                    </p>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

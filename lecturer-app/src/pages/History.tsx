@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useData } from "../context/DataContext";
 import { CustomSelect } from "../components/CustomSelect";
 import { Filter } from "lucide-react";
+import { exportExcelCsv } from "../lib/csvExport";
 
 const ROWS_PER_PAGE = 8;
 
@@ -49,23 +50,36 @@ export default function History() {
 
   const handleDownload = (session: typeof pastSessions[0]) => {
     setDownloadingId(session.id);
-    const csvRows = [
-      ['Session Report'], ['Course', `${session.courseCode} - ${session.courseName}`],
-      ['Date', session.date], ['Time', `${session.startTime} - ${session.endTime}`],
-      ['Duration', session.duration], ['Venue', session.venue],
-      ['Total Students', session.totalStudents], ['Present', session.presentCount],
-      ['Absent', session.absentCount], ['Attendance Rate', `${Math.round((session.presentCount / session.totalStudents) * 100)}%`],
-    ];
-    const blob = new Blob([csvRows.map(r => r.join(',')).join('\n')], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${session.courseCode.replace(/\s/g, '_')}_${session.date.replace(/[\s,]/g, '_')}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    setTimeout(() => setDownloadingId(null), 1200);
+    exportExcelCsv({
+      title: 'Individual Session Attendance Summary',
+      courseCode: session.courseCode,
+      courseName: session.courseName,
+      sessionDate: session.date,
+      venue: session.venue,
+      metaSummary: {
+        'Lecture Time': `${session.startTime} - ${session.endTime}`,
+        'Duration': session.duration,
+        'Total Enrolled': session.totalStudents,
+        'Present Turnout': session.presentCount,
+        'Absent': session.absentCount,
+        'Attendance Rate': `${Math.round((session.presentCount / session.totalStudents) * 100)}%`,
+      },
+      headers: ['Course Code', 'Course Title', 'Lecture Date', 'Schedule Time', 'Duration', 'Venue', 'Present Count', 'Absent Count', 'Total Students', 'Turnout Rate'],
+      rows: [[
+        session.courseCode,
+        session.courseName,
+        session.date,
+        `${session.startTime} - ${session.endTime}`,
+        session.duration,
+        session.venue || 'Main Aud',
+        session.presentCount,
+        session.absentCount,
+        session.totalStudents,
+        `${Math.round((session.presentCount / session.totalStudents) * 100)}%`,
+      ]],
+      filename: `${session.courseCode.replace(/\s/g, '_')}_Session_${session.date.replace(/[\s,]/g, '_')}`,
+    });
+    setTimeout(() => setDownloadingId(null), 800);
   };
 
   return (

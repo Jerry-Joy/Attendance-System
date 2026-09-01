@@ -28,6 +28,7 @@ interface AppContextType {
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
+const notifiedSessions = new Set<string>();
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -169,10 +170,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             const todayKey = now.toDateString();
             const reminderKey = `reminder_${course.id}_${todayKey}`;
             
-            if (!globalThis._notifiedSessions) globalThis._notifiedSessions = new Set();
-            
-            if (!globalThis._notifiedSessions.has(reminderKey)) {
-              globalThis._notifiedSessions.add(reminderKey);
+            if (!notifiedSessions.has(reminderKey)) {
+              notifiedSessions.add(reminderKey);
               
               addNotification({
                 type: 'session_start', // or 'session_reminder' if supported
@@ -201,12 +200,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             const todayKey = now.toDateString();
             const startedKey = `started_${course.id}_${todayKey}`;
             
-            // We use AsyncStorage or just in-memory Map? 
-            // In AppContext, we can just use a Set ref. Let's use a simple global set to avoid sending multiple times.
-            if (!globalThis._notifiedSessions) globalThis._notifiedSessions = new Set();
-            
-            if (!globalThis._notifiedSessions.has(startedKey)) {
-              globalThis._notifiedSessions.add(startedKey);
+            if (!notifiedSessions.has(startedKey)) {
+              notifiedSessions.add(startedKey);
               
               addNotification({
                 type: 'session_start',
