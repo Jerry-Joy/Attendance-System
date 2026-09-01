@@ -103,11 +103,12 @@ export class EventsGateway
   /** Called by SessionsService when a new session is started — notifies enrolled students */
   emitSessionStarted(courseId: string, payload: {
     sessionId: string;
+    courseId?: string;
     courseCode: string;
     courseName: string;
     venue: string | null;
     duration: number;
   }) {
-    this.server.to(`course:${courseId}`).emit('session:started', payload);
+    this.server.to(`course:${courseId}`).emit('session:started', { ...payload, courseId });
   }
 }

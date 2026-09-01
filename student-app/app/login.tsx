@@ -1,6 +1,17 @@
 import { useState } from 'react';
 import {
-  View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform, Alert, Image, StyleSheet
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+  Image,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Shield } from 'lucide-react-native';
@@ -36,18 +47,20 @@ export default function Login() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       className="flex-1"
     >
-      <LinearGradient
-        colors={['#081637', '#0A1F4D', '#081637']}
-        locations={[0, 0.5, 1]}
-        className="flex-1"
-      >
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 20, paddingVertical: 40 }}
-          keyboardShouldPersistTaps="handled"
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <LinearGradient
+          colors={['#081637', '#0A1F4D', '#081637']}
+          locations={[0, 0.5, 1]}
+          className="flex-1"
         >
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 20, paddingVertical: 40 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
           {/* Header with GCTU Crest */}
           <View className="items-center mb-10">
             <View className="w-28 h-28 rounded-full bg-white/10 backdrop-blur-lg items-center justify-center mb-6 border-2 border-secondary/30" style={styles.logoShadow}>
@@ -168,8 +181,9 @@ export default function Login() {
               Ghana Communication Technology University
             </Text>
           </View>
-        </ScrollView>
-      </LinearGradient>
+          </ScrollView>
+        </LinearGradient>
+      </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
 }

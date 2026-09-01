@@ -61,6 +61,8 @@ export default function App() {
               <Route path="/" element={<AuthGate><Layout /></AuthGate>}>
                 <Route index element={<Dashboard />} />
                 <Route path="courses" element={<Courses />} />
+                <Route path="courses/create" element={<CreateCourse />} />
+                <Route path="courses/new" element={<CreateCourse />} />
                 <Route path="courses/:id" element={<CourseDetails />} />
                 <Route path="courses/:id/students" element={<ManageStudents />} />
                 <Route path="courses/:id/roster" element={<StudentRoster />} />

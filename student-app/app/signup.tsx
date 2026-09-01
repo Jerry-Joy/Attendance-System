@@ -1,6 +1,17 @@
 import { useState } from 'react';
 import {
-  View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform, Alert, Image, StyleSheet
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+  Image,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { User, Mail, Lock, Eye, EyeOff, CheckCircle, ArrowRight, CreditCard, Shield } from 'lucide-react-native';
@@ -96,18 +107,20 @@ export default function Signup() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       className="flex-1"
     >
-      <LinearGradient
-        colors={['#081637', '#0A1F4D', '#081637']}
-        locations={[0, 0.5, 1]}
-        className="flex-1"
-      >
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 20, paddingVertical: 40 }}
-          keyboardShouldPersistTaps="handled"
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <LinearGradient
+          colors={['#081637', '#0A1F4D', '#081637']}
+          locations={[0, 0.5, 1]}
+          className="flex-1"
         >
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 20, paddingVertical: 40 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
           {/* Header with GCTU Crest */}
           <View className="items-center mb-8">
             <View className="w-24 h-24 rounded-full bg-white/10 backdrop-blur-lg items-center justify-center mb-5 border-2 border-secondary/30" style={styles.logoShadow}>
@@ -355,8 +368,9 @@ export default function Signup() {
               Ghana Communication Technology University
             </Text>
           </View>
-        </ScrollView>
-      </LinearGradient>
+          </ScrollView>
+        </LinearGradient>
+      </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
 }

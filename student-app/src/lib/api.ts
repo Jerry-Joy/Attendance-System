@@ -54,10 +54,15 @@ function resolveLocalhost(url: string, host: string | null): string {
 }
 
 const expoHost = getExpoHost();
-const defaultApiOrigin = expoHost ? `http://${expoHost}:3001` : 'http://localhost:3001';
-const configuredApiOrigin = (extra.apiOrigin || '').trim() || defaultApiOrigin;
-const configuredApiBase =
-  (extra.apiBaseUrl || '').trim() || `${configuredApiOrigin.replace(/\/api\/?$/, '')}/api`;
+const defaultDevOrigin = expoHost ? `http://${expoHost}:3001` : 'http://localhost:3001';
+// In development with Expo Go, automatically connect to the local NestJS backend on LAN
+const isDev = typeof __DEV__ !== 'undefined' ? __DEV__ : false;
+const configuredApiOrigin = (isDev && expoHost)
+  ? defaultDevOrigin
+  : ((extra.apiOrigin || '').trim() || (isDev ? defaultDevOrigin : 'https://smart-attendance-api-d7qz.onrender.com'));
+const configuredApiBase = (isDev && expoHost)
+  ? `${defaultDevOrigin}/api`
+  : ((extra.apiBaseUrl || '').trim() || `${configuredApiOrigin.replace(/\/api\/?$/, '')}/api`);
 
 export const API_BASE = resolveLocalhost(configuredApiBase, expoHost);
 export const API_ORIGIN = resolveLocalhost(configuredApiOrigin, expoHost);

@@ -4,6 +4,18 @@ import { useData } from "../context/DataContext";
 import { api } from "../lib/api";
 import type { ActiveSessionType } from "../types";
 import GeofenceMap from "../components/GeofenceMap";
+import { CustomSelect } from "../components/CustomSelect";
+
+const DURATION_OPTIONS = [
+  { value: "5", label: "5 Minutes", badge: "Quick" },
+  { value: "10", label: "10 Minutes" },
+  { value: "15", label: "15 Minutes", badge: "Standard" },
+  { value: "30", label: "30 Minutes" },
+  { value: "45", label: "45 Minutes" },
+  { value: "60", label: "60 Minutes (1 Hour)" },
+  { value: "90", label: "90 Minutes (1.5 Hours)" },
+  { value: "120", label: "120 Minutes (2 Hours)" },
+];
 
 function readGeoSample(): Promise<GeolocationPosition> {
   return new Promise((resolve, reject) => {
@@ -264,14 +276,13 @@ export default function CreateSession() {
               <div className="flex flex-col gap-6">
                 <div>
                   <label className="text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-3 block">Session Length</label>
-                  <select value={duration} onChange={(e) => setDuration(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-xs text-slate-900 focus:outline-none font-mono transition-colors appearance-none cursor-pointer" style={{ outlineColor: "#081637" }}>
-                    <option value="5">5 Minutes</option>
-                    <option value="10">10 Minutes</option>
-                    <option value="15">15 Minutes</option>
-                    <option value="30">30 Minutes</option>
-                    <option value="60">60 Minutes</option>
-                    <option value="90">90 Minutes</option>
-                  </select>
+                  <CustomSelect
+                    value={duration}
+                    onChange={setDuration}
+                    options={DURATION_OPTIONS}
+                    placeholder="Select duration"
+                    size="sm"
+                  />
                 </div>
 
                 <div>

@@ -85,7 +85,11 @@ export default function ProfileTab() {
         </View>
       </LinearGradient>
 
-      <ScrollView className="flex-1 px-5" contentContainerStyle={{ paddingTop: 20, paddingBottom: 24, gap: 20 }}>
+      <ScrollView 
+        className="flex-1 px-5" 
+        contentContainerStyle={{ paddingTop: 20, paddingBottom: 140, gap: 20 }}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Enhanced Profile Card with GCTU Branding */}
         <View className="bg-white rounded-2xl overflow-hidden" style={styles.profileCard}>
           {/* GCTU Blue Top Section */}

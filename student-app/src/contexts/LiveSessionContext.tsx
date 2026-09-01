@@ -12,7 +12,7 @@ import React, {
   useRef,
   ReactNode,
 } from 'react';
-import { AppState } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { io, Socket } from 'socket.io-client';
 import { api, getToken, API_ORIGIN, MappedLiveSession } from '../lib/api';
@@ -291,14 +291,28 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
     return () => subscription.remove();
   }, [isAuthenticated, refresh, connectWs]);
 
-  // ── Request notification permissions on mount ──
+  // ── Request notification permissions and create Android channel on mount ──
   useEffect(() => {
     (async () => {
-      const { status } = await Notifications.requestPermissionsAsync();
-      if (status !== 'granted') {
-        console.warn('⚠️ Notification permissions not granted');
-      } else {
-        // console.log('✅ Notification permissions granted');
+      try {
+        if (Platform.OS === 'android') {
+          await Notifications.setNotificationChannelAsync('default', {
+            name: 'GCTU Attendance Alerts',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#F5B41C',
+            sound: 'default',
+            enableVibrate: true,
+            showBadge: true,
+          });
+        }
+
+        const { status } = await Notifications.requestPermissionsAsync();
+        if (status !== 'granted') {
+          console.warn('⚠️ Notification permissions not granted');
+        }
+      } catch (error) {
+        console.error('Failed to configure notifications:', error);
       }
     })();
   }, []);
@@ -306,12 +320,12 @@ export function LiveSessionProvider({ children }: { children: ReactNode }) {
   // ── Rejoin course rooms (call after joining a new course) ──
   const rejoinCourseRooms = useCallback(async () => {
     if (socketRef.current?.connected) {
-      // console.log('🔄 Rejoining course rooms...');
       await joinCourseRooms(socketRef.current);
-      // Also refresh to get any new active sessions
-      await refresh();
+    } else {
+      await connectWs();
     }
-  }, [joinCourseRooms, refresh]);
+    await refresh();
+  }, [joinCourseRooms, connectWs, refresh]);
 
   return (
     <LiveSessionContext.Provider value={{ 

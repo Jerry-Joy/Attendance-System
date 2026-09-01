@@ -3,6 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useData } from "../context/DataContext";
 import { api } from "../lib/api";
+import { CustomSelect } from "../components/CustomSelect";
+
+const RADIUS_OPTIONS = [
+  { value: "25", label: "25m (High Precision)", badge: "Tight" },
+  { value: "50", label: "50m (Standard)", badge: "Recommended" },
+  { value: "100", label: "100m (Large Lecture Hall)" },
+  { value: "150", label: "150m (Campus Wide)" },
+];
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -198,17 +206,14 @@ export default function Settings() {
               ))}
 
               {/* Default Radius Dropdown */}
-              <div className="pt-1 group hover:bg-slate-50 -mx-2 px-2 py-2 rounded-lg transition-all duration-200">
+              <div className="pt-1">
                 <label className="block text-[13px] font-semibold text-slate-900 mb-2">Default Radius (Meters)</label>
-                <select 
-                  value={preferences.defaultRadius}
-                  onChange={(e) => updatePreferences({ defaultRadius: Number(e.target.value) })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-[13px] text-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-0 focus:border-slate-400 focus:shadow-md cursor-pointer hover:border-slate-300 transition-all duration-200"
-                >
-                  <option value={25}>25m (High Precision)</option>
-                  <option value={50}>50m (Standard)</option>
-                  <option value={100}>100m (Large Lecture Hall)</option>
-                </select>
+                <CustomSelect 
+                  value={String(preferences.defaultRadius)}
+                  onChange={(val) => updatePreferences({ defaultRadius: Number(val) })}
+                  options={RADIUS_OPTIONS}
+                  placeholder="Select default radius"
+                />
               </div>
 
               {[

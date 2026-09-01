@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useData } from "../context/DataContext";
 import type { EnrolledStudent } from "../types";
+import { CustomSelect } from "../components/CustomSelect";
+import { Filter } from "lucide-react";
 
 type PeriodFilter = 'week' | 'month' | 'all';
 
@@ -143,17 +145,25 @@ export default function Reports() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg border border-slate-200 p-4 animate-slide-up hover:shadow-md hover:border-slate-300 transition-all duration-300" style={{ animationDelay: '0.1s' }}>
+      <div className="bg-white rounded-lg border border-slate-200 p-4 relative z-30 animate-slide-up hover:shadow-md hover:border-slate-300 transition-all duration-300" style={{ animationDelay: '0.1s' }}>
         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
           {/* Course filter */}
-          <div className="relative group">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-slate-600 group-focus-within:text-primary transition-colors">filter_alt</span>
-            <select value={courseFilter} onChange={e => setCourseFilter(e.target.value)} className="appearance-none pl-9 pr-8 py-2.5 bg-slate-50 border border-slate-200 rounded text-xs text-slate-900 focus:outline-none focus:border-primary focus:shadow-md font-mono transition-all duration-200 cursor-pointer hover:border-slate-300">
-              <option value="all">All Courses</option>
-              {courseOptions.map(opt => (
-                <option key={opt.code} value={opt.code}>{opt.code} — {opt.name}</option>
-              ))}
-            </select>
+          <div className="w-full sm:w-64">
+            <CustomSelect
+              value={courseFilter}
+              onChange={setCourseFilter}
+              options={[
+                { value: 'all', label: 'All Courses' },
+                ...courseOptions.map(opt => ({
+                  value: opt.code,
+                  label: `${opt.code} — ${opt.name}`,
+                  badge: opt.code
+                }))
+              ]}
+              icon={<Filter className="w-3.5 h-3.5" />}
+              size="sm"
+              placeholder="Filter by Course"
+            />
           </div>
 
           {/* Period toggle */}
@@ -207,35 +217,38 @@ export default function Reports() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Attendance Trend Chart */}
-        <div className="lg:col-span-2 bg-white rounded-lg border border-slate-200 p-5 flex flex-col animate-slide-up hover:shadow-lg hover:border-slate-300 transition-all duration-300" style={{ animationDelay: '0.5s' }}>
-          <h3 className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-4">Attendance Trends</h3>
+        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6 flex flex-col animate-slide-up hover:shadow-lg hover:border-slate-300 transition-all duration-300" style={{ animationDelay: '0.5s' }}>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Attendance Trends</h3>
+            <span className="text-[11px] text-slate-400 font-medium">Historical Rate Trajectory</span>
+          </div>
           {chartData.length === 0 ? (
             <div className="flex-1 flex items-center justify-center py-12">
-              <p className="text-[10px] text-slate-600 font-mono uppercase">No data for selected filters</p>
+              <p className="text-xs text-slate-400 font-mono uppercase">No data for selected filters</p>
             </div>
           ) : (
-            <div className="flex-1 h-64 min-h-[200px]">
+            <div className="flex-1 h-64 min-h-[220px]">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 5, right: 0, left: -20, bottom: 0 }}>
+                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorRateReport" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#081637" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#081637" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#081637" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#081637" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontFamily: 'monospace' }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontFamily: 'monospace' }} domain={[50, 100]} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b', fontFamily: 'Inter, sans-serif' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b', fontFamily: 'Inter, sans-serif' }} domain={[50, 100]} />
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#0f172a', borderRadius: '4px', border: '1px solid #1e293b', padding: '8px' }}
-                    itemStyle={{ color: '#f8fafc', fontWeight: 600, fontSize: '12px' }}
-                    labelStyle={{ color: '#94a3b8', fontSize: '10px', textTransform: 'uppercase' as const }}
+                    contentStyle={{ backgroundColor: '#081637', borderRadius: '8px', border: 'none', padding: '10px 14px', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.2)' }}
+                    itemStyle={{ color: '#F8FAFC', fontWeight: 600, fontSize: '12px' }}
+                    labelStyle={{ color: '#94A3B8', fontSize: '11px', textTransform: 'uppercase', marginBottom: '4px' }}
                     formatter={(value: number, name: string) => {
-                      if (name === 'rate') return [`${value}%`, 'Attendance'];
+                      if (name === 'rate') return [`${value}%`, 'Attendance Rate'];
                       return [value, name];
                     }}
                   />
-                  <Area type="monotone" dataKey="rate" stroke="#081637" strokeWidth={2} fillOpacity={1} fill="url(#colorRateReport)" animationDuration={1000} />
+                  <Area type="monotone" dataKey="rate" stroke="#081637" strokeWidth={2.5} fillOpacity={1} fill="url(#colorRateReport)" animationDuration={800} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -243,54 +256,62 @@ export default function Reports() {
         </div>
 
         {/* Verification Integrity */}
-        <div className="bg-white rounded-lg border border-slate-200 p-5 flex flex-col animate-slide-up hover:shadow-lg hover:border-slate-300 transition-all duration-300" style={{ animationDelay: '0.6s' }}>
-          <h3 className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-6">Verification Integrity</h3>
-          <div className="space-y-5 flex-1">
+        <div className="bg-white rounded-xl border border-slate-200 p-6 flex flex-col animate-slide-up hover:shadow-lg hover:border-slate-300 transition-all duration-300" style={{ animationDelay: '0.6s' }}>
+          <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-5">Verification Integrity</h3>
+          <div className="space-y-4 flex-1">
             <div className="group">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-mono text-slate-600 uppercase flex items-center gap-1.5 group-hover:text-slate-900 transition-colors">
-                  <span className="material-symbols-outlined text-[12px] text-emerald-400 group-hover:scale-110 transition-transform">qr_code_2</span>
-                  QR + GPS
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-medium text-slate-600 flex items-center gap-1.5 group-hover:text-slate-900 transition-colors">
+                  <span className="material-symbols-outlined text-[14px] text-emerald-600">qr_code_2</span>
+                  QR + GPS Verified
                 </span>
-                <span className="text-xs font-bold text-emerald-400 group-hover:scale-110 transition-transform">{avgGps}%</span>
+                <span className="text-xs font-bold text-emerald-700 font-mono">{avgGps}%</span>
               </div>
-              <div className="h-2 bg-slate-100 rounded-full overflow-hidden group-hover:h-2.5 transition-all duration-300">
-                <div className="h-full bg-emerald-500 rounded-full transition-all duration-700 shadow-[0_0_6px_rgba(16,185,129,0.3)]" style={{ width: `${avgGps}%` }} />
+              <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div className="h-full bg-emerald-500 rounded-full transition-all duration-700" style={{ width: `${avgGps}%` }} />
               </div>
             </div>
             <div className="group">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-mono text-slate-600 uppercase flex items-center gap-1.5 group-hover:text-slate-900 transition-colors">
-                  <span className="material-symbols-outlined text-[12px] text-primary group-hover:scale-110 transition-transform">verified</span>
-                  All Verified
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-medium text-slate-600 flex items-center gap-1.5 group-hover:text-slate-900 transition-colors">
+                  <span className="material-symbols-outlined text-[14px] text-blue-600">verified</span>
+                  Session Integrity
                 </span>
-                <span className="text-xs font-bold text-primary group-hover:scale-110 transition-transform">100%</span>
+                <span className="text-xs font-bold text-slate-900 font-mono">100%</span>
               </div>
-              <div className="h-2 bg-slate-100 rounded-full overflow-hidden group-hover:h-2.5 transition-all duration-300">
-                <div className="h-full bg-primary rounded-full transition-all duration-700" style={{ width: '100%' }} />
+              <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                <div className="h-full bg-blue-600 rounded-full transition-all duration-700" style={{ width: '100%' }} />
               </div>
             </div>
             <div className="group">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-mono text-slate-600 uppercase flex items-center gap-1.5 group-hover:text-slate-900 transition-colors">
-                  <span className="material-symbols-outlined text-[12px] text-amber-400 group-hover:scale-110 transition-transform">gps_fixed</span>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-medium text-slate-600 flex items-center gap-1.5 group-hover:text-slate-900 transition-colors">
+                  <span className="material-symbols-outlined text-[14px] text-amber-500">gps_fixed</span>
                   Geofence Pass
                 </span>
-                <span className="text-xs font-bold text-amber-400 group-hover:scale-110 transition-transform">{Math.min(avgGps + 2, 100)}%</span>
+                <span className="text-xs font-bold text-amber-700 font-mono">{Math.min(avgGps + 2, 100)}%</span>
               </div>
-              <div className="h-2 bg-slate-100 rounded-full overflow-hidden group-hover:h-2.5 transition-all duration-300">
+              <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                 <div className="h-full bg-amber-500 rounded-full transition-all duration-700" style={{ width: `${Math.min(avgGps + 2, 100)}%` }} />
               </div>
             </div>
           </div>
 
-          <div className="mt-auto pt-5">
-            <div className={`p-3 rounded border flex gap-3 hover:shadow-md transition-all duration-300 ${avgGps >= 90 ? 'bg-emerald-500/10 border-emerald-500/20' : avgGps >= 80 ? 'bg-amber-500/10 border-amber-500/20' : 'bg-red-500/10 border-red-500/20'}`}>
-              <span className={`material-symbols-outlined text-[16px] shrink-0 mt-0.5 ${avgGps >= 90 ? 'text-emerald-400' : avgGps >= 80 ? 'text-amber-400' : 'text-red-400'}`}>
+          <div className="mt-auto pt-4">
+            <div className={`p-3 rounded-lg border flex gap-2.5 items-start ${
+              avgGps >= 90 
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-900' 
+                : avgGps >= 80 
+                ? 'bg-amber-50 border-amber-200 text-amber-900' 
+                : 'bg-red-50 border-red-200 text-red-900'
+            }`}>
+              <span className={`material-symbols-outlined text-[18px] shrink-0 ${
+                avgGps >= 90 ? 'text-emerald-600' : avgGps >= 80 ? 'text-amber-600' : 'text-red-600'
+              }`}>
                 {avgGps >= 90 ? 'check_circle' : avgGps >= 80 ? 'warning' : 'error'}
               </span>
-              <p className={`text-[10px] leading-relaxed font-mono uppercase ${avgGps >= 90 ? 'text-emerald-300' : avgGps >= 80 ? 'text-amber-300' : 'text-red-300'}`}>
-                Verification rate is {avgGps >= 90 ? 'excellent' : avgGps >= 80 ? 'acceptable' : 'below threshold'}. {avgGps >= 90 ? 'All sessions maintain high integrity.' : 'Review flagged sessions for anomalies.'}
+              <p className="text-[11px] leading-relaxed font-medium">
+                Verification rate is {avgGps >= 90 ? 'excellent' : avgGps >= 80 ? 'acceptable' : 'below threshold'}. {avgGps >= 90 ? 'All recorded sessions meet the institutional compliance standards.' : 'Review flagged sessions for anomalies.'}
               </p>
             </div>
           </div>
@@ -298,19 +319,22 @@ export default function Reports() {
       </div>
 
       {/* Course Performance Table */}
-      <div className="bg-white rounded-lg border border-slate-200 overflow-hidden animate-slide-up hover:shadow-lg hover:border-slate-300 transition-all duration-300" style={{ animationDelay: '0.7s' }}>
-        <div className="bg-primary px-5 py-4 flex items-center justify-between">
-          <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">Course Performance</h3>
-          <span className="text-[10px] text-white/80 font-mono">{coursePerformance.length} courses</span>
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden animate-slide-up hover:shadow-lg hover:border-slate-300 transition-all duration-300" style={{ animationDelay: '0.7s' }}>
+        <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+          <div>
+            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Course Performance</h3>
+            <p className="text-[10px] text-slate-500 mt-0.5">Click any course row to view full session details</p>
+          </div>
+          <span className="text-xs text-slate-600 font-semibold px-2.5 py-1 bg-white border border-slate-200 rounded-lg">{coursePerformance.length} courses</span>
         </div>
 
         {coursePerformance.length === 0 ? (
           <div className="py-16 text-center">
-            <span className="material-symbols-outlined text-[24px] text-slate-600 mb-2 block">school</span>
-            <p className="text-[10px] text-slate-600 font-mono uppercase">No course data for selected filters</p>
+            <span className="material-symbols-outlined text-[28px] text-slate-300 mb-2 block">school</span>
+            <p className="text-xs text-slate-400 font-medium">No course data found for selected filters</p>
           </div>
         ) : (
-          <div className="divide-y divide-slate-800/50">
+          <div className="divide-y divide-slate-100">
             {coursePerformance.map((report, idx) => {
               const sparkColor = report.avgRate >= 85 ? '#10b981' : report.avgRate >= 75 ? '#f59e0b' : '#ef4444';
               const isAtRisk = report.avgRate < 75;
@@ -318,29 +342,29 @@ export default function Reports() {
                 <button
                   key={report.code}
                   onClick={() => report.courseId && navigate(`/courses/${report.courseId}`)}
-                  className="w-full px-5 py-4 flex items-center gap-4 hover:bg-primary/5 transition-all duration-200 group cursor-pointer text-left animate-slide-up"
+                  className="w-full px-6 py-4 flex items-center gap-4 hover:bg-slate-50/80 transition-all duration-150 group cursor-pointer text-left animate-slide-up"
                   style={{ animationDelay: `${idx * 0.05 + 0.75}s` }}
                 >
-                  <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
-                    <span className="material-symbols-outlined text-[18px] text-primary">school</span>
+                  <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200 group-hover:scale-105 group-hover:bg-blue-50 group-hover:border-blue-200 transition-all duration-200">
+                    <span className="material-symbols-outlined text-[20px] text-slate-700 group-hover:text-blue-600 transition-colors">school</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h4 className="text-xs font-bold text-slate-900 uppercase">{report.code}</h4>
+                      <h4 className="text-sm font-bold text-slate-900">{report.code}</h4>
                       {isAtRisk ? (
-                        <span className="px-1.5 py-0.5 bg-red-500/10 text-red-400 text-[9px] font-bold uppercase rounded border border-red-500/20 flex items-center gap-1 hover:scale-105 transition-transform">
-                          <span className="material-symbols-outlined text-[9px]">warning</span>
+                        <span className="px-2 py-0.5 bg-red-50 text-red-700 text-[10px] font-bold uppercase rounded-md border border-red-200 flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[10px]">warning</span>
                           At Risk
                         </span>
                       ) : (
-                        <span className="px-1.5 py-0.5 bg-emerald-500/10 text-emerald-400 text-[9px] font-bold uppercase rounded border border-emerald-500/20 hover:scale-105 transition-transform">Healthy</span>
+                        <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase rounded-md border border-emerald-200">Healthy</span>
                       )}
                     </div>
-                    <p className="text-[10px] text-slate-600 font-mono mt-0.5 truncate">{report.name}</p>
+                    <p className="text-xs text-slate-500 mt-0.5 truncate">{report.name}</p>
                   </div>
 
                   {/* Mini sparkline */}
-                  <div className="hidden sm:block group-hover:scale-105 transition-transform">
+                  <div className="hidden sm:block">
                     {report.sparkData.length >= 2 && (() => {
                       const data = report.sparkData;
                       const max = Math.max(...data), min = Math.min(...data);
@@ -348,7 +372,7 @@ export default function Reports() {
                       const pts = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - min) / r) * (h - 4) - 2}`).join(' ');
                       return (
                         <svg width={w} height={h} className="shrink-0">
-                          <polyline points={pts} fill="none" stroke={sparkColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          <polyline points={pts} fill="none" stroke={sparkColor} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       );
                     })()}
@@ -357,30 +381,30 @@ export default function Reports() {
                   {/* Trend */}
                   <div className="hidden sm:flex items-center shrink-0">
                     {report.trend > 0 ? (
-                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-1.5 py-0.5 rounded border border-emerald-400/20 flex items-center gap-0.5 hover:scale-105 transition-transform">
-                        <span className="material-symbols-outlined text-[10px]">trending_up</span>
+                      <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 flex items-center gap-0.5">
+                        <span className="material-symbols-outlined text-[12px]">trending_up</span>
                         +{report.trend}%
                       </span>
                     ) : report.trend < 0 ? (
-                      <span className="text-[10px] font-bold text-red-400 bg-red-400/10 px-1.5 py-0.5 rounded border border-red-400/20 flex items-center gap-0.5 hover:scale-105 transition-transform">
-                        <span className="material-symbols-outlined text-[10px]">trending_down</span>
+                      <span className="text-xs font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded-md border border-red-200 flex items-center gap-0.5">
+                        <span className="material-symbols-outlined text-[12px]">trending_down</span>
                         {report.trend}%
                       </span>
                     ) : (
-                      <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-300 flex items-center gap-0.5 hover:scale-105 transition-transform">
-                        <span className="material-symbols-outlined text-[10px]">trending_flat</span>
+                      <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200 flex items-center gap-0.5">
+                        <span className="material-symbols-outlined text-[12px]">trending_flat</span>
                         0%
                       </span>
                     )}
                   </div>
 
-                  <div className="text-right shrink-0">
-                    <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Rate</p>
-                    <p className="text-2xl font-extrabold text-slate-900 tabular-nums">{report.avgRate}%</p>
-                    <p className="text-[10px] text-slate-600 font-mono">{report.sessions} sessions</p>
+                  <div className="text-right shrink-0 min-w-[70px]">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Rate</p>
+                    <p className="text-xl font-extrabold text-slate-900 tabular-nums font-mono">{report.avgRate}%</p>
+                    <p className="text-[10px] text-slate-500">{report.sessions} sessions</p>
                   </div>
 
-                  <span className="material-symbols-outlined text-[18px] text-slate-600 group-hover:text-slate-900 group-hover:translate-x-1 transition-all shrink-0">chevron_right</span>
+                  <span className="material-symbols-outlined text-[18px] text-slate-400 group-hover:text-slate-700 group-hover:translate-x-1 transition-all shrink-0">chevron_right</span>
                 </button>
               );
             })}
@@ -390,35 +414,39 @@ export default function Reports() {
 
       {/* Flagged Students */}
       {flaggedStudents.length > 0 && (
-        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden animate-slide-up hover:shadow-lg hover:border-slate-300 transition-all duration-300" style={{ animationDelay: '0.9s' }}>
-          <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden animate-slide-up hover:shadow-lg hover:border-slate-300 transition-all duration-300" style={{ animationDelay: '0.9s' }}>
+          <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[16px] text-red-400 animate-pulse">flag</span>
-              <h3 className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Flagged Students</h3>
+              <span className="material-symbols-outlined text-[18px] text-red-500 animate-pulse">flag</span>
+              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Flagged Students</h3>
             </div>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20 font-bold hover:scale-105 transition-transform">
+            <span className="text-xs font-mono px-2.5 py-1 rounded-md bg-red-50 text-red-700 border border-red-200 font-bold">
               {flaggedStudents.length} below 75%
             </span>
           </div>
-          <div className="divide-y divide-slate-800/50">
+          <div className="divide-y divide-slate-100">
             {flaggedStudents.map((student, i) => {
-              const severity = student.rate < 60 ? 'red' : 'amber';
+              const isCritical = student.rate < 60;
               return (
-                <div key={`${student.indexNumber}-${student.course}-${i}`} className="px-5 py-3.5 flex items-center gap-4 hover:bg-primary/5 transition-all duration-200 animate-slide-up" style={{ animationDelay: `${i * 0.03 + 0.95}s` }}>
-                  <div className={`w-9 h-9 rounded-full bg-${severity}-500/10 border border-${severity}-500/20 flex items-center justify-center text-${severity}-400 font-bold text-[10px] shrink-0 hover:scale-110 transition-transform duration-200`}>
+                <div key={`${student.indexNumber}-${student.course}-${i}`} className="px-6 py-3.5 flex items-center gap-4 hover:bg-slate-50/80 transition-all duration-150 animate-slide-up" style={{ animationDelay: `${i * 0.03 + 0.95}s` }}>
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 border ${
+                    isCritical 
+                      ? 'bg-red-100 border-red-200 text-red-700' 
+                      : 'bg-amber-100 border-amber-200 text-amber-700'
+                  }`}>
                     {student.avatarInitials}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-bold text-slate-900">{student.name}</p>
-                    <p className="text-[10px] text-slate-600 font-mono mt-0.5">{student.indexNumber}</p>
+                    <p className="text-[11px] text-slate-500 font-mono mt-0.5">{student.indexNumber}</p>
                   </div>
-                  <span className="text-[10px] font-mono font-bold text-primary bg-primary/10 border border-primary/20 px-1.5 py-0.5 rounded shrink-0 hover:scale-105 transition-transform">
+                  <span className="text-xs font-mono font-bold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded shrink-0">
                     {student.course}
                   </span>
                   <div className="text-right shrink-0">
-                    <p className={`text-sm font-bold tabular-nums text-${severity}-400`}>{student.rate}%</p>
-                    <p className={`text-[9px] font-bold uppercase text-${severity}-400/70`}>
-                      {severity === 'red' ? 'Critical' : 'Warning'}
+                    <p className={`text-sm font-bold tabular-nums font-mono ${isCritical ? 'text-red-600' : 'text-amber-600'}`}>{student.rate}%</p>
+                    <p className={`text-[10px] font-bold uppercase ${isCritical ? 'text-red-500' : 'text-amber-500'}`}>
+                      {isCritical ? 'Critical' : 'Warning'}
                     </p>
                   </div>
                 </div>

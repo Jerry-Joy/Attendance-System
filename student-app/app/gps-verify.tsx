@@ -3,7 +3,8 @@ import { View, Text, Pressable, Animated, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import {
-  Navigation, MapPin, Check, CircleSlash, ScanLine, AlertTriangle, Target
+  Navigation, MapPin, Check, CircleSlash, ScanLine, AlertTriangle, Target,
+  School, UserPlus, CheckCircle2, ArrowRight
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
@@ -18,6 +19,14 @@ import {
   validateVenueGPS,
   getGeofenceStatusMessage
 } from '@/src/utils/geofence';
+
+type VerificationErrorType = 
+  | 'NOT_ENROLLED' 
+  | 'OUT_OF_RANGE' 
+  | 'ALREADY_MARKED' 
+  | 'PERMISSION_DENIED' 
+  | 'QR_EXPIRED' 
+  | 'GENERIC';
 
 export default function GPSVerify() {
   const router = useRouter();
@@ -34,9 +43,9 @@ export default function GPSVerify() {
 
   const token = params.token || '';
   const courseId = params.courseId || '';
-  const courseCode = params.courseCode || 'CSCI 301';
-  const courseName = params.courseName || 'Software Engineering';
-  const venue = params.venue || 'Main Auditorium';
+  const courseCode = params.courseCode || 'Course';
+  const courseName = params.courseName || 'Lecture';
+  const venue = params.venue || 'Classroom Venue';
 
   // Venue Coordinates
   const venueLat = params.lat ? parseFloat(params.lat) : undefined;
@@ -49,6 +58,7 @@ export default function GPSVerify() {
   const [distance, setDistance] = useState<number | null>(null);
   const [effectiveRadius, setEffectiveRadius] = useState<number | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [errorType, setErrorType] = useState<VerificationErrorType | null>(null);
   const [isMarking, setIsMarking] = useState(false);
 
   // Radar pulse animations
@@ -107,6 +117,7 @@ export default function GPSVerify() {
         });
 
         if (!venueValidation.valid) {
+          setErrorType('GENERIC');
           setErrorMsg(venueValidation.error || 'Invalid venue GPS data');
           return;
         }
@@ -119,6 +130,7 @@ export default function GPSVerify() {
         // Request permissions
         let { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
+          setErrorType('PERMISSION_DENIED');
           setErrorMsg('Location permission denied. Please enable location access to mark attendance.');
           return;
         }
@@ -184,17 +196,33 @@ export default function GPSVerify() {
             }, 1000);
           } catch (markError: any) {
             console.error('❌ Failed to mark attendance:', markError);
-            setErrorMsg(markError.message || 'Failed to mark attendance. Please try again.');
+            const msg = (markError.message || '').toLowerCase();
+            
+            if (msg.includes('not enrolled') || markError.status === 403) {
+              setErrorType('NOT_ENROLLED');
+              setErrorMsg(`You are not enrolled in ${courseCode}. You must join this course to record attendance.`);
+            } else if (msg.includes('already') || markError.status === 409) {
+              setErrorType('ALREADY_MARKED');
+              setErrorMsg('Attendance has already been marked for this session.');
+            } else if (msg.includes('expired') || msg.includes('invalid')) {
+              setErrorType('QR_EXPIRED');
+              setErrorMsg('The QR code token has expired or is invalid. Please scan the current code.');
+            } else {
+              setErrorType('GENERIC');
+              setErrorMsg(markError.message || 'Failed to record attendance. Please try again.');
+            }
           } finally {
             setIsMarking(false);
           }
         } else {
+          setErrorType('OUT_OF_RANGE');
           const statusMessage = getGeofenceStatusMessage(dist, effectiveRad);
           setErrorMsg(statusMessage);
         }
 
       } catch (error: any) {
         console.error('❌ GPS Verification Error:', error);
+        setErrorType('GENERIC');
         setErrorMsg(error.message || 'Could not verify your location. Please try again.');
       }
     };
@@ -208,14 +236,46 @@ export default function GPSVerify() {
     router.replace('/scanner');
   };
 
+  const handleJoinCourse = () => {
+    router.push({
+      pathname: '/join-course',
+      params: { initialCode: courseCode },
+    });
+  };
+
   const handleCancel = () => {
     router.replace('/(tabs)/home');
+  };
+
+  const handleViewHistory = () => {
+    router.replace('/(tabs)/history');
   };
 
   const progressWidth = progressAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ['0%', '100%'],
   });
+
+  const isLocationVerified = distance !== null && effectiveRadius !== null && isWithinGeofence(distance, effectiveRadius);
+
+  // Status Badge Logic
+  const getBadgeConfig = () => {
+    if (errorType === 'NOT_ENROLLED') {
+      return { label: 'NOT ENROLLED', bg: '#FEF3C7', text: '#D97706' };
+    }
+    if (errorType === 'ALREADY_MARKED') {
+      return { label: 'MARKED ✓', bg: '#ECFDF5', text: '#16A34A' };
+    }
+    if (errorType === 'OUT_OF_RANGE') {
+      return { label: 'OUT OF RANGE', bg: '#FEE2E2', text: '#DC2626' };
+    }
+    if (errorMsg) {
+      return { label: 'FAILED', bg: '#FEE2E2', text: '#DC2626' };
+    }
+    return { label: 'GEOFENCED', bg: '#ECFDF5', text: '#16A34A' };
+  };
+
+  const badgeConfig = getBadgeConfig();
 
   return (
     <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
@@ -233,19 +293,31 @@ export default function GPSVerify() {
                   height: 192,
                   borderRadius: 96,
                   borderWidth: 3,
-                  borderColor: '#F5B41C',
+                  borderColor: errorType === 'NOT_ENROLLED' ? '#F5B41C' : errorType === 'OUT_OF_RANGE' ? '#DC2626' : '#F5B41C',
                 },
               ]}
             />
           ))}
           <LinearGradient
-            colors={['#F5B41C', '#D49A15']}
+            colors={
+              errorType === 'NOT_ENROLLED'
+                ? ['#F5B41C', '#D49A15']
+                : errorType === 'OUT_OF_RANGE'
+                ? ['#DC2626', '#991B1B']
+                : ['#F5B41C', '#D49A15']
+            }
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.radarCenter}
           >
             <View className="w-20 h-20 bg-primary rounded-full items-center justify-center">
-              <Navigation size={36} color="#FFFFFF" fill="#FFFFFF" />
+              {errorType === 'NOT_ENROLLED' ? (
+                <School size={36} color="#FFFFFF" strokeWidth={2} />
+              ) : errorType === 'OUT_OF_RANGE' ? (
+                <AlertTriangle size={36} color="#FFFFFF" strokeWidth={2} />
+              ) : (
+                <Navigation size={36} color="#FFFFFF" fill="#FFFFFF" />
+              )}
             </View>
           </LinearGradient>
         </View>
@@ -253,10 +325,20 @@ export default function GPSVerify() {
         {/* Status Title */}
         <View className="text-center items-center mb-4">
           <Text className="text-2xl font-bold text-primary mb-1">
-            {errorMsg ? 'Verification Failed' : 'Verifying Location'}
+            {errorType === 'NOT_ENROLLED'
+              ? 'Enrollment Required'
+              : errorType === 'ALREADY_MARKED'
+              ? 'Attendance Already Recorded'
+              : errorType === 'OUT_OF_RANGE'
+              ? 'Outside Geofence'
+              : errorMsg
+              ? 'Verification Failed'
+              : 'Verifying Location'}
           </Text>
           <Text className="text-sm text-on-surface-variant text-center px-4">
-            {errorMsg || 'Please remain stationary while we confirm your geofence status.'}
+            {errorType === 'NOT_ENROLLED'
+              ? `You are not enrolled in ${courseCode}. Join the course to mark your attendance.`
+              : errorMsg || 'Please remain stationary while we confirm your geofence status.'}
           </Text>
         </View>
 
@@ -276,9 +358,9 @@ export default function GPSVerify() {
                 </View>
               </View>
             </View>
-            <View className="px-3 py-1.5 rounded-full" style={{ backgroundColor: errorMsg ? '#FEE2E2' : '#ECFDF5' }}>
-              <Text className="text-xs font-bold tracking-wider" style={{ color: errorMsg ? '#DC2626' : '#16A34A' }}>
-                {errorMsg ? 'OUT OF RANGE' : 'GEOFENCED'}
+            <View className="px-3 py-1.5 rounded-full" style={{ backgroundColor: badgeConfig.bg }}>
+              <Text className="text-xs font-bold tracking-wider" style={{ color: badgeConfig.text }}>
+                {badgeConfig.label}
               </Text>
             </View>
           </View>
@@ -312,20 +394,34 @@ export default function GPSVerify() {
 
           {/* Distance Display */}
           {distance !== null && (
-            <View className={`rounded-xl p-3 border-2 ${errorMsg ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'}`}>
+            <View
+              className={`rounded-xl p-3 border-2 ${
+                isLocationVerified
+                  ? 'bg-green-50 border-green-200'
+                  : 'bg-red-50 border-red-200'
+              }`}
+            >
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center gap-2">
-                  <View className={`w-8 h-8 rounded-full items-center justify-center ${errorMsg ? 'bg-red-100' : 'bg-green-100'}`}>
-                    <MapPin size={16} color={errorMsg ? '#DC2626' : '#16A34A'} strokeWidth={2.5} />
+                  <View
+                    className={`w-8 h-8 rounded-full items-center justify-center ${
+                      isLocationVerified ? 'bg-green-100' : 'bg-red-100'
+                    }`}
+                  >
+                    <MapPin size={16} color={isLocationVerified ? '#16A34A' : '#DC2626'} strokeWidth={2.5} />
                   </View>
                   <View>
                     <Text className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Distance</Text>
-                    <Text className={`text-lg font-bold ${errorMsg ? 'text-red-700' : 'text-green-700'}`}>
+                    <Text
+                      className={`text-lg font-bold ${
+                        isLocationVerified ? 'text-green-700' : 'text-red-700'
+                      }`}
+                    >
                       {formatDistance(distance)}
                     </Text>
                   </View>
                 </View>
-                {!errorMsg && effectiveRadius && (
+                {isLocationVerified && (
                   <View className="bg-green-600 px-3 py-1.5 rounded-full">
                     <Text className="text-xs font-bold text-white">WITHIN RANGE</Text>
                   </View>
@@ -335,8 +431,85 @@ export default function GPSVerify() {
           )}
         </View>
 
-        {/* Verification Progress with Dots */}
-        {errorMsg ? (
+        {/* Action / Error Cards */}
+        {errorType === 'NOT_ENROLLED' ? (
+          <View className="w-full gap-3">
+            <View className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-4" style={styles.amberCard}>
+              <View className="flex-row items-start gap-3">
+                <View className="w-10 h-10 rounded-full bg-amber-100 items-center justify-center">
+                  <School size={20} color="#D97706" strokeWidth={2.5} />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-sm font-bold text-amber-900 mb-1">
+                    Not Enrolled in {courseCode}
+                  </Text>
+                  <Text className="text-xs text-amber-800 leading-relaxed font-medium">
+                    Your location was verified ({distance}m), but you are not enrolled in this course. Join {courseCode} to mark attendance.
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            <View className="flex-row gap-3">
+              <Pressable onPress={handleJoinCourse} className="flex-1 active:opacity-90">
+                <LinearGradient
+                  colors={['#F5B41C', '#D49A15']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={[styles.button, { height: 54, borderRadius: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }]}
+                >
+                  <UserPlus size={20} color="#081637" strokeWidth={2.5} />
+                  <Text className="text-primary font-bold text-base">Join {courseCode} Now</Text>
+                </LinearGradient>
+              </Pressable>
+              <Pressable
+                onPress={handleCancel}
+                className="px-6 border-2 border-outline rounded-xl items-center justify-center active:opacity-70"
+                style={{ height: 54 }}
+              >
+                <Text className="text-on-surface font-bold text-base">Cancel</Text>
+              </Pressable>
+            </View>
+          </View>
+        ) : errorType === 'ALREADY_MARKED' ? (
+          <View className="w-full gap-3">
+            <View className="bg-green-50 border-2 border-green-200 rounded-2xl p-4">
+              <View className="flex-row items-start gap-3">
+                <View className="w-10 h-10 rounded-full bg-green-100 items-center justify-center">
+                  <CheckCircle2 size={20} color="#16A34A" strokeWidth={2.5} />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-sm font-bold text-green-900 mb-1">
+                    Attendance Already Marked
+                  </Text>
+                  <Text className="text-xs text-green-800 leading-relaxed">
+                    You have already recorded your presence for this session.
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            <View className="flex-row gap-3">
+              <Pressable onPress={handleViewHistory} className="flex-1 active:opacity-90">
+                <LinearGradient
+                  colors={['#081637', '#0A1F4D']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={[styles.button, { height: 54, borderRadius: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }]}
+                >
+                  <Text className="text-white font-bold text-base">View History</Text>
+                </LinearGradient>
+              </Pressable>
+              <Pressable
+                onPress={handleCancel}
+                className="px-6 border-2 border-outline rounded-xl items-center justify-center active:opacity-70"
+                style={{ height: 54 }}
+              >
+                <Text className="text-on-surface font-bold text-base">Home</Text>
+              </Pressable>
+            </View>
+          </View>
+        ) : errorMsg ? (
           <View className="w-full gap-3">
             <View className="bg-red-50 border-2 border-red-200 rounded-2xl p-4" style={styles.errorCard}>
               <View className="flex-row items-start gap-3">
@@ -344,7 +517,9 @@ export default function GPSVerify() {
                   <AlertTriangle size={20} color="#DC2626" strokeWidth={2.5} />
                 </View>
                 <View className="flex-1">
-                  <Text className="text-sm font-bold text-red-900 mb-1">Location Verification Failed</Text>
+                  <Text className="text-sm font-bold text-red-900 mb-1">
+                    {errorType === 'OUT_OF_RANGE' ? 'Out of Geofence Range' : 'Verification Failed'}
+                  </Text>
                   <Text className="text-sm text-red-700 leading-5">{errorMsg}</Text>
                 </View>
               </View>
@@ -505,6 +680,13 @@ const styles = StyleSheet.create({
   },
   errorCard: {
     shadowColor: '#DC2626',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  amberCard: {
+    shadowColor: '#D97706',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,

@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from './AuthContext';
 
 export type NotificationType = 
   | 'session_start' 
@@ -35,41 +36,69 @@ interface NotificationContextType {
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
-const STORAGE_KEY = '@notifications';
+const LEGACY_STORAGE_KEY = '@notifications';
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
+  const { student, isAuthenticated } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  // Load notifications from storage on mount
+  // User-scoped storage key
+  const userId = student?.id;
+  const storageKey = userId ? `@notifications_${userId}` : null;
+
+  // Clean legacy shared storage key on startup
   useEffect(() => {
-    loadNotifications();
+    AsyncStorage.removeItem(LEGACY_STORAGE_KEY).catch(() => {});
   }, []);
 
-  // Save notifications to storage whenever they change
+  // Load user's notifications when student logs in or switches
   useEffect(() => {
-    saveNotifications();
-  }, [notifications]);
+    let isMounted = true;
 
-  const loadNotifications = async () => {
-    try {
-      const stored = await AsyncStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        setNotifications(JSON.parse(stored));
+    const loadUserNotifications = async () => {
+      if (!isAuthenticated || !storageKey) {
+        if (isMounted) setNotifications([]);
+        return;
       }
-    } catch (error) {
-      console.error('Failed to load notifications:', error);
-    }
-  };
 
-  const saveNotifications = async () => {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
-    } catch (error) {
-      console.error('Failed to save notifications:', error);
-    }
-  };
+      try {
+        const stored = await AsyncStorage.getItem(storageKey);
+        if (isMounted) {
+          if (stored) {
+            setNotifications(JSON.parse(stored));
+          } else {
+            setNotifications([]);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load user notifications:', error);
+        if (isMounted) setNotifications([]);
+      }
+    };
 
-  const addNotification = (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => {
+    loadUserNotifications();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isAuthenticated, storageKey]);
+
+  // Save notifications to user-scoped storage whenever they change
+  useEffect(() => {
+    if (!isAuthenticated || !storageKey) return;
+
+    const saveUserNotifications = async () => {
+      try {
+        await AsyncStorage.setItem(storageKey, JSON.stringify(notifications));
+      } catch (error) {
+        console.error('Failed to save user notifications:', error);
+      }
+    };
+
+    saveUserNotifications();
+  }, [notifications, isAuthenticated, storageKey]);
+
+  const addNotification = useCallback((notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => {
     const newNotification: Notification = {
       ...notification,
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
@@ -78,25 +107,28 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     };
 
     setNotifications(prev => [newNotification, ...prev]);
-  };
+  }, []);
 
-  const markAsRead = (id: string) => {
+  const markAsRead = useCallback((id: string) => {
     setNotifications(prev =>
       prev.map(notif => (notif.id === id ? { ...notif, read: true } : notif))
     );
-  };
+  }, []);
 
-  const markAllAsRead = () => {
+  const markAllAsRead = useCallback(() => {
     setNotifications(prev => prev.map(notif => ({ ...notif, read: true })));
-  };
+  }, []);
 
-  const clearAll = () => {
+  const clearAll = useCallback(() => {
     setNotifications([]);
-  };
+    if (storageKey) {
+      AsyncStorage.removeItem(storageKey).catch(() => {});
+    }
+  }, [storageKey]);
 
-  const deleteNotification = (id: string) => {
+  const deleteNotification = useCallback((id: string) => {
     setNotifications(prev => prev.filter(notif => notif.id !== id));
-  };
+  }, []);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 

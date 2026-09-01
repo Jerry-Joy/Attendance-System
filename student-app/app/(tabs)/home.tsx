@@ -73,7 +73,7 @@ export default function Home() {
         style={[styles.header, { paddingTop: insets.top + 12 }]}
       >
         {/* Top Bar */}
-        <View className="flex-row justify-between items-center px-5 pb-3">
+        <View className="flex-row justify-between items-center px-5 pb-3.5">
           <View className="flex-row items-center gap-3">
             <View className="w-9 h-9 rounded-full bg-white/10 items-center justify-center border border-secondary/30">
               <Image source={require('@/assets/images/gctu-crest.png')} style={{ width: 20, height: 20 }} resizeMode="contain" />
@@ -100,39 +100,40 @@ export default function Home() {
             )}
           </Pressable>
         </View>
-
-        {/* Compact Stats Bar */}
-        <View className="flex-row mx-5 mb-4 bg-white/10 backdrop-blur-lg rounded-xl p-3 border border-white/20" style={styles.statsBar}>
-          <View className="flex-1 items-center">
-            <Text className="text-white/60 text-xs font-medium">Courses</Text>
-            <Text className="text-white text-xl font-bold mt-0.5">{courses.length}</Text>
-          </View>
-          <View className="w-px bg-white/20" />
-          <View className="flex-1 items-center">
-            <Text className="text-white/60 text-xs font-medium">Live Now</Text>
-            <View className="flex-row items-center gap-1.5 mt-0.5">
-              <Animated.View style={{ opacity: pulseAnim }}>
-                <View className="w-1.5 h-1.5 rounded-full bg-secondary" />
-              </Animated.View>
-              <Text className="text-secondary text-xl font-bold">{liveSessions.length}</Text>
-            </View>
-          </View>
-        </View>
       </LinearGradient>
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 24, gap: 20 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 140, gap: 16 }}
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl 
             refreshing={refreshing} 
             onRefresh={onRefresh} 
             colors={['#081637']} 
             tintColor="#081637"
-            progressViewOffset={-20}
+            progressViewOffset={10}
           />
         }
       >
+        {/* Compact Stats Bar */}
+        <View className="flex-row bg-white rounded-2xl p-4 border border-slate-100 shadow-sm" style={styles.statsCard}>
+          <View className="flex-1 items-center">
+            <Text className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Enrolled Courses</Text>
+            <Text className="text-primary text-2xl font-bold mt-0.5">{courses.length}</Text>
+          </View>
+          <View className="w-px bg-slate-200" />
+          <View className="flex-1 items-center">
+            <Text className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Live Now</Text>
+            <View className="flex-row items-center gap-1.5 mt-0.5">
+              <Animated.View style={{ opacity: pulseAnim }}>
+                <View className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+              </Animated.View>
+              <Text className="text-emerald-600 text-2xl font-bold">{liveSessions.length}</Text>
+            </View>
+          </View>
+        </View>
+
         {/* Quick Action - Scan QR */}
         <Pressable
           onPress={() => router.push('/scanner')}
@@ -316,12 +317,12 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 8,
   },
-  statsBar: {
+  statsCard: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
   },
   notificationButton: {
     shadowColor: '#000',

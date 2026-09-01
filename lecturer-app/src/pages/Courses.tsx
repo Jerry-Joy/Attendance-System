@@ -4,6 +4,24 @@ import { useData } from "../context/DataContext";
 import { useAuth } from "../context/AuthContext";
 import { api, mapCourse } from "../lib/api";
 import type { Course } from "../types";
+import { CustomSelect } from "../components/CustomSelect";
+import { TimeSelect, timeToMinutes, minutesToTimeStr } from "../components/TimeSelect";
+
+const LEVEL_OPTIONS = [
+  { value: 'Level 100', label: 'Level 100', badge: '1st Year' },
+  { value: 'Level 200', label: 'Level 200', badge: '2nd Year' },
+  { value: 'Level 300', label: 'Level 300', badge: '3rd Year' },
+  { value: 'Level 400', label: 'Level 400', badge: 'Final Year' },
+];
+
+const DAY_OPTIONS = [
+  { value: 'Monday', label: 'Monday' },
+  { value: 'Tuesday', label: 'Tuesday' },
+  { value: 'Wednesday', label: 'Wednesday' },
+  { value: 'Thursday', label: 'Thursday' },
+  { value: 'Friday', label: 'Friday' },
+  { value: 'Saturday', label: 'Saturday' },
+];
 
 export default function Courses() {
   const navigate = useNavigate();
@@ -92,8 +110,20 @@ export default function Courses() {
     setOpenMenu(null);
   };
 
+  const handleEditStartTimeChange = (newStart: string) => {
+    setEditStartTime(newStart);
+    if (newStart && editEndTime && timeToMinutes(editEndTime) <= timeToMinutes(newStart)) {
+      const adjusted = minutesToTimeStr(timeToMinutes(newStart) + 60);
+      setEditEndTime(adjusted);
+    }
+  };
+
   const handleSaveEdit = async () => {
     if (!editTarget || editCode.trim().length < 3 || editName.trim().length < 3) return;
+    if (editStartTime && editEndTime && timeToMinutes(editEndTime) <= timeToMinutes(editStartTime)) {
+      alert("End time must be after start time.");
+      return;
+    }
     try {
       const result = await api.updateCourse(editTarget.id, {
         courseCode: editCode.trim().toUpperCase(),
@@ -484,7 +514,7 @@ export default function Courses() {
 
             <div className="space-y-4">
               {/* Course Code and Level */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 relative focus-within:z-40">
                 <div>
                   <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2">
                     Course Code
@@ -499,24 +529,12 @@ export default function Courses() {
                   <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2">
                     Level
                   </label>
-                  <select 
-                    value={editLevel} 
-                    onChange={e => setEditLevel(e.target.value)} 
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F5B41C] transition-all appearance-none cursor-pointer"
-                    style={{ 
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23F5B41C' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
-                      backgroundPosition: 'right 0.5rem center',
-                      backgroundRepeat: 'no-repeat',
-                      backgroundSize: '1.5em 1.5em',
-                      paddingRight: '2.5rem'
-                    }}
-                  >
-                    <option value="">Select Level</option>
-                    <option value="Level 100">Level 100</option>
-                    <option value="Level 200">Level 200</option>
-                    <option value="Level 300">Level 300</option>
-                    <option value="Level 400">Level 400</option>
-                  </select>
+                  <CustomSelect
+                    value={editLevel}
+                    onChange={setEditLevel}
+                    options={LEVEL_OPTIONS}
+                    placeholder="Select Level"
+                  />
                 </div>
               </div>
 
@@ -549,7 +567,7 @@ export default function Courses() {
               </div>
 
               {/* Schedule Information */}
-              <div className="pt-2">
+              <div className="pt-2 relative focus-within:z-50">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                   <h3 className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Schedule</h3>
@@ -559,47 +577,32 @@ export default function Courses() {
                     <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2">
                       Day
                     </label>
-                    <select 
-                      value={editScheduleDay} 
-                      onChange={e => setEditScheduleDay(e.target.value)} 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F5B41C] focus:border-transparent transition-all appearance-none cursor-pointer"
-                      style={{ 
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23F5B41C' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E")`,
-                        backgroundPosition: 'right 0.5rem center',
-                        backgroundRepeat: 'no-repeat',
-                        backgroundSize: '1.5em 1.5em',
-                        paddingRight: '2.5rem'
-                      }}
-                    >
-                      <option value="">Select Day</option>
-                      <option value="Monday">Monday</option>
-                      <option value="Tuesday">Tuesday</option>
-                      <option value="Wednesday">Wednesday</option>
-                      <option value="Thursday">Thursday</option>
-                      <option value="Friday">Friday</option>
-                      <option value="Saturday">Saturday</option>
-                    </select>
+                    <CustomSelect
+                      value={editScheduleDay}
+                      onChange={setEditScheduleDay}
+                      options={DAY_OPTIONS}
+                      placeholder="Select Day"
+                    />
                   </div>
                   <div>
                     <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2">
                       Start Time
                     </label>
-                    <input 
-                      type="time"
-                      value={editStartTime} 
-                      onChange={e => setEditStartTime(e.target.value)} 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F5B41C] focus:border-transparent transition-all"
+                    <TimeSelect
+                      value={editStartTime}
+                      onChange={handleEditStartTimeChange}
+                      placeholder="Start Time"
                     />
                   </div>
                   <div>
                     <label className="block text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-2">
                       End Time
                     </label>
-                    <input 
-                      type="time"
-                      value={editEndTime} 
-                      onChange={e => setEditEndTime(e.target.value)} 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#F5B41C] focus:border-transparent transition-all"
+                    <TimeSelect
+                      value={editEndTime}
+                      onChange={setEditEndTime}
+                      minTime={editStartTime}
+                      placeholder="End Time"
                     />
                   </div>
                 </div>

@@ -1,6 +1,8 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useData } from "../context/DataContext";
+import { CustomSelect } from "../components/CustomSelect";
+import { Filter } from "lucide-react";
 
 const ROWS_PER_PAGE = 8;
 
@@ -116,7 +118,7 @@ export default function History() {
       </div>
 
       {/* Search + Filter Bar */}
-      <div className="flex flex-col sm:flex-row gap-3 animate-slide-up" style={{ animationDelay: '0.4s' }}>
+      <div className="flex flex-col sm:flex-row gap-3 relative z-30 animate-slide-up" style={{ animationDelay: '0.4s' }}>
         <div className="relative flex-1 group">
           <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-slate-400 group-focus-within:text-slate-600 transition-colors">search</span>
           <input 
@@ -127,19 +129,22 @@ export default function History() {
             className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-slate-400 focus:shadow-md transition-all duration-200"
           />
         </div>
-        <div className="relative group">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-slate-400 group-focus-within:text-slate-600 transition-colors">filter_alt</span>
-          <select 
+        <div className="w-full sm:w-72">
+          <CustomSelect 
             value={courseFilter} 
-            onChange={e => handleCourseFilterChange(e.target.value)} 
-            className="appearance-none pl-10 pr-10 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-slate-400 focus:shadow-md transition-all duration-200 cursor-pointer min-w-[200px]"
-          >
-            <option value="all">All Courses</option>
-            {courseOptions.map(opt => (
-              <option key={opt.code} value={opt.code}>{opt.code} — {opt.name}</option>
-            ))}
-          </select>
-          <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-slate-400 pointer-events-none group-focus-within:text-slate-600 transition-colors">expand_more</span>
+            onChange={handleCourseFilterChange} 
+            options={[
+              { value: 'all', label: 'All Courses' },
+              ...courseOptions.map(opt => ({
+                value: opt.code,
+                label: `${opt.code} — ${opt.name}`,
+                badge: opt.code
+              }))
+            ]}
+            icon={<Filter className="w-4 h-4" />}
+            placeholder="All Courses"
+            buttonClassName="py-3 bg-white rounded-xl text-sm"
+          />
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-import { Tabs, Redirect } from 'expo-router';
+import { Tabs, Redirect, useRouter } from 'expo-router';
 import { Home, ScanLine, History, User, LucideIcon } from 'lucide-react-native';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { View, ActivityIndicator, Platform, Text } from 'react-native';
@@ -71,6 +71,7 @@ function TabIcon({
 }
 
 export default function TabsLayout() {
+  const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -134,6 +135,12 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, focused }) => (
             <TabIcon Icon={ScanLine} color={color} focused={focused} theme="accent" label="Scan" />
           ),
+        }}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+            router.push('/scanner');
+          },
         }}
       />
       <Tabs.Screen

@@ -108,7 +108,8 @@ export default function HistoryTab() {
 
       <ScrollView
         className="flex-1 px-5"
-        contentContainerStyle={{ gap: 12, paddingBottom: 24 }}
+        contentContainerStyle={{ gap: 12, paddingTop: 8, paddingBottom: 140 }}
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl 
             refreshing={refreshing} 

@@ -1,53 +1,102 @@
-import { View, Text, Pressable, ScrollView, Animated, StyleSheet } from 'react-native';
+import { View, Text, Pressable, ScrollView, Animated, StyleSheet, Easing, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { QrCode, MapPin, CheckCircle, ArrowRight, Camera, Shield } from 'lucide-react-native';
+import { QrCode, MapPin, CheckCircle, ArrowRight, Camera, Shield, Sparkles, Focus } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useRef } from 'react';
+
+const VIEWFINDER_BOX_SIZE = 160;
 
 export default function ScanTab() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+
+  // Animation values
+  const sweepAnim = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
-  const scanLineAnim = useRef(new Animated.Value(0)).current;
+  const glowAnim = useRef(new Animated.Value(0.4)).current;
+  const cornerAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Pulse animation for the main icon
+    // 1. Smooth laser sweep up and down
     Animated.loop(
       Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.08,
-          duration: 1500,
+        Animated.timing(sweepAnim, {
+          toValue: 1,
+          duration: 2200,
+          easing: Easing.inOut(Easing.quad),
           useNativeDriver: true,
         }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 1500,
+        Animated.timing(sweepAnim, {
+          toValue: 0,
+          duration: 2200,
+          easing: Easing.inOut(Easing.quad),
           useNativeDriver: true,
         }),
       ])
     ).start();
 
-    // Scan line animation
+    // 2. Subtle pulse for the central emblem
     Animated.loop(
       Animated.sequence([
-        Animated.timing(scanLineAnim, {
-          toValue: 1,
-          duration: 2000,
+        Animated.timing(pulseAnim, {
+          toValue: 1.05,
+          duration: 1600,
+          easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
-        Animated.timing(scanLineAnim, {
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1600,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // 3. Ambient glow pulse
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnim, {
+          toValue: 0.9,
+          duration: 1800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(glowAnim, {
+          toValue: 0.4,
+          duration: 1800,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // 4. Subtle corner breathing
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(cornerAnim, {
+          toValue: 1,
+          duration: 1800,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(cornerAnim, {
           toValue: 0,
-          duration: 2000,
+          duration: 1800,
+          easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
         }),
       ])
     ).start();
   }, []);
 
-  const scanLineTranslateY = scanLineAnim.interpolate({
+  const laserTranslateY = sweepAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [-36, 36],
+    outputRange: [-VIEWFINDER_BOX_SIZE / 2 + 10, VIEWFINDER_BOX_SIZE / 2 - 10],
+  });
+
+  const cornerScale = cornerAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.04],
   });
 
   return (
@@ -57,10 +106,11 @@ export default function ScanTab() {
         colors={['#081637', '#0A1F4D']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={[styles.header, { paddingTop: insets.top + 16 }]}
+        style={[styles.header, { paddingTop: insets.top + 14 }]}
       >
-        <View className="items-center px-5 pb-5">
-          <Text className="text-2xl font-bold text-white tracking-tight mt-1">Mark Attendance</Text>
+        <View className="items-center px-5 pb-4">
+          <Text className="text-2xl font-bold text-white tracking-tight">Mark Attendance</Text>
+          <Text className="text-xs text-white/70 font-medium mt-0.5">Dynamic QR & GPS Verification</Text>
         </View>
       </LinearGradient>
 
@@ -68,81 +118,103 @@ export default function ScanTab() {
         className="flex-1" 
         contentContainerStyle={{ 
           paddingHorizontal: 20, 
-          paddingTop: 24,
-          paddingBottom: 100,
+          paddingTop: 20,
+          paddingBottom: 140,
           gap: 20,
         }}
+        showsVerticalScrollIndicator={false}
       >
-        {/* Animated QR Icon with scan line effect */}
-        <View className="items-center">
-          <Animated.View 
-            style={[
-              styles.qrContainer,
-              { transform: [{ scale: pulseAnim }] }
-            ]}
-          >
-            <LinearGradient
-              colors={['#081637', '#0A1F4D']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.qrGradient}
-            >
-              <View className="relative" style={{ width: 72, height: 72 }}>
-                <QrCode size={72} strokeWidth={2} color="#FFFFFF" />
-                {/* Animated scan line effect */}
-                <Animated.View 
-                  style={{
-                    position: 'absolute',
-                    left: -10,
-                    right: -10,
-                    height: 2,
-                    backgroundColor: '#F5B41C',
-                    top: '50%',
-                    transform: [{ translateY: scanLineTranslateY }],
-                    shadowColor: '#F5B41C',
-                    shadowOffset: { width: 0, height: 0 },
-                    shadowOpacity: 1,
-                    shadowRadius: 10,
-                    elevation: 5,
-                  }}
-                >
-                  {/* Glow effect */}
-                  <View 
-                    style={{
-                      position: 'absolute',
-                      left: 0,
-                      right: 0,
-                      height: 8,
-                      top: -3,
-                      backgroundColor: '#F5B41C',
-                      opacity: 0.3,
-                      shadowColor: '#F5B41C',
-                      shadowOffset: { width: 0, height: 0 },
-                      shadowOpacity: 0.8,
-                      shadowRadius: 12,
-                    }}
-                  />
-                </Animated.View>
-              </View>
-            </LinearGradient>
-            
-            {/* Pulsing ring */}
-            <View style={styles.pulseRing1} />
-            <View style={styles.pulseRing2} />
-          </Animated.View>
-        </View>
+        {/* Futuristic Optic HUD Viewfinder Card (Tappable) */}
+        <Pressable
+          onPress={() => router.push('/scanner')}
+          className="active:opacity-95"
+        >
+          <View className="bg-slate-900 rounded-3xl p-6 items-center overflow-hidden border border-slate-800" style={styles.hudCard}>
+            {/* Background ambient lighting */}
+            <Animated.View
+              style={[
+                styles.ambientGlow,
+                { opacity: glowAnim }
+              ]}
+            />
 
-        {/* Title and description */}
+            {/* Top HUD Badge */}
+            <View className="flex-row items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1.5 rounded-full mb-6">
+              <View className="w-2 h-2 rounded-full bg-emerald-400" />
+              <Text className="text-[11px] font-bold text-emerald-400 uppercase tracking-widest">
+                Camera Viewfinder Ready
+              </Text>
+            </View>
+
+            {/* Central Holographic Viewfinder Box */}
+            <Animated.View
+              style={[
+                styles.viewfinderBox,
+                { transform: [{ scale: cornerScale }] }
+              ]}
+            >
+              {/* Gold HUD Corners */}
+              <View style={[styles.corner, styles.cornerTopLeft]} />
+              <View style={[styles.corner, styles.cornerTopRight]} />
+              <View style={[styles.corner, styles.cornerBottomLeft]} />
+              <View style={[styles.corner, styles.cornerBottomRight]} />
+
+              {/* Central Glowing Smart Matrix Core */}
+              <Animated.View
+                style={[
+                  styles.coreEmblem,
+                  { transform: [{ scale: pulseAnim }] }
+                ]}
+              >
+                <LinearGradient
+                  colors={['#0A1F4D', '#081637']}
+                  className="w-20 h-20 rounded-2xl items-center justify-center border border-amber-500/30"
+                  style={styles.emblemShadow}
+                >
+                  <QrCode size={42} color="#F5B41C" strokeWidth={2} />
+                </LinearGradient>
+              </Animated.View>
+
+              {/* Sweeping Soft Laser Light Beam */}
+              <Animated.View
+                style={[
+                  styles.laserBeamContainer,
+                  { transform: [{ translateY: laserTranslateY }] }
+                ]}
+              >
+                {/* Radiant Beam Aura */}
+                <LinearGradient
+                  colors={['rgba(245, 180, 28, 0)', 'rgba(245, 180, 28, 0.4)', 'rgba(245, 180, 28, 0)']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 0, y: 1 }}
+                  style={styles.laserAura}
+                />
+                {/* Sharp Core Beam Line */}
+                <View style={styles.laserLine} />
+              </Animated.View>
+            </Animated.View>
+
+            {/* Tap Hint */}
+            <View className="flex-row items-center gap-1.5 mt-5">
+              <Focus size={14} color="#94A3B8" />
+              <Text className="text-xs text-slate-400 font-semibold tracking-wide">
+                Tap anywhere on viewfinder to scan
+              </Text>
+            </View>
+          </View>
+        </Pressable>
+
+        {/* Title and Description */}
         <View className="items-center px-4">
-          <Text className="text-3xl font-bold text-primary tracking-tight text-center">
+          <Text className="text-2xl font-bold text-primary tracking-tight text-center">
             Scan to Check In
           </Text>
-          <Text className="text-base text-on-surface-variant text-center leading-relaxed">
-            Scan the dynamic QR code displayed by your lecturer to securely mark your attendance.
+          <Text className="text-sm text-on-surface-variant text-center leading-relaxed mt-1">
+            Point your camera at the dynamic QR code displayed on your lecturer's screen.
           </Text>
         </View>
 
-        {/* Main Scan Button */}
+        {/* Main Scan CTA Button */}
         <Pressable
           onPress={() => router.push('/scanner')}
           className="active:opacity-90"
@@ -157,85 +229,71 @@ export default function ScanTab() {
               <View className="w-12 h-12 rounded-full bg-white/20 items-center justify-center">
                 <Camera size={24} color="#FFFFFF" strokeWidth={2} />
               </View>
-              <Text className="text-white text-xl font-bold flex-1">Open QR Scanner</Text>
-              <ArrowRight size={24} color="#FFFFFF" strokeWidth={2.5} />
+              <Text className="text-white text-lg font-bold flex-1">Open Camera Scanner</Text>
+              <ArrowRight size={22} color="#FFFFFF" strokeWidth={2.5} />
             </View>
           </LinearGradient>
         </Pressable>
 
-        {/* How it works card */}
+        {/* How It Works Card */}
         <View 
-          className="w-full bg-white rounded-2xl p-5"
+          className="w-full bg-white rounded-2xl p-5 border border-slate-100"
           style={styles.howItWorksCard}
         >
-          <View className="flex-row items-center gap-2 mb-4">
+          <View className="flex-row items-center gap-2 mb-4 pb-3 border-b border-slate-100">
             <Shield size={18} color="#081637" />
-            <Text className="text-sm font-bold tracking-widest text-primary uppercase">
-              Secure 3-Step Process
+            <Text className="text-xs font-bold tracking-widest text-primary uppercase">
+              Secure 3-Step Verification
             </Text>
           </View>
 
           <View className="gap-4">
             <StepRow
               num={1}
-              title="Scan QR Code"
-              subtitle="Point your camera at the lecturer's screen"
+              title="Scan Dynamic QR"
+              subtitle="Rotates every 30s to prevent forwarded screenshot fraud"
               icon={<Camera size={16} color="#081637" />}
               color="#081637"
             />
-            <View className="h-px bg-outline-variant ml-14" />
+            <View className="h-px bg-slate-100 ml-14" />
             <StepRow
               num={2}
-              title="GPS Verification"
-              subtitle="Location verified against venue coordinates"
+              title="GPS Geofence Check"
+              subtitle="Verifies device proximity to the physical classroom venue"
               icon={<MapPin size={16} color="#F5B41C" />}
               color="#F5B41C"
             />
-            <View className="h-px bg-outline-variant ml-14" />
+            <View className="h-px bg-slate-100 ml-14" />
             <StepRow
               num={3}
               title="Attendance Confirmed"
-              subtitle="You are marked present for this session"
+              subtitle="Tamper-proof record anchored for academic credits"
               icon={<CheckCircle size={16} color="#16A34A" />}
               color="#16A34A"
             />
           </View>
         </View>
 
-        {/* Status Cards */}
+        {/* Quick Badges */}
         <View className="flex-row gap-3">
           <View 
-            className="flex-1 px-4 py-3 rounded-xl"
-            style={{ backgroundColor: '#DCFCE7', borderWidth: 1, borderColor: '#16A34A20' }}
+            className="flex-1 px-4 py-3 rounded-xl flex-row items-center gap-2"
+            style={{ backgroundColor: '#ECFDF5', borderWidth: 1, borderColor: '#10B98120' }}
           >
-            <View className="flex-row items-center gap-2">
-              <View className="w-2 h-2 rounded-full" style={{ backgroundColor: '#16A34A' }} />
-              <Text className="text-xs font-bold uppercase tracking-wider" style={{ color: '#15803D' }}>
-                GPS Ready
-              </Text>
-            </View>
+            <View className="w-2 h-2 rounded-full bg-emerald-500" />
+            <Text className="text-xs font-bold uppercase tracking-wider text-emerald-800">
+              GPS Ready
+            </Text>
           </View>
           <View 
-            className="flex-1 px-4 py-3 rounded-xl"
+            className="flex-1 px-4 py-3 rounded-xl flex-row items-center gap-2"
             style={{ backgroundColor: '#FEF3C7', borderWidth: 1, borderColor: '#F59E0B20' }}
           >
-            <View className="flex-row items-center gap-2">
-              <Shield size={12} color="#D97706" />
-              <Text className="text-xs font-bold uppercase tracking-wider" style={{ color: '#D97706' }}>
-                Secure Mode
-              </Text>
-            </View>
+            <Shield size={14} color="#D97706" />
+            <Text className="text-xs font-bold uppercase tracking-wider text-amber-900">
+              Anti-Spoof Active
+            </Text>
           </View>
-        </View>
-
-        {/* Info Banner */}
-        <View 
-          className="bg-primary/5 border border-primary/20 rounded-xl p-4"
-        >
-          <Text className="text-xs text-on-surface-variant leading-relaxed text-center">
-            <Text className="font-bold text-primary">Note:</Text> QR codes expire every 30 seconds for security. 
-            Make sure you're within the lecture venue for GPS verification to succeed.
-          </Text>
         </View>
       </ScrollView>
     </View>
@@ -257,19 +315,18 @@ function StepRow({ num, title, subtitle, icon, color }: {
           backgroundColor: color,
           shadowColor: color,
           shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.3,
+          shadowOpacity: 0.25,
           shadowRadius: 4,
-          elevation: 3,
+          elevation: 2,
         }}
       >
         <Text className="text-white text-base font-bold">{num}</Text>
       </View>
       <View className="flex-1">
-        <View className="flex-row items-center gap-2 mb-1">
-          <Text className="text-base font-bold text-primary">{title}</Text>
-          {icon}
+        <View className="flex-row items-center gap-2 mb-0.5">
+          <Text className="text-sm font-bold text-primary">{title}</Text>
         </View>
-        <Text className="text-sm text-on-surface-variant leading-relaxed">{subtitle}</Text>
+        <Text className="text-xs text-on-surface-variant leading-relaxed">{subtitle}</Text>
       </View>
     </View>
   );
@@ -283,54 +340,112 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 8,
   },
-  qrContainer: {
-    position: 'relative',
-    marginBottom: 8,
-  },
-  qrGradient: {
-    width: 140,
-    height: 140,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
+  hudCard: {
     shadowColor: '#081637',
     shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 18,
+    elevation: 8,
+    position: 'relative',
+  },
+  ambientGlow: {
+    position: 'absolute',
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    backgroundColor: 'rgba(245, 180, 28, 0.12)',
+    top: '30%',
+  },
+  viewfinderBox: {
+    width: VIEWFINDER_BOX_SIZE,
+    height: VIEWFINDER_BOX_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  coreEmblem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emblemShadow: {
+    shadowColor: '#F5B41C',
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 10,
+    shadowRadius: 12,
+    elevation: 6,
   },
-  pulseRing1: {
+  corner: {
     position: 'absolute',
-    width: 160,
-    height: 160,
-    borderRadius: 32,
-    borderWidth: 2,
+    width: 24,
+    height: 24,
     borderColor: '#F5B41C',
-    opacity: 0.3,
   },
-  pulseRing2: {
+  cornerTopLeft: {
+    top: 0,
+    left: 0,
+    borderTopWidth: 3,
+    borderLeftWidth: 3,
+    borderTopLeftRadius: 8,
+  },
+  cornerTopRight: {
+    top: 0,
+    right: 0,
+    borderTopWidth: 3,
+    borderRightWidth: 3,
+    borderTopRightRadius: 8,
+  },
+  cornerBottomLeft: {
+    bottom: 0,
+    left: 0,
+    borderBottomWidth: 3,
+    borderLeftWidth: 3,
+    borderBottomLeftRadius: 8,
+  },
+  cornerBottomRight: {
+    bottom: 0,
+    right: 0,
+    borderBottomWidth: 3,
+    borderRightWidth: 3,
+    borderBottomRightRadius: 8,
+  },
+  laserBeamContainer: {
     position: 'absolute',
-    width: 180,
-    height: 180,
-    borderRadius: 36,
-    borderWidth: 1,
-    borderColor: '#F5B41C',
-    opacity: 0.15,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 28,
+  },
+  laserAura: {
+    position: 'absolute',
+    left: 4,
+    right: 4,
+    height: 24,
+  },
+  laserLine: {
+    width: '100%',
+    height: 2,
+    backgroundColor: '#F5B41C',
+    shadowColor: '#F5B41C',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   scanButton: {
     borderRadius: 16,
-    padding: 20,
+    padding: 18,
     shadowColor: '#F5B41C',
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    elevation: 6,
   },
   howItWorksCard: {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 4,
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
   },
 });
